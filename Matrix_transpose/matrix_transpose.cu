@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define THREADS_PER_BLOCK 256
-#define N_rows 4
-#define N (N_rows * N_rows)
+#define THREADS_PER_BLOCK 25
+#define N_cols 5
+#define N (N_cols * N_cols)
 
 void random_ints(int * a, int dim)
 {
@@ -12,7 +12,6 @@ void random_ints(int * a, int dim)
     a[i] = rand()%10;
    }
 }
-
 
 void print_matrix_square( int * A, int dim ){
 
@@ -26,23 +25,26 @@ void print_matrix_square( int * A, int dim ){
   }
 }
 
-void transpose( int *A, int dim) {
+__global__ void transpose( int *dev_A, int dim) {
     int temp;
-    int * ptr1;
-    int * ptr2;
-    int offset = 0;
-    for (int j = 0; j < dim; j++)
-    {
-        for (int i = 1; i < dim; i++)
-        {
-
-            temp = A[i];
-            *ptr1 = *ptr2;
-            *ptr2 = temp;    
-        }
-        offset++  
-    }
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
     
+    int j = idx%dim;  
+    int i = idx/dim;
+
+    int idx_trasp = j*dim +i;
+
+    /*Check indexing is correct*/
+    printf("I am Thread id: %d Block id: %d\n", threadIdx.x, blockIdx.x );
+    printf("i: %d j: %d value: %d\n", i, j , dev_A[idx] );
+
+    if (j > i)
+    {
+      temp = dev_A[idx];
+      dev_A[idx] = dev_A[idx_trasp];
+      dev_A[idx_trasp] = temp;
+    }
+
 }
 
 
@@ -58,9 +60,19 @@ int main(int argc, char * argv[]) {
     random_ints(A, N);
 
     cudaMalloc( (void**)&dev_A, size );
-    cudaMemcpy( dev_a, a, size, cudaMemcpyHostToDevice );
+    cudaMemcpy( dev_A, A, size, cudaMemcpyHostToDevice );
 
-    print_matrix_square(A, N_rows);
+    print_matrix_square(A, N_cols);
+
+    transpose <<<N/THREADS_PER_BLOCK, THREADS_PER_BLOCK>>> (dev_A, N_cols); 
+
+    cudaMemcpy( A, dev_A, size, cudaMemcpyDeviceToHost );
+    
+    printf("\n");
+    print_matrix_square(A, N_cols);
+
+    cudaFree(dev_A);
+    free(A);
 
     return 0;
 }
