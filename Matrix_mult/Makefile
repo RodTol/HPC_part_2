@@ -1,3 +1,5 @@
+CORES = 4
+
 #target
 BUILD_DIR = ./build
 EXE = a.out
@@ -5,13 +7,12 @@ EXE = a.out
 SRC_DIRS ?= ./src
 
 #sources
-SRCS := $(shell find $(SRC_DIRS) -name *.c)
+SRCS = $(shell find $(SRC_DIRS) -name *.c)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
-DEPS := $(OBJS:.o=.d)
 
 #headers
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+INC_DIRS = $(shell find $(SRC_DIRS) -type d)
+INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 
 #compiler and standard flags
 CC = mpicc
@@ -32,24 +33,23 @@ ifdef flags
 	endif
 endif
 
-# building application
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(EXE)
+all: $(EXE)
 
-# c source
+$(EXE): $(OBJS)
+	$(CC) -o $(EXE) $(OBJS)
+
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-run: clean $(BUILD_DIR)/$(TARGET_EXEC)
-	./$(EXE)
+run: clean all
+	mpirun -np $(CORES) $(EXE)
 
 .PHONY: clean
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	rm -f $(OBJS) $(EXE)
+	rm -r $(BUILD_DIR)
 
--include $(DEPS)
 MKDIR_P ?= mkdir -p
-
 

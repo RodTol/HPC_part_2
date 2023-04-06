@@ -1,24 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <mpi.h>
 #include <string.h>
 #include "linearized_matrix_utility.h"
 
-void create_identity_matrix (int * A, int dim) {
+
+void create_null_matrix (double * A, int dim) {
+  memset( A, 0, dim * dim * sizeof(double) );
+}
+
+void create_identity_matrix (double * A, int dim) {
+  memset( A, 0, dim * dim * sizeof(double) );
   for (int i = 0; i < dim; i++){
-    A[i + i*dim] = 1;
+    A[i + i*dim] = 1.0;
   }
   
 }
 
-void print_matrix_square(int * A, int dim ){
-
-  int i , j;
-  
+void print_matrix_square(double * A, int dim ){
   fprintf( stdout, "\n");
-  for( i = 0; i < dim; i++ ){
-    for( j = 0; j < dim; j++ ){
-      fprintf( stdout, "%d ", A[ j + ( i * dim ) ] );
+  for(int i = 0; i < dim; i++ ){
+    for(int j = 0; j < dim; j++ ){
+      fprintf( stdout, "%.f ", A[ j + ( i * dim ) ] );
     }
     fprintf( stdout, "\n");
   }

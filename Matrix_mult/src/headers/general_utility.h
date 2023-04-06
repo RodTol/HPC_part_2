@@ -1,2 +1,2 @@
 
-void array_of_random_ints(int * a, int dim);
+void array_of_random_doubles(double * A, int dim);
