@@ -3,15 +3,15 @@
 #include <mpi.h>
 #include <string.h>
 
+#include "linearized_matrix_utility.h"
+#include "general_utility.h"
+#include "prova.h"
+
 #define N 4
 
 #if N < 6
     #define SMALL 1
 #endif
-
-#include "matrix_utility.h"
-#include "general_utility.h"
-#include "prova.h"
 
 int main(int argc, char** argv) {
     int size= N * N * sizeof( int);
@@ -20,10 +20,10 @@ int main(int argc, char** argv) {
 
     /*Inizializzazione*/
     A = (int *) malloc( size );
-    vector_of_random_ints(A, N*N);
+    array_of_random_ints(A, N*N);
 
     B = (int *) malloc( size );
-    vector_of_random_ints(B, N*N);
+    array_of_random_ints(B, N*N);
 
     printf("----@Execution started@----\n");
 
@@ -34,6 +34,9 @@ int main(int argc, char** argv) {
 
 
     printf("----@Execution ended@----\n");
+
+    free(A);
+    free(B);
 
 
     return 0;
