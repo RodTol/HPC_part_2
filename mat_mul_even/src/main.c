@@ -81,19 +81,11 @@ int main(int argc, char** argv) {
     the program will print the complete form*/
     #ifdef SMALL
         MPI_Barrier(COMM);
-        if ( irank == 0 ) {
-            printf("\nMatrix A\n");
-            print_matrix ( A , n_loc, N) ;
-            for (int count = 1; count < n_proc_tot ; count ++ ) {
-                MPI_Recv ( A , n_loc * N , MPI_DOUBLE , count ,
-                 count , COMM , MPI_STATUS_IGNORE ) ;
-                print_matrix ( A , n_loc, N ) ;
-            }
+        if (irank == MASTER) {
+            printf("\n Matrix A \n");
         }
-        else {
-            MPI_Send ( A , n_loc * N , MPI_DOUBLE , 0 ,
-             irank , COMM );
-        } 
+        print_matrix_distributed(A, irank, n_loc, N, n_proc_tot, COMM);
+         
     #endif
 
     /*Final output and deallocation of the memory*/

@@ -36,3 +36,30 @@ void print_matrix(double * A, int dim_1, int dim_2 ) {
   }
 }
 
+/**
+ * @brief This function is used to print the full matrix, 
+ * scattered among n_proc_tot processor
+ * 
+ * @param A the matrix
+ * @param irank rank of each processor
+ * @param dim_1 rows of each submatrix
+ * @param dim_2 cols of each submatrix
+ * @param n_proc_tot number of total processors
+ * @param COMM MPI communicator
+*/
+void print_matrix_distributed (double * A, int irank,
+ int dim_1 , int dim_2, int n_proc_tot, MPI_Comm COMM) {
+  if ( irank == 0 ) {
+            print_matrix ( A , dim_1, dim_2) ;
+            for (int count = 1; count < n_proc_tot ; count ++ ) {
+                MPI_Recv ( A , dim_1 * dim_2 , MPI_DOUBLE , count ,
+                 count , COMM , MPI_STATUS_IGNORE ) ;
+                print_matrix ( A , dim_1, dim_2 ) ;
+            }
+        }
+        else {
+            MPI_Send ( A , dim_1 * dim_2 , MPI_DOUBLE , 0 ,
+             irank , COMM );
+        }
+}
+
