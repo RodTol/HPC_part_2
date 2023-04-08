@@ -7,7 +7,7 @@
 
 #define MASTER 0
 #define COMM MPI_COMM_WORLD
-#define N 8
+#define N 6
 
 int main(int argc, char** argv) {
     
@@ -65,22 +65,29 @@ int main(int argc, char** argv) {
     MPI_Barrier(COMM);
     printf("----@I am %d @----\n", irank );
     print_matrix(A, n_loc, N);
+    printf("\n");
     print_matrix(B, n_loc, N);
+    printf("\n");
     #endif
 
     #ifdef SMALL
     print_matrix(C, n_loc, N);
+    printf("\n");
     #endif
+
+
 
     /*If the matrices are small enough (N < 6 and n_proc < 4)
     the program will print the complete form*/
     #ifdef SMALL
+        MPI_Barrier(COMM);
         if ( irank == 0 ) {
+            printf("\nMatrix A\n");
             print_matrix ( A , n_loc, N) ;
-            for (int count = 1; count < npes ; count ++ ) {
+            for (int count = 1; count < n_proc_tot ; count ++ ) {
                 MPI_Recv ( A , n_loc * N , MPI_DOUBLE , count ,
-                 count , COMM , MPI _STATUS_IGNORE ) ;
-                print_matrix ( A , n_loc ) ;
+                 count , COMM , MPI_STATUS_IGNORE ) ;
+                print_matrix ( A , n_loc, N ) ;
             }
         }
         else {
@@ -92,7 +99,13 @@ int main(int argc, char** argv) {
     /*Final output and deallocation of the memory*/
     free(A); free(B); free(C);
     MPI_Barrier(COMM);
-    if (irank == MASTER) {printf("\n----@Execution ended succesfuly@----\n");}
+    if (irank == MASTER) {
+        printf("\n----@");
+        printf_green();
+        printf(" Execution ended with a succes! ");
+        printf_reset();
+        printf("@----\n");
+    }
     MPI_Finalize();
 
     return 0;

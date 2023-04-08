@@ -1,4 +1,4 @@
-CORES = 4
+CORES = 3
 
 #target
 BUILD_DIR = ./build

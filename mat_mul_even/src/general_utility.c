@@ -15,6 +15,13 @@ void printf_yellow (){
 }
 
 /**
+ * @brief Color Green for the output of C program
+ */
+void printf_green (){
+  printf("\033[1;32m");
+}
+
+/**
  * @brief Color reset for the output of C program
  */
 void printf_reset () {

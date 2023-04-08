@@ -7,6 +7,7 @@
 
 void printf_red ();
 void printf_yellow ();
+void printf_green();
 void printf_reset ();
 
 void create_null_array (double * A, int dim);
