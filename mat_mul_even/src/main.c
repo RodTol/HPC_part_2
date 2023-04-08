@@ -85,6 +85,10 @@ int main(int argc, char** argv) {
             printf("\n Matrix A \n");
         }
         print_matrix_distributed(A, irank, n_loc, N, n_proc_tot, COMM);
+        if (irank == MASTER) {
+            printf("\n Matrix B \n");
+        }
+        print_matrix_distributed(B, irank, n_loc, N, n_proc_tot, COMM);
          
     #endif
 
