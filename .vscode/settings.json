@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "prova.h": "c"
+        "prova.h": "c",
+        "linearized_matrix_utility.h": "c",
+        "general_utility.h": "c"
     }
 }
