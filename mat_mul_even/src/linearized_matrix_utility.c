@@ -63,3 +63,23 @@ void print_matrix_distributed (double * A, int irank,
         }
 }
 
+/**
+ * @brief This function initialize a given NxN matrix,
+ * distributed among n_processors, to the identity
+ * 
+ * @param A the matrix
+ * @param irank rank of each processor
+ * @param dim_1 rows of each submatrix
+ * @param dim_2 cols of each submatrix
+ * @param offset offset if rest!=0
+ * @param n_proc_tot number of total processors
+*/
+void create_identity_matrix_distributed (double * A, int irank,
+ int dim_1 , int dim_2,  int offset, int n_proc_tot) {
+  int j_glob = 0;
+  memset ( A , 0 , dim_1 * dim_2 * sizeof ( double ) ) ;
+  for (int i_loc = 0; i_loc < dim_1 ; i_loc ++ ) {
+    j_glob = i_loc + ( dim_1 * irank ) + offset ;
+    A [ j_glob + ( i_loc * dim_2 ) ] = 1.0;
+  }
+}

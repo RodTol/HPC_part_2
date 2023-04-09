@@ -56,11 +56,13 @@ int main(int argc, char** argv) {
     array_of_random_doubles(A, N*n_loc);
 
     B = (double *) malloc( size );
-    array_of_random_doubles(B, N*n_loc);
+    create_identity_matrix_distributed(B, irank, n_loc, N,
+        offset, n_proc_tot);
 
     C = (double *) malloc( size );
     create_null_array(C, N*n_loc);
 
+    /* 
     #ifdef SMALL
     MPI_Barrier(COMM);
     printf("----@I am %d @----\n", irank );
@@ -74,8 +76,7 @@ int main(int argc, char** argv) {
     print_matrix(C, n_loc, N);
     printf("\n");
     #endif
-
-
+    */
 
     /*If the matrices are small enough (N < 6 and n_proc < 4)
     the program will print the complete form*/
@@ -85,11 +86,16 @@ int main(int argc, char** argv) {
             printf("\n Matrix A \n");
         }
         print_matrix_distributed(A, irank, n_loc, N, n_proc_tot, COMM);
+        
         if (irank == MASTER) {
             printf("\n Matrix B \n");
         }
         print_matrix_distributed(B, irank, n_loc, N, n_proc_tot, COMM);
-         
+
+        if (irank == MASTER) {
+            printf("\n Matrix C \n");
+        }
+        print_matrix_distributed(C, irank, n_loc, N, n_proc_tot, COMM);
     #endif
 
     /*Final output and deallocation of the memory*/
