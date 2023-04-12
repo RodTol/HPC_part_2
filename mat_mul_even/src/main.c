@@ -7,7 +7,7 @@
 
 #define MASTER 0
 #define COMM MPI_COMM_WORLD
-#define N 3
+#define N 6
 
 int main(int argc, char** argv) {
     
@@ -79,17 +79,22 @@ int main(int argc, char** argv) {
     for (int count = 0; count < n_proc_tot; count++) {
         MPI_Allgather(&B[n_loc * count], 1, Even_block, B_loc, n_loc*n_loc, MPI_DOUBLE, COMM);
 
+        /*
         #ifdef SMALL
             printf("\n----@ I am %d @----\n", irank);
             printf("B_loc:  \n");
             print_matrix(B_loc, N, n_loc);
         #endif
+        */
 
-        for (int i = 0; i < n_loc; i++) { // A is n_loc x N
-            for (int j = 0; j < n_loc; j++) { // B_loc is N x n_loc
-                for (int k = 0; k < N; k++) { // C slice is n_loc x n_loc -> C is n_loc x N (same as A)
-                     C[i * N + j + count * n_loc] += A[i * N + k ] * B_loc[k * n_loc + j];
+        for (int i = 0; i < n_loc; i++) {       // A is n_loc x N (i,j)
+            for (int k = 0; k < n_loc; k++) {   // B_loc is N x n_loc (j,k)
+                for (int j = 0; j < N; j++) {   // C slice is n_loc x n_loc -> C is n_loc x N (same as A)
+                     C[i*N + k + count*n_loc] += A[i*N + j] * B_loc[j*n_loc + k];
                 }
+                #ifdef SMALL
+                printf("I am %d: C[%d, %d]\n", irank, i+irank, k + count*n_loc);
+                #endif
             }
         }
 

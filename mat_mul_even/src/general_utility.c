@@ -49,7 +49,7 @@ void array_of_random_doubles(double * A, int dim)
    int id;
    MPI_Comm_rank(MPI_COMM_WORLD, &id);
 
-   double max = 10.0;
+   double max = 5.0;
    double min = 0.0;
    double div = RAND_MAX/(max-min);
 

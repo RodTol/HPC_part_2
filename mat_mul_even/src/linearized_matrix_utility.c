@@ -12,7 +12,7 @@ void print_matrix_square(double * A, int dim ){
   fprintf( stdout, "\n");
   for(int i = 0; i < dim; i++ ){
     for(int j = 0; j < dim; j++ ){
-      fprintf( stdout, "%.f ", A[ j + ( i * dim ) ] );
+      fprintf( stdout, "%.3g ", A[ j + ( i * dim ) ] );
     }
     fprintf( stdout, "\n");
   }
@@ -30,7 +30,7 @@ void print_matrix(double * A, int dim_1, int dim_2 ) {
   //fprintf( stdout, "\n");
   for(int i = 0; i < dim_1; i++ ){
     for(int j = 0; j < dim_2; j++ ){
-      fprintf( stdout, "%.f ", A[ j + ( i * dim_2 ) ] );
+      fprintf( stdout, "%.3g ", A[ j + ( i * dim_2 ) ] );
     }
     fprintf( stdout, "\n");
   }
