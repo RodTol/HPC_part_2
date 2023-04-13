@@ -18,6 +18,9 @@
 #include <stdbool.h>
 #include "utilities.h"
 
+/*Qua devo far passare tutte le reference a n1 a local_n1 preso dall'handler. Ricorda
+però di aggiungere l'offset dove calcolo l'indice (esempio i = i1 + loca_n1_offset).*/
+
 /*
  * Calculate the derivative in direction ipol of the array 'data'
  */

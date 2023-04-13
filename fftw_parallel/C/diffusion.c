@@ -53,7 +53,7 @@ int main(int argc, char** argv){
     int irank, n_proc_tot;
     fftw_mpi_handler fft_h;
 
-    /* 
+    /*
      * Initializzation of the MPI environment 
      *
      */
@@ -65,7 +65,19 @@ int main(int argc, char** argv){
      * as the value returned from the parallel FFT grid initializzation 
      *
      */
-    init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD);  
+    init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD);
+
+    MPI_Barrier(MPI_COMM_WORLD);
+    if (irank==0) {
+	 int tmp;
+	 printf("I am %d, this is my n1: %ld \n", irank, fft_h.local_n1);
+	 for (int i=1; i<n_proc_tot; i++) {
+		MPI_Recv(&tmp, 1, MPI_INT, i, i , MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		printf("I am %d, this is my n1: %d \n", i, tmp);
+    	}
+    } else {
+	MPI_Send(&(fft_h.local_n1), 1, MPI_INT, 0, irank , MPI_COMM_WORLD);
+    }
     /*
      * Allocate distribute memory arrays
      * HINT: the arrays need to be distributed, so you have to set the correct sizes 
@@ -75,11 +87,13 @@ int main(int argc, char** argv){
      * More hints are reported into the fft_wrapper.c file where the fft_init_mpi is defined
      *
      */
-    diffusivity = (double*)malloc(n1*n2*n3*sizeof(double));
-    conc = (double*)malloc(n1*n2*n3*sizeof(double));
-    dconc = (double*)malloc(n1*n2*n3*sizeof(double));
-    aux1 = (double*)malloc(n1*n2*n3*sizeof(double));
-    aux2 = (double*)malloc(n1*n2*n3*sizeof(double));
+ 
+   /*Lui qua aggiunge una variabile local_grid_size per raccogliere tutto*/
+    diffusivity = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
+    conc = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
+    dconc = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
+    aux1 = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
+    aux2 = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
 
     /* 
      * Define the diffusivity inside the system and 
@@ -104,19 +118,25 @@ int main(int argc, char** argv){
             f2diff = exp( -pow((x2-0.5*L2)/rad_diff,2));
             f2conc = exp( -pow((x2-0.5*L2)/rad_conc,2));
 	    
-	
-	    for (i1 = 0; i1 < n1; ++i1)
+	    /*Qua prova a far andare i1 da 0 a local_n1, ma sposta
+	      il fatto che metà va da uno e metà all'altro direttamente
+ 	      dentro x1!*/
+	    for (i1 = 0; i1 < fft_h.local_n1; ++i1)
 	      {
-		x1=L1*((double)i1)/n1;
+		x1=L1*( (double)i1 + fft_h.local_n1_offset )/n1;
+		/*Quick check on what x1 is working irank==0*/
+		if (irank==0 && i3 == 24 && i2 == 22) {
+		 printf("I am %d, these are my X1: %.3f \n", irank, x1);
+		}
 		f1diff = exp( -pow((x1-0.5*L1)/rad_diff,2));
 		f1conc = exp( -pow((x1-0.5*L1)/rad_conc,2));
 		
-		index = index_f(i1, i2, i3, n1, n2, n3);
+		index = index_f(i1, i2, i3, fft_h.local_n1, n2, n3);
 		diffusivity[index]  = MAX( f1diff * f2diff, f2diff * f3diff);
 		conc[index] = f1conc * f2conc * f3conc;
 		ss += conc[index]; 
 		
-	      }   
+	      }
 	  }
       }
     
@@ -128,7 +148,7 @@ int main(int argc, char** argv){
     plot_data_2d("diffusivity", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset, 2, diffusivity);
     plot_data_2d("diffusivity", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset, 3, diffusivity);
     
-    
+    /*Giusto che sia con la global size*/
     fac= L1*L2*L3/(n1*n2*n3);
   
     /*
@@ -139,7 +159,7 @@ int main(int argc, char** argv){
      *
      */
     ss = 1.0/(ss*fac);
-    for (i1=0; i1< n1*n2*n3; ++i1)
+    for (i1=0; i1< (fft_h.local_n1)*n2*n3; ++i1)
       conc[i1]*=ss;
       
     /*

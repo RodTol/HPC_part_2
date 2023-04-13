@@ -17,6 +17,8 @@ $(EXE): $(OBJ)
 
 flush:
 	rm -f *.dat
+	rm -f *.gif
+	rm -f *.png
 
 clean: 
 	rm -f *.o *.x *~
