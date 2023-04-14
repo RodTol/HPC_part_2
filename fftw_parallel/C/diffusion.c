@@ -47,11 +47,14 @@ int main(int argc, char** argv){
    
     int i1, i2, i3, ipol, istep, index;
   
-    double f1conc, f2conc, f3conc, f1diff, f2diff, f3diff, fac, ss;
-    double x1, x2 , x3, rr, r2mean;
+    double f1conc, f2conc, f3conc, f1diff, f2diff, f3diff, fac;
+    double x1, x2 , x3, rr, r2mean, r2mean_global;
+    double ss, ss_global;
 
     int irank, n_proc_tot;
+
     fftw_mpi_handler fft_h;
+    int local_size_grid, global_size_grid;
 
     /*
      * Initializzation of the MPI environment 
@@ -89,11 +92,14 @@ int main(int argc, char** argv){
      */
  
    /*Lui qua aggiunge una variabile local_grid_size per raccogliere tutto*/
-    diffusivity = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
-    conc = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
-    dconc = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
-    aux1 = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
-    aux2 = (double*)malloc((fft_h.local_n1)*n2*n3*sizeof(double));
+    local_size_grid = (fft_h.local_n1)*n2*n3;
+    global_size_grid = n1*n2*n3;
+
+    diffusivity = (double*)malloc(local_size_grid*sizeof(double));
+    conc = (double*)malloc(local_size_grid*sizeof(double));
+    dconc = (double*)malloc(local_size_grid*sizeof(double));
+    aux1 = (double*)malloc(local_size_grid*sizeof(double));
+    aux2 = (double*)malloc(local_size_grid*sizeof(double));
 
     /* 
      * Define the diffusivity inside the system and 
@@ -123,9 +129,9 @@ int main(int argc, char** argv){
  	      dentro x1!*/
 	    for (i1 = 0; i1 < fft_h.local_n1; ++i1)
 	      {
-		x1=L1*( (double)i1 + fft_h.local_n1_offset )/n1;
+		x1=L1*( (double) i1 + fft_h.local_n1_offset ) / n1;
 		/*Quick check on what x1 is working irank==0*/
-		if (irank==0 && i3 == 24 && i2 == 22) {
+		if (irank==1 && i3 == 24 && i2 == 22) {
 		 printf("I am %d, these are my X1: %.3f \n", irank, x1);
 		}
 		f1diff = exp( -pow((x1-0.5*L1)/rad_diff,2));
@@ -149,7 +155,7 @@ int main(int argc, char** argv){
     plot_data_2d("diffusivity", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset, 3, diffusivity);
     
     /*Giusto che sia con la global size*/
-    fac= L1*L2*L3/(n1*n2*n3);
+    fac= L1*L2*L3/(global_size_grid);
   
     /*
      * Now normalize the concentration
@@ -158,10 +164,11 @@ int main(int argc, char** argv){
      *      ss = 1.0/(ss*fac);
      *
      */
-    ss = 1.0/(ss*fac);
-    for (i1=0; i1< (fft_h.local_n1)*n2*n3; ++i1)
-      conc[i1]*=ss;
-      
+    MPI_Allreduce(&ss, &ss_global, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    ss_global = 1.0/(ss_global*fac);
+    for (int count=0; count< local_size_grid; ++count) {
+      conc[count]*= ss_global;
+     }
     /*
      * Now everything is defined: system size, diffusivity inside the system, and
      * the starting concentration
