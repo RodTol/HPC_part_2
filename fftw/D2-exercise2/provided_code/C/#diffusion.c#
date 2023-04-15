@@ -26,7 +26,7 @@ int main( int argc, char* argv[] ){
 
     // Dimensions of the system
     double L1 = 10., L2 = 10., L3 = 20.;
-    // Grid size  
+    // Grid size
     int n1 = 48, n2 = 48, n3 = 96;
     // time step for time integration
     double dt = 2.e-3; 
@@ -228,3 +228,6 @@ int main( int argc, char* argv[] ){
     MPI_Finalize();
     return 0;
 } 
+
+
+c

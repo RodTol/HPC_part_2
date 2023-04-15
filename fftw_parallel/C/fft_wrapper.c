@@ -61,10 +61,11 @@ void init_fftw(fftw_mpi_handler *fft, int n1, int n2, int n3, MPI_Comm comm)
    *  HINT: the allocation size is given by fftw_mpi_local_size_3d (see also http://www.fftw.org/doc/MPI-Data-Distribution-Functions.html)
    *
    */
+  fft->global_size_grid = n1*n2*n3;
 /*Local_n1 e local_n1_offset non sono sicuro siano chiamati nella maniera giusta*/
   fft->local_size_grid = fftw_mpi_local_size_3d(n1, n2, n3, fft->mpi_comm, &(fft->local_n1), &(fft->local_n1_offset));
-  fft->fftw_data = fftw_alloc_complex(fft->local_size_grid);
-
+  //fft->fftw_data = fftw_alloc_complex(fft->local_size_grid);
+  fft->fftw_data = ( fftw_complex* ) fftw_malloc( fft->local_size_grid * sizeof( fftw_complex ) );
   /*
    * Create an FFTW plan for a distributed FFT grid
    * Use fftw_mpi_plan_dft_3d: http://www.fftw.org/doc/MPI-Plan-Creation.html#MPI-Plan-Creation

@@ -7,7 +7,6 @@
  *   - diffusion.c   
  *   - derivative.c
  *   - fftw_wrapper.c
- *   - plot_data.c
  * In these files you will find some HINTs, make good use of them :)
  *
  * Created by G.P. Brandino, I. Girotto, R. Gebauer
@@ -22,14 +21,16 @@
 // HINT: include mpi and fftw3-mpi 
 //       http://www.fftw.org/doc/MPI-Files-and-Data-Types.html#MPI-Files-and-Data-Types
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+
 int main( int argc, char* argv[] ){
 
     // Dimensions of the system
     double L1 = 10., L2 = 10., L3 = 20.;
-    // Grid size  
-    int n1 = 48, n2 = 48, n3 = 96;
+    // Grid size
+    int n1 = 64, n2 = 64, n3 = 64;
     // time step for time integration
-    double dt = 2.e-3; 
+    double dt = 2.e-4; 
     // number of time steps
     int nstep = 100; 
     // Radius of diffusion channel
@@ -46,7 +47,7 @@ int main( int argc, char* argv[] ){
     double x1, x2 , x3, rr;
     double ss, r2mean, global_ss, global_r2mean;
 
-    fftw_dist_handler fft_h;
+    fftw_mpi_handler fft_h;
     int mype, npes;
     int n1_local, n1_local_offset, local_size_grid, global_size_grid;
 
@@ -74,6 +75,7 @@ int main( int argc, char* argv[] ){
      * as the value returned from the parallel FFT grid initializzation 
      *
      */
+
     init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD );
     n1_local = fft_h.local_n1;
     n1_local_offset = fft_h.local_n1_offset;  
@@ -123,15 +125,14 @@ int main( int argc, char* argv[] ){
 	}   
       }
     }
-    
+
     /*
      * HINT: Parallellize the output routines 
      *
      */
-    /*    plot_data_2d( "diffusivity", n1_local, n2, n3, 1, diffusivity );
-	  plot_data_2d( "diffusivity", n1_local, n2, n3, 2, diffusivity );
-	  plot_data_2d( "diffusivity", n1_local, n2, n3, 3, diffusivity );
-    */
+    plot_data_2d( "diffusivity", n1, n2, n3,  n1_local, n1_local_offset, 1, diffusivity );
+    plot_data_2d( "diffusivity", n1, n2, n3,  n1_local, n1_local_offset, 2, diffusivity );
+    plot_data_2d( "diffusivity", n1, n2, n3,  n1_local, n1_local_offset, 3, diffusivity );
     
     fac = L1 * L2 * L3 / ( global_size_grid );
   
@@ -154,27 +155,26 @@ int main( int argc, char* argv[] ){
      * Start the dynamics
      *
      */
-
     start = seconds();
     for( istep = 1; istep <= nstep; ++istep ){
+      
+      for( ii = 0; ii < local_size_grid; ++ii ) dconc[ii] = 0.0;
+      
+      for( ipol = 1; ipol <= 3; ++ipol ){
 
-        for( ii = 0; ii < local_size_grid; ++ii ) dconc[ii] = 0.0;
-
-        for( ipol = 1; ipol <= 3; ++ipol ){
-
-	  derivative( &fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1 );
-	  
-	  for( ii = 0; ii < local_size_grid; ++ii ) aux1[ii] *= diffusivity[ii];
-	  
-	  derivative( &fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2 );
-
-	  // summing up contributions from the three spatial directions
-	  for( ii = 0; ii <  local_size_grid; ++ii ) dconc[ii] += aux2[ii];
-	}
+      derivative( &fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1 );
+      
+      for( ii = 0; ii < local_size_grid; ++ii ) aux1[ii] *= diffusivity[ii];
+      
+      derivative( &fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2 );
+      
+      // summing up contributions from the three spatial directions
+      for( ii = 0; ii <  local_size_grid; ++ii ) dconc[ii] += aux2[ii];
+      }
 	
-        for( ii = 0; ii < local_size_grid; ++ii ) conc[ii] += dt * dconc[ii];
-	
-        if( istep % 30 == 1 ){
+      for( ii = 0; ii < local_size_grid; ++ii ) conc[ii] += dt * dconc[ii];
+      
+      if( istep % 30 == 1 ){
 
             // Check the normalization of conc
             ss = 0.;
@@ -209,11 +209,11 @@ int main( int argc, char* argv[] ){
 	    global_r2mean *= fac;
 
             end = seconds();
-            if( mype == 0 ) printf(" %d %17.15f %17.15f Elapsed time per iteration %f \n ", istep, global_r2mean, global_ss, ( end - start ) / istep );
+            if( mype == 0 ) printf(" %d %17.15f %17.15f Elapsed time per iteration %f \n", istep, global_r2mean, global_ss, ( end - start ) / istep );
 
             // HINT: Use parallel version of output routines
-            //plot_data_2d("concentration", n1, n2, n3, 2, conc);
-	    // plot_data_1d("1d_conc", n1, n2, n3, 3, conc);
+            plot_data_2d("concentration", n1, n2, n3, n1_local, n1_local_offset, 2, conc);
+	    plot_data_1d("1d_conc", n1, n2, n3, n1_local, n1_local_offset,3, conc);
 	}
 	
     } 
