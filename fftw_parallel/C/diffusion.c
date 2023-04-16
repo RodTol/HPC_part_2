@@ -72,14 +72,14 @@ int main(int argc, char** argv){
 
     MPI_Barrier(MPI_COMM_WORLD);
     if (irank==0) {
-	 int tmp;
-	 printf("I am %d, this is my n1: %ld \n", irank, fft_h.local_n1);
-	 for (int i=1; i<n_proc_tot; i++) {
-		MPI_Recv(&tmp, 1, MPI_INT, i, i , MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		printf("I am %d, this is my n1: %d \n", i, tmp);
+      int tmp;
+	    printf("I am %d, this is my n1: %ld \n", irank, fft_h.local_n1);
+	    for (int i=1; i<n_proc_tot; i++) {
+		    MPI_Recv(&tmp, 1, MPI_INT, i, i , MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		    printf("I am %d, this is my n1: %d \n", i, tmp);
     	}
     } else {
-	MPI_Send(&(fft_h.local_n1), 1, MPI_INT, 0, irank , MPI_COMM_WORLD);
+	    MPI_Send(&(fft_h.local_n1), 1, MPI_INT, 0, irank , MPI_COMM_WORLD);
     }
     /*
      * Allocate distribute memory arrays

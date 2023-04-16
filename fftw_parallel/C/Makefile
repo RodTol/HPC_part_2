@@ -1,3 +1,5 @@
+FFTW_INC = /usr/local/include
+FFTW_LIB = /usr/local/lib
 CC=mpicc
 CFLAGS = -O3 -Wall -I$(FFTW_INC)
 LIBS = -L$(FFTW_LIB) -lfftw3_mpi -lfftw3 -lm
