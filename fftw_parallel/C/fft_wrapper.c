@@ -53,7 +53,6 @@ void init_fftw(fftw_mpi_handler *fft, int n1, int n2, int n3, MPI_Comm comm)
    */
   fftw_mpi_init();
   fft->mpi_comm = comm;
-
   /*
    *  Allocate a distributed grid for complex FFT using aligned memory allocation
    *  See details here:
@@ -62,8 +61,8 @@ void init_fftw(fftw_mpi_handler *fft, int n1, int n2, int n3, MPI_Comm comm)
    *
    */
   fft->global_size_grid = n1*n2*n3;
-/*Local_n1 e local_n1_offset non sono sicuro siano chiamati nella maniera giusta*/
-  fft->local_size_grid = fftw_mpi_local_size_3d(n1, n2, n3, fft->mpi_comm, &(fft->local_n1), &(fft->local_n1_offset));
+  /*Local_n1 e local_n1_offset non sono sicuro siano chiamati nella maniera giusta*/
+  fft->local_size_grid = fftw_mpi_local_size_3d(n1, n2, n3, (*fft).mpi_comm, &((*fft).local_n1), &((*fft).local_n1_offset));
   //fft->fftw_data = fftw_alloc_complex(fft->local_size_grid);
   fft->fftw_data = ( fftw_complex* ) fftw_malloc( fft->local_size_grid * sizeof( fftw_complex ) );
   /*
@@ -83,6 +82,7 @@ void close_fftw(fftw_mpi_handler *fft)
     fftw_destroy_plan(fft->bw_plan);
     fftw_destroy_plan(fft->fw_plan);
     fftw_free(fft->fftw_data);
+    fftw_mpi_cleanup();
 }
 
 

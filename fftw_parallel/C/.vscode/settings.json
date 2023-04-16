@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "fftw3.h": "c"
+        "fftw3.h": "c",
+        "complex.h": "c"
     }
 }

@@ -60,17 +60,19 @@ int main(int argc, char** argv){
      * Initializzation of the MPI environment 
      *
      */
+    
     MPI_Init ( &argc , &argv ) ;
-    MPI_Comm_rank ( MPI_COMM_WORLD , & irank ) ;
-    MPI_Comm_size ( MPI_COMM_WORLD , & n_proc_tot ) ;
+    MPI_Comm_rank ( MPI_COMM_WORLD , &irank ) ;
+    MPI_Comm_size ( MPI_COMM_WORLD , &n_proc_tot ) ;
     /*
      * initialize the fftw system and local dimension
      * as the value returned from the parallel FFT grid initializzation 
      *
      */
-    init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD);
+    init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD);                            
 
     MPI_Barrier(MPI_COMM_WORLD);
+
     if (irank==0) {
       int tmp;
 	    printf("I am %d, this is my n1: %ld \n", irank, fft_h.local_n1);

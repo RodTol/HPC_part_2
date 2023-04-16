@@ -1,5 +1,5 @@
-FFTW_INC = /usr/local/include
-FFTW_LIB = /usr/local/lib
+FFTW_INC = /home/rodolfo/spack/opt/spack/linux-ubuntu22.04-skylake/gcc-12.1.0/fftw-3.3.10-tqiaj7s2nkff62gmiwmrainm5mjcedur/include
+FFTW_LIB = /home/rodolfo/spack/opt/spack/linux-ubuntu22.04-skylake/gcc-12.1.0/fftw-3.3.10-tqiaj7s2nkff62gmiwmrainm5mjcedur/lib
 CC=mpicc
 CFLAGS = -O3 -Wall -I$(FFTW_INC)
 LIBS = -L$(FFTW_LIB) -lfftw3_mpi -lfftw3 -lm

@@ -4,7 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/local/include"
+                "/opt/openmpi/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang-11",
