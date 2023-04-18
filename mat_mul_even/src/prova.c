@@ -3,4 +3,5 @@
 
 void prova() {
     printf("PROVA");
+    printf("Ciao sono Rodolfo");
 }

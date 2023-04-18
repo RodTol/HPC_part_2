@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
             #define SMALL 1
         #endif
     #endif
-
+    
     /*Allocation and initialisation*/
     int size= N * n_loc * sizeof( double);
     A = (double *) malloc( size );
