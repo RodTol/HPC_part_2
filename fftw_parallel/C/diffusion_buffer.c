@@ -115,38 +115,39 @@ int main(int argc, char** argv){
 
     for (i3 = 0; i3 < n3; ++i3)
       {  
-	      x3=L3*((double)i3)/n3;
-	      f3diff = exp( -pow((x3-0.5*L3)/rad_diff,2));
-	      f3conc = exp( -pow((x3-0.5*L3)/rad_conc,2));
-	      for (i2 = 0; i2 < n2; ++i2)
-	        {
+	x3=L3*((double)i3)/n3;
+	f3diff = exp( -pow((x3-0.5*L3)/rad_diff,2));
+	f3conc = exp( -pow((x3-0.5*L3)/rad_conc,2));
+	
+	
+        for (i2 = 0; i2 < n2; ++i2)
+	  {
             x2=L2*((double)i2)/n2;
             f2diff = exp( -pow((x2-0.5*L2)/rad_diff,2));
             f2conc = exp( -pow((x2-0.5*L2)/rad_conc,2));
-            /*Qua prova a far andare i1 da 0 a local_n1, ma sposta
-              il fatto che metà va da uno e metà all'altro direttamente
-              dentro x1!*/
-            if (irank==1 && i3 == 24 && i2 == 22) {
-              printf("I am %d, these are my X1: ", irank);
-            }
-
-	          for (i1 = 0; i1 < fft_h.local_n1; ++i1)
-	            {
-                  x1=L1*( (double) i1 + fft_h.local_n1_offset ) / n1;
-                  if (irank==1 && i3==24 && i2==22) {
-                    printf("%.3f ", x1);
-                  }
-                  
-                  f1diff = exp( -pow((x1-0.5*L1)/rad_diff,2));
-                  f1conc = exp( -pow((x1-0.5*L1)/rad_conc,2));
-                  
-                  index = index_f(i1, i2, i3, fft_h.local_n1, n2, n3);
-                  diffusivity[index]  = MAX( f1diff * f2diff, f2diff * f3diff);
-                  conc[index] = f1conc * f2conc * f3conc;
-                  ss += conc[index]; 
-	            }
-	        }
+	    
+	    /*Qua prova a far andare i1 da 0 a local_n1, ma sposta
+	      il fatto che metà va da uno e metà all'altro direttamente
+ 	      dentro x1!*/
+	    for (i1 = 0; i1 < fft_h.local_n1; ++i1)
+	      {
+		x1=L1*( (double) i1 + fft_h.local_n1_offset ) / n1;
+		/*Quick check on what x1 is working irank==0*/
+		if (irank==1 && i3 == 24 && i2 == 22) {
+		 printf("I am %d, these are my X1: %.3f \n", irank, x1);
+		}
+		f1diff = exp( -pow((x1-0.5*L1)/rad_diff,2));
+		f1conc = exp( -pow((x1-0.5*L1)/rad_conc,2));
+		
+		index = index_f(i1, i2, i3, fft_h.local_n1, n2, n3);
+		diffusivity[index]  = MAX( f1diff * f2diff, f2diff * f3diff);
+		conc[index] = f1conc * f2conc * f3conc;
+		ss += conc[index]; 
+		
+	      }
+	  }
       }
+    
     /*
      * HINT: The parallel version of  the output routines is provided in the mpi_output_routines folder
      *
@@ -177,63 +178,63 @@ int main(int argc, char** argv){
      * Start the dynamics
      *
      */
-    // start = seconds();
-    // for (istep = 1; istep <= nstep; ++istep)
-    //   {
-    //     for (i1=0; i1< n1*n2*n3; ++i1)
-	  // dconc[i1] = 0.0;
-    //     for (ipol =1; ipol<=3; ++ipol )
-	  // {
-	  //   derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1);
-	  //   for (i1=0; i1< n1*n2*n3; ++i1)
-	  //     {
-    //             aux1[i1] *= diffusivity[i1];
-	  //     }
-	  //   derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2);
-    //         // summing up contributions from the three spatial directions
-    //         for (i1=0; i1< n1*n2*n3; ++i1)
-	  //     dconc[i1] += aux2[i1];
-	  // } 
-    //     for (i1=0; i1< n1*n2*n3; ++i1)
-	  // conc[i1] += dt*dconc[i1];
+    start = seconds();
+    for (istep = 1; istep <= nstep; ++istep)
+      {
+        for (i1=0; i1< n1*n2*n3; ++i1)
+	  dconc[i1] = 0.0;
+        for (ipol =1; ipol<=3; ++ipol )
+	  {
+	    derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1);
+	    for (i1=0; i1< n1*n2*n3; ++i1)
+	      {
+                aux1[i1] *= diffusivity[i1];
+	      }
+	    derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2);
+            // summing up contributions from the three spatial directions
+            for (i1=0; i1< n1*n2*n3; ++i1)
+	      dconc[i1] += aux2[i1];
+	  } 
+        for (i1=0; i1< n1*n2*n3; ++i1)
+	  conc[i1] += dt*dconc[i1];
 	
-    //     if (istep%30 == 1)
-	  // {
-    //         // Check the normalization of conc
-    //         ss = 0.;
-    //         r2mean = 0.;
-    //         // HINT: the conc array is distributed, so only a part of it is on each processor
-    //         for (i3 = 0; i3 < n3; ++i3)
-	  //     {
-    //             x3=L3*((double)i3)/n3 - 0.5*L3;
-    //             for (i2 = 0; i2 < n2; ++i2)
-		//   {
-    //                 x2=L2*((double)i2)/n2 - 0.5*L2;
-    //                 for (i1 = 0; i1 < n1; ++i1)
-		//       {
-		// 	x1=L1*((double)i1)/n1 - 0.5*L1;
-		// 	rr = pow( x1, 2)  + pow( x2, 2) + pow( x3, 2);
-		// 	index = index_f(i1, i2, i3, n1, n2, n3); 
-		// 	ss += conc[index]; 
-		// 	r2mean += conc[index]*rr;
-		//       }   
-		//   }
-	  //     }
+        if (istep%30 == 1)
+	  {
+            // Check the normalization of conc
+            ss = 0.;
+            r2mean = 0.;
+            // HINT: the conc array is distributed, so only a part of it is on each processor
+            for (i3 = 0; i3 < n3; ++i3)
+	      {
+                x3=L3*((double)i3)/n3 - 0.5*L3;
+                for (i2 = 0; i2 < n2; ++i2)
+		  {
+                    x2=L2*((double)i2)/n2 - 0.5*L2;
+                    for (i1 = 0; i1 < n1; ++i1)
+		      {
+			x1=L1*((double)i1)/n1 - 0.5*L1;
+			rr = pow( x1, 2)  + pow( x2, 2) + pow( x3, 2);
+			index = index_f(i1, i2, i3, n1, n2, n3); 
+			ss += conc[index]; 
+			r2mean += conc[index]*rr;
+		      }   
+		  }
+	      }
 
-    //         /*
-	  //    * HINT: global values of ss and r2mean must be globally computed and distributed to all processes
-	  //    *
-	  //    */
-    //         ss *= fac;
-    //         r2mean *= fac;
-    //         end = seconds();
-    //         printf(" %d %17.15f %17.15f Elapsed time per iteration %f \n ", istep, r2mean, ss, (end-start)/istep);
-    //         // HINT: Use parallel version of output routines
-    //         plot_data_2d("concentration", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset, 2, conc);
-    //         plot_data_1d("1d_conc", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset, 3, conc);
-	  // }
+            /*
+	     * HINT: global values of ss and r2mean must be globally computed and distributed to all processes
+	     *
+	     */
+            ss *= fac;
+            r2mean *= fac;
+            end = seconds();
+            printf(" %d %17.15f %17.15f Elapsed time per iteration %f \n ", istep, r2mean, ss, (end-start)/istep);
+            // HINT: Use parallel version of output routines
+            plot_data_2d("concentration", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset, 2, conc);
+            plot_data_1d("1d_conc", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset, 3, conc);
+	  }
 	
-    //   } 
+      } 
     
     close_fftw(&fft_h);
     free(diffusivity);

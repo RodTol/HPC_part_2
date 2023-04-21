@@ -7,7 +7,7 @@ EXE = diffusion.x
 SRC = diffusion.c plot_data.c fft_wrapper.c derivative.c 
 HEAD = utilities.h
 OBJ = $(SRC:.c=.o)
-CORES = 4
+CORES = 2
 
 all: $(EXE)
 
@@ -27,8 +27,6 @@ flush:
 	rm -f *.dat
 	rm -f *.gif
 	rm -f *.png
-reset:
-	rm -f *.out
 
 clean: 
 	rm -f *.o *.x *~

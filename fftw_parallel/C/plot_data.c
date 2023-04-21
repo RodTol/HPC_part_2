@@ -129,16 +129,20 @@ void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
           snprintf(buf, sizeof(buf), "%s_%d.dat", name, num);
           }
 
+    /*Cerco di capire il mio propietario*/
     owner=npes+1;
     if ( (n1/2 > n1_local_offset) &&  (n1/2 <= n1_local_offset + n1_local) )
+        printf()
         owner=mype;
 
 
     if ( dir == 1)
         {
         i1=n1/2-1;
+        /*Se sono il propietario di 1*/
         if ( mype == owner)
             {
+            printf("I am %d, and i am the owner of dir %d \n", mype, dir);
             fp = fopen (buf, "w");
             for (i2 = 0; i2 < n2; ++i2)
                 {
@@ -225,7 +229,8 @@ void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
                 buffer[ i1*n2 + i2] = buffer1d[i1];
                 }
             }
-        printf (" %d \n ", owner);
+        /*Non so cosa faccia ma l'ho commentato perche dava fastidio*/    
+        //printf (" %d \n ", owner);
         if (mype == 0)
             {
            
