@@ -7,7 +7,7 @@ EXE = diffusion.x
 SRC = diffusion.c plot_data.c fft_wrapper.c derivative.c 
 HEAD = utilities.h
 OBJ = $(SRC:.c=.o)
-CORES = 2
+CORES = 6
 
 all: $(EXE)
 
