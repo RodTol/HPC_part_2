@@ -138,7 +138,6 @@ void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
     riga in mezzo lungo la direzione 1*/
     owner=npes+1;
     if ( (n1/2 > n1_local_offset) &&  (n1/2 <= n1_local_offset + n1_local) ) {
-        printf("This is %s  %d, owner is %d\n", name, dir, mype);
         owner = mype;
     }
 
@@ -150,7 +149,6 @@ void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
                         le varie fette*/
         if ( mype == owner)
             {
-            printf("I am %d, and I own the #%d slice \n", mype, dir);
             fp = fopen (buf, "w");
             for (i2 = 0; i2 < n2; ++i2)
                 {

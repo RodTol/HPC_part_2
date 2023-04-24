@@ -40,23 +40,22 @@ void derivative( fftw_mpi_handler* fft, int n1, int n2, int n3, double L1, doubl
     // First get the FFT of data
     fft_3d( fft, data, aux, true );
 
-    if( ipol == 1 ){
-	
+    if( ipol == 1 ) {
       G = 2.0*pi/L1;
-      /*Devo mettere le grandezze locali
-      Come fatto in diffusion*/
-      for( i1 = 0; i1 < fft->local_n1; ++i1 ){
-    	i = i1 + fft->local_n1_offset;
 
-    	if( i1 > n1/2 ) i = i1 -n1;
-    	if( i1 == n1/2 ) i = 0;
-	
-    	for( i2 = 0; i2 < n2; ++i2 ){
-    	  for( i3 = 0; i3 < n3; ++i3 ){
-    	    index = index_f( i1, i2, i3, fft->local_n1, n2, n3 );
-    	    aux[index] *= 0.0 + G * i * I;
-    	  }
-    	}
+      for( i1 = 0; i1 < fft->local_n1; ++i1 ){
+        
+        i = i1 + fft->local_n1_offset;
+        /*Qua devo toccare i non i1*/
+        if( i1 > n1/2 ) i = i -n1;
+        if( i1 == n1/2 ) i = 0;
+    
+        for( i2 = 0; i2 < n2; ++i2 ){
+          for( i3 = 0; i3 < n3; ++i3 ){
+            index = index_f( i1, i2, i3, fft->local_n1, n2, n3 );
+            aux[index] *= 0.0 + G * i * I;
+          }
+        }
       }
     }
     

@@ -62,7 +62,7 @@ void init_fftw(fftw_mpi_handler *fft, int n1, int n2, int n3, MPI_Comm comm)
    */
   fft->global_size_grid = n1*n2*n3;
   /*Local_n1 e local_n1_offset non sono sicuro siano chiamati nella maniera giusta*/
-  fft->local_size_grid = fftw_mpi_local_size_3d(n1, n2, n3, (*fft).mpi_comm, &((*fft).local_n1), &((*fft).local_n1_offset));
+  fft->local_size_grid = fftw_mpi_local_size_3d(n1, n2, n3, fft->mpi_comm, &(fft->local_n1),&(fft->local_n1_offset));
   //fft->fftw_data = fftw_alloc_complex(fft->local_size_grid);
   fft->fftw_data = ( fftw_complex* ) fftw_malloc( fft->local_size_grid * sizeof( fftw_complex ) );
   /*
@@ -82,7 +82,7 @@ void close_fftw(fftw_mpi_handler *fft)
     fftw_destroy_plan(fft->bw_plan);
     fftw_destroy_plan(fft->fw_plan);
     fftw_free(fft->fftw_data);
-    fftw_mpi_cleanup();
+    //fftw_mpi_cleanup();
 }
 
 
@@ -117,13 +117,12 @@ void fft_3d(fftw_mpi_handler* fft, double *data_direct, fftw_complex* data_rec, 
 	    } 
       /*Qua cambio la chiamata e uso il piano*/
 	    fftw_execute(fft->fw_plan);
-
 	    memcpy(data_rec, fft->fftw_data, fft->local_size_grid*sizeof(fftw_complex)); 
     }
     else {
 	    memcpy(fft->fftw_data, data_rec, fft->local_size_grid*sizeof(fftw_complex));
-	  
 	    fftw_execute(fft->bw_plan);
+      
       /*Normalizzo sulla globale*/
 	    fac = 1.0 / ( fft->global_size_grid );
 	
