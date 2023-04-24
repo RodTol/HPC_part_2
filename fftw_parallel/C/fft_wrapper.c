@@ -112,16 +112,18 @@ void fft_3d(fftw_mpi_handler* fft, double *data_direct, fftw_complex* data_rec, 
     
     // Now distinguish in which direction the FFT is performed
     if ( direct_to_reciprocal) {
+
+      /*"Complessifico" cit benatti*/
 	    for(i = 0; i < fft->local_size_grid; i++) {
 	      fft->fftw_data[i]  = data_direct[i] + 0.0 * I;
 	    } 
       /*Qua cambio la chiamata e uso il piano*/
-	    fftw_execute(fft->fw_plan);
+      fftw_mpi_execute_dft( fft->fw_plan, fft->fftw_data, fft->fftw_data );
 	    memcpy(data_rec, fft->fftw_data, fft->local_size_grid*sizeof(fftw_complex)); 
     }
     else {
 	    memcpy(fft->fftw_data, data_rec, fft->local_size_grid*sizeof(fftw_complex));
-	    fftw_execute(fft->bw_plan);
+      fftw_mpi_execute_dft(fft->bw_plan, fft->fftw_data, fft->fftw_data);
       
       /*Normalizzo sulla globale*/
 	    fac = 1.0 / ( fft->global_size_grid );

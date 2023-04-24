@@ -1,9 +1,23 @@
 set term png
-set output "diffusivity.png"
+set output "diffusivity1.png"
 minT=0
 maxT=0.9
 set cbrange [minT:maxT]
-plot 'diffusivity.dat' matrix with image
+plot 'diffusivity1.dat' matrix with image
+
+set term png
+set output "diffusivity2.png"
+minT=0
+maxT=0.9
+set cbrange [minT:maxT]
+plot 'diffusivity2.dat' matrix with image
+
+set term png
+set output "diffusivity3.png"
+minT=0
+maxT=0.9
+set cbrange [minT:maxT]
+plot 'diffusivity3.dat' matrix with image
 
 set term png
 set output "concentration_init.png"

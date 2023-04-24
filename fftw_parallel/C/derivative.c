@@ -41,14 +41,13 @@ void derivative( fftw_mpi_handler* fft, int n1, int n2, int n3, double L1, doubl
     fft_3d( fft, data, aux, true );
 
     if( ipol == 1 ) {
-      G = 2.0*pi/L1;
-
+      G = 2.0 * pi / L1;
       for( i1 = 0; i1 < fft->local_n1; ++i1 ){
         
         i = i1 + fft->local_n1_offset;
         /*Qua devo toccare i non i1*/
-        if( i1 > n1/2 ) i = i -n1;
-        if( i1 == n1/2 ) i = 0;
+        if( i > n1/2 ) i = i -n1;
+        if( i == n1/2 ) i = 0;
     
         for( i2 = 0; i2 < n2; ++i2 ){
           for( i3 = 0; i3 < n3; ++i3 ){
@@ -63,17 +62,16 @@ void derivative( fftw_mpi_handler* fft, int n1, int n2, int n3, double L1, doubl
       
       G = 2.0 * pi / L2;
       for( i2 = 0; i2 < n2; ++i2 ){
-	
-    	i = i2;
-    	if( i2 > n2/2 ) i = i2 -n2;
-    	if( i2 == n2/2 ) i = 0;
-	
-    	for( i1 = 0; i1 < fft->local_n1; ++i1 ){
-    	  for( i3 = 0; i3 < n3; ++i3 ){
-    	    index = index_f( i1, i2, i3, fft->local_n1, n2, n3 );
-    	    aux[index] *= 0.0 + G * i * I;
-    	  }
-    	}
+        i = i2;
+        if( i2 > n2/2 ) i = i2 - n2;
+        if( i2 == n2/2 ) i = 0;
+    
+        for( i1 = 0; i1 < fft->local_n1; ++i1 ){
+          for( i3 = 0; i3 < n3; ++i3 ){
+            index = index_f( i1, i2, i3, fft->local_n1, n2, n3 );
+            aux[index] *= 0.0 + G * i * I;
+          }
+        }
       }
     }
       
@@ -82,16 +80,16 @@ void derivative( fftw_mpi_handler* fft, int n1, int n2, int n3, double L1, doubl
       G = 2.0 * pi / L3;
       for( i3 = 0; i3 < n3; ++i3 ){
 	  
-    	i = i3;
-    	if( i3 > n3/2 ) i = i3 -n3;
-    	if( i3 == n3/2 ) i = 0;
-	
-    	for (i1 = 0; i1 < fft->local_n1; ++i1){
-    	  for (i2 = 0; i2 < n2; ++i2){
-    	    index = index_f(i1, i2, i3, fft->local_n1, n2, n3);
-    	    aux[index] *= 0.0 + G * i * I;
+        i = i3;
+        if( i3 > n3/2 ) i = i3 -n3;
+        if( i3 == n3/2 ) i = 0;
+    
+        for (i1 = 0; i1 < fft->local_n1; ++i1){
+          for (i2 = 0; i2 < n2; ++i2){
+            index = index_f(i1, i2, i3, fft->local_n1, n2, n3);
+            aux[index] *= 0.0 + G * i * I;
+    	    }
     	  }
-    	}
       }
     }
     
