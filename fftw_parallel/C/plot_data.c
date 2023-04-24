@@ -125,13 +125,13 @@ void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
     MPI_Comm_size( MPI_COMM_WORLD, &npes );
 
     //snprintf(buf, sizeof(buf), "%s_%d.dat", name, num); 
-    snprintf(buf, sizeof(buf), "%s.dat", name, num); 
+    snprintf(buf, sizeof(buf), "%s.dat", name); 
 
 
     while (FileExists(buf)){
         num++;
         //snprintf(buf, sizeof(buf), "%s_%d.dat", name, num);
-        snprintf(buf, sizeof(buf), "%s.dat", name, num); 
+        snprintf(buf, sizeof(buf), "%s.dat", name); 
     }
 
     /*Cerco di capire il mio propietario della

@@ -105,35 +105,31 @@ void close_fftw(fftw_mpi_handler *fft)
  * f(l) = 1/N \sum_{k=0}^{N-1} exp(+ 2 \pi I k*l/N) F(k)
  * 
  */
-void fft_3d(fftw_mpi_handler* fft, int n1, int n2, int n3, double *data_direct, fftw_complex* data_rec, bool direct_to_reciprocal)
+void fft_3d(fftw_mpi_handler* fft, double *data_direct, fftw_complex* data_rec, bool direct_to_reciprocal)
 {
     double fac;
     int i;
     
     // Now distinguish in which direction the FFT is performed
-    if ( direct_to_reciprocal)
-      {
-	for(i = 0; i < n1*n2*n3; i++)
-	  {
-	    fft->fftw_data[i]  = data_direct[i] + 0.0 * I;
-	  } 
-	
-	fftw_execute_dft(fft->fw_plan, fft->fftw_data, fft->fftw_data);
+    if ( direct_to_reciprocal) {
+	    for(i = 0; i < fft->local_size_grid; i++) {
+	      fft->fftw_data[i]  = data_direct[i] + 0.0 * I;
+	    } 
+      /*Qua cambio la chiamata e uso il piano*/
+	    fftw_execute(fft->fw_plan);
 
-	memcpy(data_rec, fft->fftw_data, n1*n2*n3*sizeof(fftw_complex)); 
-      }
-    else
-      {
-	memcpy(fft->fftw_data, data_rec, n1*n2*n3*sizeof(fftw_complex));
+	    memcpy(data_rec, fft->fftw_data, fft->local_size_grid*sizeof(fftw_complex)); 
+    }
+    else {
+	    memcpy(fft->fftw_data, data_rec, fft->local_size_grid*sizeof(fftw_complex));
 	  
-	fftw_execute_dft(fft->bw_plan, fft->fftw_data, fft->fftw_data);
+	    fftw_execute(fft->bw_plan);
+      /*Normalizzo sulla globale*/
+	    fac = 1.0 / ( fft->global_size_grid );
 	
-	fac = 1.0 / ( n1 * n2 * n3 );
-	
-	for( i = 0; i < n1 * n2 * n3; ++i )
-	  {
-	    data_direct[i] = creal(fft->fftw_data[i])*fac;
-	  }
-      }
+	    for( i = 0; i < fft->local_size_grid; ++i ) {
+	      data_direct[i] = creal(fft->fftw_data[i])*fac;
+	    }
+    }
 }
 

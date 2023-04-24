@@ -177,7 +177,6 @@ int main(int argc, char **argv) {
   plot_data_2d("concentration_init",n1,n2,n3,fft_h.local_n1,fft_h.local_n1_offset,
                 2, conc);
 
-  
   /*
    * Now everything is defined: system size, diffusivity inside the system, and
    * the starting concentration
@@ -185,66 +184,86 @@ int main(int argc, char **argv) {
    * Start the dynamics
    *
    */
-  // start = seconds();
-  // for (istep = 1; istep <= nstep; ++istep)
-  //   {
-  //     for (i1=0; i1< n1*n2*n3; ++i1)
-  // dconc[i1] = 0.0;
-  //     for (ipol =1; ipol<=3; ++ipol )
-  // {
-  //   derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1);
-  //   for (i1=0; i1< n1*n2*n3; ++i1)
-  //     {
-  //             aux1[i1] *= diffusivity[i1];
-  //     }
-  //   derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2);
-  //         // summing up contributions from the three spatial directions
-  //         for (i1=0; i1< n1*n2*n3; ++i1)
-  //     dconc[i1] += aux2[i1];
-  // }
-  //     for (i1=0; i1< n1*n2*n3; ++i1)
-  // conc[i1] += dt*dconc[i1];
+  start = seconds();
+  /*Inizializzo dconc*/
+  for (i1=0; i1< local_size_grid; ++i1)
+    dconc[i1] = 0.0;
 
-  //     if (istep%30 == 1)
-  // {
-  //         // Check the normalization of conc
-  //         ss = 0.;
-  //         r2mean = 0.;
-  //         // HINT: the conc array is distributed, so only a part of it is on
-  //         each processor for (i3 = 0; i3 < n3; ++i3)
-  //     {
-  //             x3=L3*((double)i3)/n3 - 0.5*L3;
-  //             for (i2 = 0; i2 < n2; ++i2)
-  //   {
-  //                 x2=L2*((double)i2)/n2 - 0.5*L2;
-  //                 for (i1 = 0; i1 < n1; ++i1)
-  //       {
-  // 	x1=L1*((double)i1)/n1 - 0.5*L1;
-  // 	rr = pow( x1, 2)  + pow( x2, 2) + pow( x3, 2);
-  // 	index = index_f(i1, i2, i3, n1, n2, n3);
-  // 	ss += conc[index];
-  // 	r2mean += conc[index]*rr;
-  //       }
-  //   }
-  //     }
+  if (irank == 0) {printf("Dynamic is starting\n Local_size_grid is %d\n", local_size_grid);}
 
-  //         /*
-  //    * HINT: global values of ss and r2mean must be globally computed and
-  //    distributed to all processes
-  //    *
-  //    */
-  //         ss *= fac;
-  //         r2mean *= fac;
-  //         end = seconds();
-  //         printf(" %d %17.15f %17.15f Elapsed time per iteration %f \n ",
-  //         istep, r2mean, ss, (end-start)/istep);
-  //         // HINT: Use parallel version of output routines
-  //         plot_data_2d("concentration", n1, n2, n3, fft_h.local_n1,
-  //         fft_h.local_n1_offset, 2, conc); plot_data_1d("1d_conc", n1, n2,
-  //         n3, fft_h.local_n1, fft_h.local_n1_offset, 3, conc);
-  // }
+  for (istep = 1; istep <= nstep; ++istep) {
+     for (ipol =1; ipol<=3; ++ipol ) {
 
-  //   }
+          derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1);
+
+          for (i1=0; i1< local_size_grid; ++i1) {
+            aux1[i1] *= diffusivity[i1];
+          }
+
+          derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2);
+
+          /*Aggiorno*/
+          for (i1=0; i1< local_size_grid; ++i1) {
+            dconc[i1] += aux2[i1];
+          } 
+      }
+
+      if (irank == 0) {printf("derivatives calculated for %d step\n", istep);}
+
+      for (i1=0; i1< local_size_grid; ++i1) {
+        conc[i1] += dt*dconc[i1];
+        dconc[i1] = 0.0;
+      } 
+      
+      /*Voglio un frame ogni 10*/
+      if (istep%10 == 1) {
+        // Check the normalization of conc
+        ss = 0.;
+        r2mean = 0.;
+        ss_global = 0.;
+        r2mean_global = 0.;
+
+        // HINT: the conc array is distributed, so only a part of it is on
+        // each processor
+        for (i3 = 0; i3 < n3; ++i3) {
+          x3=L3*((double)i3)/n3 - 0.5*L3;
+          for (i2 = 0; i2 < n2; ++i2) {
+            x2=L2*((double)i2)/n2 - 0.5*L2;
+            for (i1 = 0; i1 < fft_h.local_n1; ++i1) {
+   	          x1 = L1 * ( (double) i1 + fft_h.local_n1_offset ) / n1 - 0.5 * L1;
+   	          rr = pow( x1, 2)  + pow( x2, 2) + pow( x3, 2);
+   	          index = index_f(i1, i2, i3, fft_h.local_n1, n2, n3);
+   	          ss += conc[index];
+   	          r2mean += conc[index]*rr;
+            }
+          }
+        }
+      /*
+      * HINT: global values of ss and r2mean must be globally computed and
+      distributed to all processes
+      *
+      */
+     	MPI_Allreduce( &r2mean, &r2mean_global, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+	    MPI_Allreduce( &ss, &ss_global, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+      
+      ss_global *= fac;
+      r2mean_global *= fac;
+
+      end = seconds();
+
+      printf(" %d %17.15f %17.15f Elapsed time per iteration %f \n ",
+      istep, r2mean, ss, (end-start)/istep);
+
+      // HINT: Use parallel version of output routines
+      char title[80];
+      sprintf(title, "concentration_%d", 1 + (istep - 1) / 30);
+      plot_data_2d(title, n1, n2, n3, fft_h.local_n1,
+        fft_h.local_n1_offset, 2, conc);
+      //plot_data_1d("1d_conc", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+        //3, conc);
+    }
+
+  }
 
   close_fftw(&fft_h);
   free(diffusivity);
