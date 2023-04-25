@@ -1,0 +1,8 @@
+#vs code files
+/.vscode
+
+#Build files
+mat_mul_even/build/*
+
+#dat
+mat_mul_even/*.dat
