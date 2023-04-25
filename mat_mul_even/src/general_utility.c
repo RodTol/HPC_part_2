@@ -29,6 +29,17 @@ void printf_reset () {
 }
 
 /**
+ * @brief  return true if the file specified by the
+ *  filename exists
+ * 
+ * @param filename name of the file
+*/
+
+bool file_exists(const char *filename) {
+    return access(filename, F_OK) == 0;
+}
+
+/**
  * @brief Create a null array object
  * 
  * @param A the array

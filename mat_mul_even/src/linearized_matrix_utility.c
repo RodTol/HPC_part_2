@@ -19,6 +19,21 @@ void print_matrix_square(double * A, int dim ){
 }
 
 /**
+ * @brief This function return the linear index for 
+ * a matrix of dimension dim1xdim2 given the row index i
+ * and the column index j
+ * 
+ * @param i row index
+ * @param j column index
+ * @param dim_1 rows dimension
+ * @param dim_2 cols dimension
+*/
+int linear_index ( int i, int j, int dim1, int dim2)
+{
+  return dim2*i + j; 
+}
+
+/**
  * @brief This function print a matrix of dimension 
  * dim1 X dim2
  * 
@@ -49,12 +64,17 @@ void print_matrix(double * A, int dim_1, int dim_2 ) {
 */
 void print_matrix_distributed (double * A, int irank,
  int dim_1 , int dim_2, int n_proc_tot, MPI_Comm COMM) {
+
+  double * A_tmp;
+  int size= dim_1 * dim_2 * sizeof( double);
+  A_tmp = (double *) malloc( size );
+  
   if ( irank == 0 ) {
             print_matrix ( A , dim_1, dim_2) ;
             for (int count = 1; count < n_proc_tot ; count ++ ) {
-                MPI_Recv ( A , dim_1 * dim_2 , MPI_DOUBLE , count ,
+                MPI_Recv ( A_tmp , dim_1 * dim_2 , MPI_DOUBLE , count ,
                  count , COMM , MPI_STATUS_IGNORE ) ;
-                print_matrix ( A , dim_1, dim_2 ) ;
+                print_matrix ( A_tmp , dim_1, dim_2 ) ;
             }
         }
         else {
@@ -81,5 +101,17 @@ void create_identity_matrix_distributed (double * A, int irank,
   for (int i_loc = 0; i_loc < dim_1 ; i_loc ++ ) {
     j_glob = i_loc + ( dim_1 * irank ) + offset ;
     A [ j_glob + ( i_loc * dim_2 ) ] = 1.0;
+  }
+}
+
+void matrix_multiplication(double* A, double* B_col, double* C, 
+  int N, int n_loc, int count) {
+  for (int i = 0; i < n_loc; i++) {       // A is n_loc x N (i,j)
+      for (int k = 0; k < n_loc; k++) {   // B_col is N x n_loc (j,k)
+          for (int j = 0; j < N; j++) {   // C slice is n_loc x n_loc -> C is n_loc x N (same as A)
+                C[linear_index(i,k,n_loc,N) + count*n_loc] +=
+                A[linear_index(i,j,n_loc,N)] * B_col[linear_index(j,k,N,n_loc)];                      
+          }
+      }
   }
 }

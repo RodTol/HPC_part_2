@@ -7,15 +7,17 @@
 
 #define MASTER 0
 #define COMM MPI_COMM_WORLD
-#define N 6
 
 int main(int argc, char** argv) {
     
-    double *A, *B, *C, *B_loc;
+    double *A, *B, *C, *B_col;
 
+    int N = atoi(argv[1]);
     int n_proc_tot = 1, irank = 0;
-    int n_loc = N, offset = 0, rest=0;
-    int i_local = 0, j_global = 0;
+    int n_loc = N, rest=0;
+    double start_compute, end_compute, start_comm,
+     end_comm, compute_total, comm_total;
+    //int i_local = 0, j_global = 0, offset = 0;
 
     /*MPI setup*/
     MPI_Init ( & argc , & argv ) ;
@@ -27,7 +29,6 @@ int main(int argc, char** argv) {
     /*Parameters for the matrix distribution*/
     n_loc = N/n_proc_tot;
     rest = N % n_proc_tot;
-    offset = 0;
     if (irank == MASTER) { printf("-------------------------------------------\n"
                              "N: %d, n_proc_tot: %d, n_loc: %d, rest: %d \n"
                              "-------------------------------------------\n", N, n_proc_tot, n_loc, rest); }
@@ -45,13 +46,7 @@ int main(int argc, char** argv) {
         MPI_Finalize();
         _Exit(0);
     }
-    
-    /*Flags for debugging purpouse*/
-    #if n_loc < 4
-        #if N < 9
-            #define SMALL 1
-        #endif
-    #endif
+
     
     /*Allocation and initialisation*/
     int size= N * n_loc * sizeof( double);
@@ -72,45 +67,39 @@ int main(int argc, char** argv) {
     MPI_Type_commit(&Even_block);
 
     /*Local buffer for the multiplication*/
-    B_loc = (double *) malloc( n_loc * N * sizeof(double) );
-    create_null_array(B_loc, n_loc*N);
+    B_col = (double *) malloc( n_loc * N * sizeof(double) );
+    create_null_array(B_col, n_loc*N);
 
     /*The multiplication*/
     for (int count = 0; count < n_proc_tot; count++) {
-        MPI_Allgather(&B[n_loc * count], 1, Even_block, B_loc, n_loc*n_loc, MPI_DOUBLE, COMM);
 
-        /*
-        #ifdef SMALL
-            printf("\n----@ I am %d @----\n", irank);
-            printf("B_loc:  \n");
-            print_matrix(B_loc, N, n_loc);
-        #endif
-        */
+        start_comm = MPI_Wtime();
+        
+        MPI_Allgather(&B[n_loc * count], 1, Even_block, B_col, n_loc*n_loc, MPI_DOUBLE, COMM);
+        
+        end_comm = MPI_Wtime();
+        start_compute = MPI_Wtime();
 
-        for (int i = 0; i < n_loc; i++) {       // A is n_loc x N (i,j)
-            for (int k = 0; k < n_loc; k++) {   // B_loc is N x n_loc (j,k)
-                for (int j = 0; j < N; j++) {   // C slice is n_loc x n_loc -> C is n_loc x N (same as A)
-                     C[i*N + k + count*n_loc] += A[i*N + j] * B_loc[j*n_loc + k];
-                }
-                #ifdef SMALL
-                printf("I am %d: C[%d, %d]\n", irank, i+irank, k + count*n_loc);
-                #endif
+        matrix_multiplication(A, B_col, C, N, n_loc, count);
+
+        end_compute = MPI_Wtime();
+
+        compute_total += end_compute-start_compute;
+        comm_total += end_comm-start_comm;
+
+#ifdef DEBUG
+            MPI_Barrier(COMM);
+            if (irank == MASTER) {
+                printf("\nMatrix C at count = %d \n", count);
             }
-        }
-
-        #ifdef SMALL
-        MPI_Barrier(COMM);
-        if (irank == MASTER) {
-            printf("\nMatrix C at count = %d \n", count);
-        }
-        print_matrix_distributed(C, irank, n_loc, N, n_proc_tot, COMM);
-        MPI_Barrier(COMM);
-        #endif
+            print_matrix_distributed(C, irank, n_loc, N, n_proc_tot, COMM);
+            MPI_Barrier(COMM);
+#endif
     }
 
-    /*If the matrices are small enough (N < 6 and n_proc < 4)
+    /*If the matrices are DEBUG enough (N < 6 and n_proc < 4)
     the program will print the complete form*/
-    #ifdef SMALL
+#ifdef DEBUG
         MPI_Barrier(COMM);
         if (irank == MASTER) {
             printf("\nMatrix A \n");
@@ -126,19 +115,43 @@ int main(int argc, char** argv) {
             printf("\nMatrix C \n");
         }
         print_matrix_distributed(C, irank, n_loc, N, n_proc_tot, COMM);
-    #endif
+#endif
 
     /*Final output and deallocation of the memory*/
-    free(A); free(B); free(C), free(B_loc);
+    free(A); free(B); free(C), free(B_col);
     MPI_Barrier(COMM);
+
+    FILE* file;
+    char* title = "times.dat";
+    if (irank == MASTER) {
+        if (!file_exists(title)) {
+            file = fopen(title, "w");
+            fprintf(file, "N, n_proc_tot, comm_total, compute_total\n");
+            fclose(file);
+        }
+
+        file = fopen(title, "a");
+        fprintf(file, "%d %d %15.12f %15.12f\n", N, n_proc_tot, comm_total, compute_total);
+        fclose(file);
+    }
+
     if (irank == MASTER) {
         printf("\n----@");
         printf_green();
-        printf(" Execution ended with a succes! ");
+        printf("Execution ended with a succes!");
         printf_reset();
         printf("@----\n");
+        printf_yellow();
+        printf("Communication time: %15.12f \n", comm_total);
+        printf("Computational time: %15.12f \n", compute_total);
+        printf_red();
+        printf("Total time:         %15.12f \n", compute_total+comm_total);
+        printf_reset();
     }
+
     MPI_Finalize();
+
+
 
     return 0;
 }

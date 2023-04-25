@@ -1,4 +1,5 @@
-CORES = 3
+CORES = 6
+N = 6
 
 #target
 BUILD_DIR = ./build
@@ -23,13 +24,18 @@ DDGEMM =
 OPENBLAS = -I ${OPENBLAS_HOME}/include/ -L ${OPENBLAS_HOME}/lib -lopenblas -lgfortran
 CUBLAS = -lcublas
 
+#make [command] flags=dgemm for example
 ifdef flags
 	ifeq ($(flags), dgemm)
-        	CFLAGS += -DDGEMM
-	        BLASLINK = $(OPENBLAS)
+		CFLAGS += -DDGEMM
+		BLASLINK = $(OPENBLAS)
 	else ifeq ($(flags), cuda)
-        	CFLAGS += -DCUDA
-	        BLASLINK = $(CUBLAS)
+		CFLAGS += -DCUDA
+		BLASLINK = $(CUBLAS)
+	endif
+	
+	ifeq ($(flags), debug)
+		CFLAGS+= -DDEBUG
 	endif
 endif
 
@@ -43,7 +49,7 @@ $(BUILD_DIR)/%.c.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: clean all
-	mpirun -np $(CORES) $(EXE)
+	mpirun -np $(CORES) $(EXE) $(N)
 
 .PHONY: clean
 
