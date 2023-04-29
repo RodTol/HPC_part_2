@@ -11,7 +11,6 @@
 
 #include "headers/linearized_matrix_utility.h"
 #include "headers/general_utility.h"
-#include "headers/prova.h"
 
 #define MASTER 0
 #define COMM MPI_COMM_WORLD
@@ -39,7 +38,22 @@ int main(int argc, char** argv) {
     rest = N % n_proc_tot;
     if (irank == MASTER) { printf("-------------------------------------------\n"
                              "N: %d, n_proc_tot: %d, n_loc: %d, rest: %d \n"
-                             "-------------------------------------------\n", N, n_proc_tot, n_loc, rest); }
+                             "-------------------------------------------\n", N, n_proc_tot, n_loc, rest);
+#ifdef DGEMM
+        printf_red();
+        printf("Using OpenBLAS DGEMM for computation\n");
+        printf_reset();
+#elif GPU
+        printf_red();
+        printf("Using cuBLAS DGEMM for computation\n");
+        printf_reset();
+#else 
+        printf_red();
+        printf("Using basic MPI for computation\n");
+        printf_reset();
+#endif
+    }
+                             
     
     /*Conditional exit if there's not an even distribution of the matrix*/
     if (rest != 0)
@@ -87,9 +101,14 @@ int main(int argc, char** argv) {
         
         end_comm = MPI_Wtime();
         start_compute = MPI_Wtime();
-
+#ifdef DGEMM
+        printf("DOVREI FARE COMPUTAZIONE");
+        //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+        //            row_counts[irank], row_counts[count], N, // m, n, k
+        //            1.0, A, N, B_col, row_counts[count], 0.0, C + displ_B[p], N)
+#else
         matrix_multiplication(A, B_col, C, N, n_loc, count);
-
+#endif
         end_compute = MPI_Wtime();
 
         compute_total += end_compute-start_compute;
@@ -102,7 +121,7 @@ int main(int argc, char** argv) {
             }
             print_matrix_distributed(C, irank, n_loc, N, n_proc_tot, COMM);
             MPI_Barrier(COMM);
-#endif
+#endif\n
     }
 
     /*If the matrices are DEBUG enough (N < 6 and n_proc < 4)
@@ -127,6 +146,7 @@ int main(int argc, char** argv) {
 
     /*Final output and deallocation of the memory*/
     free(A); free(B); free(C), free(B_col);
+
     MPI_Barrier(COMM);
 
     FILE* file;

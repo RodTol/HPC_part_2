@@ -17,4 +17,5 @@ void print_matrix_distributed (double * A, int irank,
 void create_identity_matrix_distributed (double * A, int irank,
  int dim_1 , int dim_2,  int offset, int n_proc_tot);
 
-void matrix_multiplication();
+void matrix_multiplication(double* A, double* B_col, double* C, 
+  int N, int n_loc, int count);

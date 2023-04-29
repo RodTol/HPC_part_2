@@ -17,25 +17,30 @@ INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 
 #compiler and standard flags
 CC = mpicc
+NVCC = nvcc
 CFLAGS = -Wall -O3 $(INC_FLAGS)
 
 #extra flags
 LINKFLAGS = 
-OPENBLAS = -I ${OPENBLAS_HOME}/include/ -L ${OPENBLAS_HOME}/lib -lopenblas -lgfortran
-CUBLAS = -lcublas
+LOPENBLAS = -I ${OPENBLAS_HOME}/include/ -L ${OPENBLAS_HOME}/lib -lopenblas
 
-#make [command] flags=dgemm for example
-ifdef flags
-	ifeq ($(flags), dgemm)
+#for compilation on local system
+CUDA_HOME = /usr/lib/cuda
+LCUBLAS = -L${CUDA_HOME}/lib64/ -lcudart -lcublas
+
+#make [command] compilation=dgemm for example
+ifdef compilation
+	ifeq ($(compilation), dgemm)
 		CFLAGS += -DDGEMM
-		LINKFLAGS += $(OPENBLAS)
-	else ifeq ($(flags), gpu)
-		SRCS += $(SRC_DIRS)/gpu_computation.cu
-		OBJS += $(BUILD_DIR)/gpu_computation.o
+		LINKFLAGS += $(LOPENBLAS)
+	else ifeq ($(compilation), gpu)
+		OBJS += $(BUILD_DIR)/gpu_computation.c.o
 		CFLAGS += -DGPU
-		LINKFLAGS += $(CUBLAS)
+		LDLIBS += $(LCUBLAS)
 	endif
+endif
 	
+ifdef flags	
 	ifeq ($(flags), debug)
 		CFLAGS+= -DDEBUG
 	endif
@@ -44,11 +49,15 @@ endif
 all: $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) -o $(EXE) $(OBJS)
-
+	$(CC) -o $(EXE) $(OBJS) $(LDLIBS)
+ 
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) $(LINKFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/gpu_computation.c.o : $(SRC_DIRS)/gpu_computation.cu
+	$(NVCC) $ -c $< -o $@
+
 
 run: clean all
 	mpirun -np $(CORES) $(EXE) $(N)
@@ -57,8 +66,7 @@ run: clean all
 
 clean:
 	rm -f $(OBJS) $(EXE)
-	rm -r $(BUILD_DIR)
-
+	
 flush:
 	rm -f *.dat
 
