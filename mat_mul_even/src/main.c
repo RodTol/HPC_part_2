@@ -1,6 +1,14 @@
 #include <stdio.h>
 #include <mpi.h>
 
+#ifdef DGEMM
+	#include <cblas.h>
+#endif
+
+#ifdef GPU
+	#include"gpu_computation.cu" 
+#endif
+
 #include "headers/linearized_matrix_utility.h"
 #include "headers/general_utility.h"
 #include "headers/prova.h"

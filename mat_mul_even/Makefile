@@ -20,7 +20,7 @@ CC = mpicc
 CFLAGS = -Wall -O3 $(INC_FLAGS)
 
 #extra flags
-DDGEMM = 
+LINKFLAGS = 
 OPENBLAS = -I ${OPENBLAS_HOME}/include/ -L ${OPENBLAS_HOME}/lib -lopenblas -lgfortran
 CUBLAS = -lcublas
 
@@ -28,10 +28,12 @@ CUBLAS = -lcublas
 ifdef flags
 	ifeq ($(flags), dgemm)
 		CFLAGS += -DDGEMM
-		BLASLINK = $(OPENBLAS)
-	else ifeq ($(flags), cuda)
-		CFLAGS += -DCUDA
-		BLASLINK = $(CUBLAS)
+		LINKFLAGS += $(OPENBLAS)
+	else ifeq ($(flags), gpu)
+		SRCS += $(SRC_DIRS)/gpu_computation.cu
+		OBJS += $(BUILD_DIR)/gpu_computation.o
+		CFLAGS += -DGPU
+		LINKFLAGS += $(CUBLAS)
 	endif
 	
 	ifeq ($(flags), debug)
@@ -46,7 +48,7 @@ $(EXE): $(OBJS)
 
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(LINKFLAGS) -c $< -o $@
 
 run: clean all
 	mpirun -np $(CORES) $(EXE) $(N)
@@ -56,6 +58,9 @@ run: clean all
 clean:
 	rm -f $(OBJS) $(EXE)
 	rm -r $(BUILD_DIR)
+
+flush:
+	rm -f *.dat
 
 MKDIR_P ?= mkdir -p
 
