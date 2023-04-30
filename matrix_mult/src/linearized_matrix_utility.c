@@ -28,9 +28,9 @@ void print_matrix_square(double * A, int dim ){
  * @param dim_1 rows dimension
  * @param dim_2 cols dimension
 */
-int linear_index ( int i, int j, int dim1, int dim2)
+int linear_index ( int i, int j, int dim1, int dim2, int offset)
 {
-  return dim2*i + j; 
+  return dim2*i + j + offset; 
 }
 
 /**
@@ -53,34 +53,40 @@ void print_matrix(double * A, int dim_1, int dim_2 ) {
 
 /**
  * @brief This function is used to print the full matrix, 
- * scattered among n_proc_tot processor
+ * scattered among n_proc_tot processor.
+ * @note this is a NON SCALABLE function because
+ * the copy on a buffer requires that the matrix doesn't
+ * occuy more than half on a single node.
  * 
  * @param A the matrix
  * @param irank rank of each processor
- * @param dim_1 rows of each submatrix
+ * @param dim_1 vector of #of rows for each submatrix
  * @param dim_2 cols of each submatrix
  * @param n_proc_tot number of total processors
  * @param COMM MPI communicator
 */
 void print_matrix_distributed (double * A, int irank,
- int dim_1 , int dim_2, int n_proc_tot, MPI_Comm COMM) {
-
-  double * A_tmp;
-  int size= dim_1 * dim_2 * sizeof( double);
-  A_tmp = (double *) malloc( size );
+ int* dim_1 , int dim_2, int n_proc_tot, MPI_Comm COMM) {
   
   if ( irank == 0 ) {
-            print_matrix ( A , dim_1, dim_2) ;
-            for (int count = 1; count < n_proc_tot ; count ++ ) {
-                MPI_Recv ( A_tmp , dim_1 * dim_2 , MPI_DOUBLE , count ,
-                 count , COMM , MPI_STATUS_IGNORE ) ;
-                print_matrix ( A_tmp , dim_1, dim_2 ) ;
-            }
-        }
-        else {
-            MPI_Send ( A , dim_1 * dim_2 , MPI_DOUBLE , 0 ,
-             irank , COMM );
-        }
+      /*This variable are only for irank==0
+      so they can be moved inside the if*/
+      double * A_tmp;
+      print_matrix ( A , dim_1[irank], dim_2) ;
+
+      for (int count = 1; count < n_proc_tot ; count ++ ) {
+          int size= dim_1[count] * dim_2 * sizeof( double);
+          A_tmp = (double *) malloc( size );
+
+          MPI_Recv ( A_tmp , dim_1[count] * dim_2 , MPI_DOUBLE , count ,
+            count , COMM , MPI_STATUS_IGNORE ) ;
+          print_matrix ( A_tmp , dim_1[count], dim_2 ) ;
+      }
+  }
+  else {
+      MPI_Send ( A , dim_1[irank] * dim_2 , MPI_DOUBLE , 0 ,
+        irank , COMM );
+  }
 }
 
 /**
@@ -105,12 +111,12 @@ void create_identity_matrix_distributed (double * A, int irank,
 }
 
 void matrix_multiplication(double* A, double* B_col, double* C, 
-  int N, int n_loc, int count) {
-  for (int i = 0; i < n_loc; i++) {       // A is n_loc x N (i,j)
-      for (int k = 0; k < n_loc; k++) {   // B_col is N x n_loc (j,k)
+  int N, int* n_rows_local, int* displacement, int irank, int count) {
+  for (int i = 0; i < n_rows_local[irank]; i++) {       // A is n_loc x N (i,j)
+      for (int k = 0; k < n_rows_local[count]; k++) {   // B_col is N x n_loc (j,k)
           for (int j = 0; j < N; j++) {   // C slice is n_loc x n_loc -> C is n_loc x N (same as A)
-                C[linear_index(i,k,n_loc,N) + count*n_loc] +=
-                A[linear_index(i,j,n_loc,N)] * B_col[linear_index(j,k,N,n_loc)];                      
+                C[linear_index(i,k,n_rows_local[count], N, displacement[count])] +=
+                A[linear_index(i,j,n_rows_local[irank],N, 0)] * B_col[linear_index(j,k,N,n_rows_local[count],0)];                      
           }
       }
   }

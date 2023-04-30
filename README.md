@@ -12,3 +12,6 @@ Homeworks and exercises from the course in Advanced Parallel Programming.
  Each exercise has its own directory and inside of it you'll find the code and the results of the benchmarking (if requested).  
 ### TODO list:
 1. Fix time calculation. Need to pick max MPIWtime among all process
+2. My initialisation of the matrices is done by working on the local buffer of each matrix. This can be a 
+problem if we want to specify a generic rule for the whole A matrix. For example if I want the identity 
+I need to create a rule using the global indexes and the offsets.

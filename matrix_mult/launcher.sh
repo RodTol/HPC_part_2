@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "Welcome to the launcher for the matrix multiplication"
-echo "This program works only for evenly distributed matrix!"
 read -p "Insert the matrix dimension N: " N
 read -p "Insert the number of processor: " n_proc
 

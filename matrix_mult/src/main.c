@@ -22,17 +22,15 @@ int main(int argc, char** argv) {
 
     int N = atoi(argv[1]);
     int n_proc_tot = 1, irank = 0;
-    int n_loc = N, rest=0;
+    int n_loc, rest;
     double start_compute, end_compute, start_comm,
-     end_comm, compute_total, comm_total;
+     end_comm, compute_total=0.0, comm_total=0.0;
     int *n_rows_local, *displacement, *n_elements_local, *displacement_col;
     
     /*MPI setup*/
     MPI_Init ( & argc , & argv ) ;
     MPI_Comm_rank ( COMM , & irank ) ;
     MPI_Comm_size ( COMM , & n_proc_tot ) ;
-
-    MPI_Datatype Even_block;
 
     /*Parameters for the matrix distribution*/
     n_loc = N/n_proc_tot;
@@ -56,53 +54,100 @@ int main(int argc, char** argv) {
     }
     
     /*Now I can have a rest so, I need to calculate the
-    correct sizes before the allocation*/
+    correct sizes before the allocation. Every process needs
+    this array*/
     n_rows_local = (int *) malloc( n_proc_tot * sizeof(int) );
-    calculate_n_rows(n_rows_local, n_loc, rest, irank, n_proc_tot);
+    calculate_n_rows(n_rows_local, n_loc, rest, n_proc_tot);
 
 #ifdef DEBUG
-ù   
+    MPI_Barrier(COMM);
+    if (irank == MASTER) {
+        printf("\n # of rows for each processor:\n");
+        for (int i = 0; i < n_proc_tot; i++) {
+            printf("(rank: %d rows: %d)\n", i, n_rows_local[i]);
+        }    
+    }
+    MPI_Barrier(COMM);
 #endif
 
     /*Allocation and initialisation*/
-    int size= N * n_loc * sizeof( double);
+    int size= N * n_rows_local[irank] * sizeof( double);
     A = (double *) malloc( size );
-    array_of_random_doubles(A, n_loc*N);
+    array_of_random_doubles(A, n_rows_local[irank]*N);
 
     B = (double *) malloc( size );
     //create_identity_matrix_distributed(B, irank, n_loc, N, offset, n_proc_tot);
-    array_of_random_doubles(B, n_loc*N);
+    array_of_random_doubles(B, n_rows_local[irank]*N);
 
     C = (double *) malloc( size );
-    create_null_array(C, n_loc*N);
+    create_null_array(C, n_rows_local[irank]*N);
+    
+    /*Column buffer for the multiplication*/
+    B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
+    create_null_array(B_col, (n_loc+1)*N);
 
-    /*The datatype that will represent the columns of B to be
-    * multiplied.
-    (#of tot elements, #taken from each proc, #distance from, Type, name)*/
-    MPI_Type_vector(n_loc, n_loc, N, MPI_DOUBLE, &Even_block);
-    MPI_Type_commit(&Even_block);
+    /*This the offset. It will be necessary to create the column
+    block for the multiplication. All the process needs this array*/
+    displacement = (int *) malloc(n_proc_tot*sizeof(int));
+    calculate_displ(displacement, n_rows_local, n_proc_tot);
 
-    /*Local buffer for the multiplication*/
-    B_col = (double *) malloc( n_loc * N * sizeof(double) );
-    create_null_array(B_col, n_loc*N);
+#ifdef DEBUG
+    MPI_Barrier(COMM);
+    if (irank == MASTER) {
+        printf("\n # displacement for each processor:\n");
+        for (int i = 0; i < n_proc_tot; i++) {
+            printf("(rank: %d rows: %d)\n", i, displacement[i]);
+        }    
+    }
+    MPI_Barrier(COMM);
+#endif
+
+#ifdef GPU
+#endif
+
+    /*How many elements each processor should give to the 
+    column buffer. This array will be updated at each step, since
+    the # is not constant*/
+    n_elements_local = (int *) malloc ( n_proc_tot * sizeof(int) );
+
+    /*This is the array of the offset for each processor. It
+    will be updated at each step of the multiplication with the
+    correct size, since the # of rows is not constant.*/
+    displacement_col = (int *) malloc ( n_proc_tot * sizeof(int) );
 
     /*The multiplication*/
     for (int count = 0; count < n_proc_tot; count++) {
 
         start_comm = MPI_Wtime();
         
-        MPI_Allgather(&B[n_loc * count], 1, Even_block, B_col, n_loc*n_loc, MPI_DOUBLE, COMM);
-        
+        /*I update the columnd displacement*/
+        calculate_displ_col(displacement_col, n_rows_local, n_proc_tot);
+        calculate_n_elements(n_elements_local, n_rows_local, count, n_proc_tot);  
+
+#ifdef DEBUG
+        MPI_Barrier(COMM);
+        if (irank == MASTER) {
+            printf("\n displacement_col for each procs, and #of elements:\n");
+            for (int i = 0; i < n_proc_tot; i++) {
+                printf("(rank: %d displacement_col: %d elements: %d)\n", i, displacement_col[i], n_elements_local[i]);
+            }    
+        }
+        MPI_Barrier(COMM);
+#endif
+
+
+        MPI_build_column(n_rows_local, displacement, n_elements_local, displacement_col,
+           B, B_col, irank, count, N);
+    
         end_comm = MPI_Wtime();
         start_compute = MPI_Wtime();
         
 #ifdef DGEMM
-        printf("DOVREI FARE COMPUTAZIONE");
-        //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
-        //            row_counts[irank], row_counts[count], N, // m, n, k
-        //            1.0, A, N, B_col, row_counts[count], 0.0, C + displ_B[p], N)
+        //DGEMM computation
+#elif GPU
+        //GPU computation
 #else
-        matrix_multiplication(A, B_col, C, N, n_loc, count);
+        matrix_multiplication(A, B_col, C, N, n_rows_local, displacement, irank, count);
 #endif
         end_compute = MPI_Wtime();
 
@@ -114,9 +159,9 @@ int main(int argc, char** argv) {
             if (irank == MASTER) {
                 printf("\nMatrix C at count = %d \n", count);
             }
-            print_matrix_distributed(C, irank, n_loc, N, n_proc_tot, COMM);
+            print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
             MPI_Barrier(COMM);
-#endif\n
+#endif
     }
 
     /*If the matrices are DEBUG enough (N < 6 and n_proc < 4)
@@ -126,17 +171,17 @@ int main(int argc, char** argv) {
         if (irank == MASTER) {
             printf("\nMatrix A \n");
         }
-        print_matrix_distributed(A, irank, n_loc, N, n_proc_tot, COMM);
+        print_matrix_distributed(A, irank, n_rows_local, N, n_proc_tot, COMM);
         
         if (irank == MASTER) {
             printf("\nMatrix B \n");
         }
-        print_matrix_distributed(B, irank, n_loc, N, n_proc_tot, COMM);
+        print_matrix_distributed(B, irank, n_rows_local, N, n_proc_tot, COMM);
 
         if (irank == MASTER) {
             printf("\nMatrix C \n");
         }
-        print_matrix_distributed(C, irank, n_loc, N, n_proc_tot, COMM);
+        print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
 #endif
 
     /*Final output and deallocation of the memory*/
