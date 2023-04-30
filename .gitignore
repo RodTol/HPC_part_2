@@ -1,5 +1,5 @@
 #vs code files
-/.vscode
+/.vscode/*
 
 #Build files
 mat_mul_even/build/*
