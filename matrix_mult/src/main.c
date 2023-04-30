@@ -11,6 +11,7 @@
 
 #include "headers/linearized_matrix_utility.h"
 #include "headers/general_utility.h"
+#include "headers/data_distr_utility.h"
 
 #define MASTER 0
 #define COMM MPI_COMM_WORLD
@@ -24,8 +25,8 @@ int main(int argc, char** argv) {
     int n_loc = N, rest=0;
     double start_compute, end_compute, start_comm,
      end_comm, compute_total, comm_total;
-    //int i_local = 0, j_global = 0, offset = 0;
-
+    int *n_rows_local, *displacement, *n_elements_local, *displacement_col;
+    
     /*MPI setup*/
     MPI_Init ( & argc , & argv ) ;
     MPI_Comm_rank ( COMM , & irank ) ;
@@ -53,23 +54,16 @@ int main(int argc, char** argv) {
         printf_reset();
 #endif
     }
-                             
     
-    /*Conditional exit if there's not an even distribution of the matrix*/
-    if (rest != 0)
-    {
-        if (irank == MASTER){
-            printf_red();
-            printf("WARNING: ");
-            printf_reset();
-            printf("The matrix cannot be evenly distributed among the processors\n");
-        }
-        MPI_Barrier(COMM);
-        MPI_Finalize();
-        _Exit(0);
-    }
+    /*Now I can have a rest so, I need to calculate the
+    correct sizes before the allocation*/
+    n_rows_local = (int *) malloc( n_proc_tot * sizeof(int) );
+    calculate_n_rows(n_rows_local, n_loc, rest, irank, n_proc_tot);
 
-    
+#ifdef DEBUG
+ù   
+#endif
+
     /*Allocation and initialisation*/
     int size= N * n_loc * sizeof( double);
     A = (double *) malloc( size );
@@ -101,6 +95,7 @@ int main(int argc, char** argv) {
         
         end_comm = MPI_Wtime();
         start_compute = MPI_Wtime();
+        
 #ifdef DGEMM
         printf("DOVREI FARE COMPUTAZIONE");
         //cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
