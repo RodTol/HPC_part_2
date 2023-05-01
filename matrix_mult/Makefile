@@ -22,7 +22,7 @@ CFLAGS = -Wall -O3 $(INC_FLAGS)
 
 #extra flags
 LINKFLAGS = 
-LOPENBLAS = -I ${OPENBLAS_HOME}/include/ -L ${OPENBLAS_HOME}/lib -lopenblas -lcblas
+LOPENBLAS = -I ${OPENBLAS_HOME}/include/ -L ${OPENBLAS_HOME}/lib -lopenblas -lgfortran
 
 #for compilation on local system
 CUDA_HOME = /usr/lib/cuda
@@ -49,7 +49,7 @@ endif
 all: $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) $(CFLAGS) $(LINKFLAGS) -o $(EXE) $(OBJS) $(LDLIBS) 
+	$(CC) $(LINKFLAGS) -o $(EXE) $(OBJS) $(LDLIBS)
  
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)

@@ -140,20 +140,16 @@ int main(int argc, char** argv) {
         start_compute = MPI_Wtime();
 
 #ifdef DEBUG
-        printf("\n I am: %d and this is my B_col at count: %d \n", irank, count);
-        print_matrix(B_col, N, n_rows_local[count]);
-        printf("\n");
-        MPI_Barrier(COMM);
+        //printf("\n I am: %d and this is my B_col at count: %d \n", irank, count);
+        //print_matrix(B_col, N, n_rows_local[count]);
+        //printf("\n");
+        //MPI_Barrier(COMM);
 #endif
 
+#ifdef DGEMM
         cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
             n_rows_local[irank], n_rows_local[count], N, // m, n, k
             1.0, A, N, B_col, n_rows_local[count], 0.0, C + displacement[count], N);
-
-#ifdef DGEMM
-        /*cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
-            n_rows_local[irank], n_rows_local[count], N, // m, n, k
-            1.0, A, N, B_col, n_rows_local[count], 0.0, C + displacement[count], N);*/
 #elif GPU
         //GPU computation
 #else
