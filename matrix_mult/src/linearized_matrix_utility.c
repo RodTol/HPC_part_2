@@ -28,9 +28,9 @@ void print_matrix_square(double * A, int dim ){
  * @param dim_1 rows dimension
  * @param dim_2 cols dimension
 */
-int linear_index ( int i, int j, int dim1, int dim2, int offset)
+int linear_index ( int i, int j, int dim1, int dim2)
 {
-  return dim2*i + j + offset; 
+  return dim2*i + j; 
 }
 
 /**
@@ -98,14 +98,13 @@ void print_matrix_distributed (double * A, int irank,
  * @param dim_1 rows of each submatrix
  * @param dim_2 cols of each submatrix
  * @param offset offset if rest!=0
- * @param n_proc_tot number of total processors
 */
 void create_identity_matrix_distributed (double * A, int irank,
- int dim_1 , int dim_2,  int offset, int n_proc_tot) {
+ int dim_1 , int dim_2,  int offset) {
   int j_glob = 0;
   memset ( A , 0 , dim_1 * dim_2 * sizeof ( double ) ) ;
   for (int i_loc = 0; i_loc < dim_1 ; i_loc ++ ) {
-    j_glob = i_loc + ( dim_1 * irank ) + offset ;
+    j_glob = i_loc + offset ;
     A [ j_glob + ( i_loc * dim_2 ) ] = 1.0;
   }
 }
@@ -114,10 +113,9 @@ void matrix_multiplication(double* A, double* B_col, double* C,
   int N, int* n_rows_local, int* displacement, int irank, int count) {
   for (int i = 0; i < n_rows_local[irank]; i++) {       // A is n_loc x N (i,j)
       for (int k = 0; k < n_rows_local[count]; k++) {   // B_col is N x n_loc (j,k)
-          for (int j = 0; j < N; j++) {   // C slice is n_loc x n_loc -> C is n_loc x N (same as A)
-                C[linear_index(i,k,n_rows_local[count], N, displacement[count])] +=
-                A[linear_index(i,j,n_rows_local[irank],N, 0)] * B_col[linear_index(j,k,N,n_rows_local[count],0)];                      
-          }
+        for (int j = 0; j < N; j++) {   // C slice is n_loc x n_loc -> C is n_loc x N (same as A)
+          C[i * N + k + displacement[count]] += A[i * N + j] * B_col[j* n_rows_local[count] + k];
+        }
       }
   }
 }

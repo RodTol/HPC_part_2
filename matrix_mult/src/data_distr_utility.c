@@ -17,18 +17,18 @@ void calculate_displ(int* displacement, int* n_rows_local, int n_proc_tot) {
     }
 }
 
-void calculate_displ_col(int* displacement, int* n_rows_local, int n_proc_tot) {
-    displacement[0] = 0;
-    for (int i = 0; i < n_proc_tot-1; i++) {
-        displacement[i+1] = displacement[i] + n_rows_local[i];
-    }
-}
-
 void calculate_n_elements(int *n_elements_local, const int *n_rows_local, const int count, const int n_proc_tot) {
     for (int i = 0; i < n_proc_tot; i++) {
         n_elements_local[i]  = n_rows_local[i] * n_rows_local[count];
     }
     
+}
+
+void calculate_displ_col(int* displacement_col, int* n_elements_count, int n_proc_tot) {
+    displacement_col[0] = 0;
+    for (int i = 0; i < n_proc_tot-1; i++) {
+        displacement_col[i+1] = displacement_col[i] + n_elements_count[i];
+    }
 }
 
 void MPI_build_column(int* n_rows_local, int* displacement, int* n_elements_local, int* displacement_col,
