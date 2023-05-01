@@ -133,7 +133,8 @@ int main(int argc, char** argv) {
 #endif
 
         MPI_build_column(n_rows_local, displacement, n_elements_local, displacement_col,
-           B, B_col, irank, count, N);
+           B, B_col, irank, count, N);        MPI_Barrier(COMM);
+
     
         end_comm = MPI_Wtime();
         start_compute = MPI_Wtime();
@@ -144,9 +145,15 @@ int main(int argc, char** argv) {
         printf("\n");
         MPI_Barrier(COMM);
 #endif
-        
+
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+            n_rows_local[irank], n_rows_local[count], N, // m, n, k
+            1.0, A, N, B_col, n_rows_local[count], 0.0, C + displacement[count], N);
+
 #ifdef DGEMM
-        //DGEMM computation
+        /*cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+            n_rows_local[irank], n_rows_local[count], N, // m, n, k
+            1.0, A, N, B_col, n_rows_local[count], 0.0, C + displacement[count], N);*/
 #elif GPU
         //GPU computation
 #else
