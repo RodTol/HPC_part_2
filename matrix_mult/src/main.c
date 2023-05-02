@@ -118,8 +118,10 @@ int main(int argc, char** argv) {
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     cudaEventRecord(start, 0);
-
     initialise_cuda(A, &dev_A, &dev_B_col, &dev_C, n_rows_local, N, n_loc, irank);
+ #ifdef DEBUG   
+    printf("Initialize cuda completed");
+ #endif
 #endif
 
     /*The multiplication*/
