@@ -13,6 +13,8 @@ while true; do
 
 done
 
+export OMP_NUM_THREADS=1
+
 while true; do
     echo "What kind of compilation you want?"
     echo "- Standard MPI (0)"
