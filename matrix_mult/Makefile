@@ -25,7 +25,7 @@ LINKFLAGS =
 LOPENBLAS = -I ${OPENBLAS_HOME}/include/ -L ${OPENBLAS_HOME}/lib -lopenblas -lgfortran
 
 #for compilation on local system
-CUDA_HOME = /usr/lib/cuda
+#CUDA_HOME = /usr/lib/cuda
 LCUBLAS = -L${CUDA_HOME}/lib64/ -lcudart -lcublas
 
 #make [command] compilation=dgemm for example

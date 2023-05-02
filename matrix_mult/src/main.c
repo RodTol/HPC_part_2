@@ -111,26 +111,27 @@ int main(int argc, char** argv) {
     displacement_col = (int *) malloc ( n_proc_tot * sizeof(int) );
 
 #ifdef GPU
+    /*Device variabile declaration and allocation*/
+    cublasHandle_t handle;
     double *dev_A, *dev_B_col, *dev_C;
-
-    cudaEvent_t start, stop;
     float TotalTime, max_TotalTime, computation_Time, max_computation_Time;
+    cudaEvent_t start, stop;
+
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
+
     cudaEventRecord(start, 0);
-    initialise_cuda(A, &dev_A, &dev_B_col, &dev_C, n_rows_local, N, n_loc, irank);
- #ifdef DEBUG   
-    printf("Initialize cuda completed");
- #endif
+
+    initialise_cuda(A, &dev_A, &dev_B_col, &dev_C, n_rows_local, N, n_loc, irank, &handle);
 #endif
 
     /*The multiplication*/
     for (int count = 0; count < n_proc_tot; count++) {
 
         start_comm = MPI_Wtime();
-        
+
         /*I update the columnd displacement*/
-        calculate_n_elements(n_elements_local, n_rows_local, count, n_proc_tot);  
+        calculate_n_elements(n_elements_local, n_rows_local, count, n_proc_tot);
         calculate_displ_col(displacement_col, n_elements_local, n_proc_tot);
 
 #ifdef DEBUG
@@ -138,7 +139,7 @@ int main(int argc, char** argv) {
             printf("\n displacement_col for each procs, and #of elements:\n");
             for (int i = 0; i < n_proc_tot; i++) {
                 printf("(rank: %d displacement_col: %d elements: %d)\n", i, displacement_col[i], n_elements_local[i]);
-            }    
+            }
         }
         MPI_Barrier(COMM);
 #endif
@@ -146,7 +147,6 @@ int main(int argc, char** argv) {
         MPI_build_column(n_rows_local, displacement, n_elements_local, displacement_col,
            B, B_col, irank, count, N);
 
-    
         end_comm = MPI_Wtime();
         start_compute = MPI_Wtime();
 
@@ -162,22 +162,10 @@ int main(int argc, char** argv) {
             n_rows_local[irank], n_rows_local[count], N, // m, n, k
             1.0, A, N, B_col, n_rows_local[count], 0.0, C + displacement[count], N);
 #elif GPU
-        cublasHandle_t handle;
         computation(count, B_col, dev_A, dev_B_col, dev_C,
          n_rows_local, displacement, N, n_loc, irank, &computation_Time, handle);
 #else
         matrix_multiplication(A, B_col, C, N, n_rows_local, displacement, irank, count);
-#endif
-
-#ifdef GPU
-        cudaEventRecord(stop, 0);
-        cudaEventSynchronize(stop);
-        cudaEventElapsedTime(&TotalTime, start, stop);
-        MPI_Reduce(&TotalTime, &max_TotalTime, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
-        MPI_Reduce(&computation_Time, &max_computation_Time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);     
-
-        comm_total = TotalTime - max_computation_Time;
-        compute_total = max_computation_Time;
 #endif
 
         end_compute = MPI_Wtime();
@@ -186,6 +174,10 @@ int main(int argc, char** argv) {
 
 
 #ifdef DEBUG
+    #ifdef GPU
+        cudaMemcpy(C, dev_C, n_rows_local[irank] * N * sizeof(double), cudaMemcpyDeviceToHost);
+        printf("C copied from device"); 
+    #endif
         if (irank == MASTER) {
             printf("\nMatrix C at count = %d \n", count);
         }
@@ -194,8 +186,14 @@ int main(int argc, char** argv) {
 #endif
     }
 
-    /*If the matrices are DEBUG enough (N < 6 and n_proc < 4)
-    the program will print the complete form*/
+#ifdef GPU
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&TotalTime, start, stop);
+    /*Result moved from device to host at the end of computation*/
+    cudaMemcpy(C, dev_C, n_rows_local[irank] * N * sizeof(double), cudaMemcpyDeviceToHost);
+#endif
+
 #ifdef DEBUG
         MPI_Barrier(COMM);
         if (irank == MASTER) {
@@ -218,10 +216,18 @@ int main(int argc, char** argv) {
     free(A); free(B); free(C), free(B_col);
 
 #ifdef GPU
-    cudaMemcpy(C, dev_C, n_rows_local[irank] * N * sizeof(double), cudaMemcpyDeviceToHost);
+    /*Deallocation of the device memory and time computation*/
     cudaFree(dev_A);
     cudaFree(dev_B_col);
     cudaFree(dev_C);
+    cublasDestroy(handle);
+    MPI_Reduce(&TotalTime, &max_TotalTime, 1, MPI_FLOAT, MPI_MAX, 0, COMM);
+    MPI_Reduce(&computation_Time, &max_computation_Time, 1, MPI_FLOAT, MPI_MAX, 0, COMM);     
+
+    if (irank == 0) {
+        comm_total = max_TotalTime - max_computation_Time;
+        compute_total = max_computation_Time;
+    }
 #endif
 
     MPI_Barrier(COMM);
@@ -238,7 +244,6 @@ int main(int argc, char** argv) {
         file = fopen(title, "a");
 #ifdef DGEMM
         fprintf(file, "OpenBLAS ");
-
 #elif GPU
         fprintf(file, "cuBLAS   ");
 #else 
