@@ -6,7 +6,9 @@
                 "${workspaceFolder}/**",
                 "/usr/lib/x86_64-linux-gnu/openmpi/include",
                 "/usr/lib/cuda/include",
-                "/usr/include/"
+                "/usr/include/",
+                "/opt/OpenBLAS/include",
+                "/opt/OpenBLAS/lib"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang-11",
