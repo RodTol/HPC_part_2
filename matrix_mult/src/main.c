@@ -167,10 +167,7 @@ int main(int argc, char** argv) {
 
 
 #ifdef DEBUG
-    #ifdef GPU
-        /*unnecessary copy but useful for debugging*/
-        cudaMemcpy(C, dev_C, n_rows_local[irank] * N * sizeof(double), cudaMemcpyDeviceToHost);
-    #endif
+
         if (irank == MASTER) {
             printf("\nMatrix C at count = %d \n", count);
         }
