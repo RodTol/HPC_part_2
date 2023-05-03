@@ -9,3 +9,6 @@ mat_mul_even/*.dat
 
 #slurm
 mat_mul_even/slurm_output
+
+#sphere hdf5
+3D_parallel_sphere/*.h5

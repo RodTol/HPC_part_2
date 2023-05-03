@@ -8,7 +8,8 @@
                 "/usr/lib/cuda/include",
                 "/usr/include/",
                 "/opt/OpenBLAS/include",
-                "/opt/OpenBLAS/lib"
+                "/opt/OpenBLAS/lib",
+                "/home/rodolfo/spack/opt/spack/linux-ubuntu22.04-skylake/gcc-12.1.0/hdf5-1.12.2-s75evixde5qmidugbexd2q6jby7kehc3/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang-11",
