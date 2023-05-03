@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
     /*Device variabile declaration and allocation*/
     cublasHandle_t handle;
     double *dev_A, *dev_B_col, *dev_C;
-    float TotalTime, max_TotalTime, computation_Time, max_computation_Time;
+    float TotalTime=0.0, max_TotalTime, computation_Time=0.0, max_computation_Time;
     cudaEvent_t start, stop;
 
     cudaEventCreate(&start);
@@ -150,13 +150,6 @@ int main(int argc, char** argv) {
         end_comm = MPI_Wtime();
         start_compute = MPI_Wtime();
 
-#ifdef DEBUG
-        //printf("\n I am: %d and this is my B_col at count: %d \n", irank, count);
-        //print_matrix(B_col, N, n_rows_local[count]);
-        //printf("\n");
-        //MPI_Barrier(COMM);
-#endif
-
 #ifdef DGEMM
         cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
             n_rows_local[irank], n_rows_local[count], N, // m, n, k
@@ -175,8 +168,8 @@ int main(int argc, char** argv) {
 
 #ifdef DEBUG
     #ifdef GPU
+        /*unnecessary copy but useful for debugging*/
         cudaMemcpy(C, dev_C, n_rows_local[irank] * N * sizeof(double), cudaMemcpyDeviceToHost);
-        printf("C copied from device"); 
     #endif
         if (irank == MASTER) {
             printf("\nMatrix C at count = %d \n", count);
@@ -200,7 +193,7 @@ int main(int argc, char** argv) {
             printf("\nMatrix A \n");
         }
         print_matrix_distributed(A, irank, n_rows_local, N, n_proc_tot, COMM);
-        
+
         if (irank == MASTER) {
             printf("\nMatrix B \n");
         }
@@ -220,14 +213,19 @@ int main(int argc, char** argv) {
     cudaFree(dev_A);
     cudaFree(dev_B_col);
     cudaFree(dev_C);
-    cublasDestroy(handle);
+
+    sleep(0.5*irank);
+    printf("(rank: %d totalTime: %15.17f computationTime: %15.17f)\n", irank, TotalTime, computation_Time);
+
     MPI_Reduce(&TotalTime, &max_TotalTime, 1, MPI_FLOAT, MPI_MAX, 0, COMM);
-    MPI_Reduce(&computation_Time, &max_computation_Time, 1, MPI_FLOAT, MPI_MAX, 0, COMM);     
+    MPI_Reduce(&computation_Time, &max_computation_Time, 1, MPI_FLOAT, MPI_MAX, 0, COMM);
 
     if (irank == 0) {
         comm_total = max_TotalTime - max_computation_Time;
         compute_total = max_computation_Time;
     }
+
+    cublasDestroy(handle);
 #endif
 
     MPI_Barrier(COMM);

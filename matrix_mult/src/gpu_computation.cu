@@ -52,12 +52,12 @@ void computation(int count, double *B_col, double *dev_A, double *dev_B_col, dou
     cudaMemcpy(dev_B_col, B_col, N * (n_loc + 1) * sizeof(double), cudaMemcpyHostToDevice);
 
     const double alpha = 1.0, beta = 0.0;
-    cudaEvent_t start, stop;
+    cudaEvent_t start_c, stop_c;
     float time;
 
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start, 0);
+    cudaEventCreate(&start_c);
+    cudaEventCreate(&stop_c);
+    cudaEventRecord(start_c, 0);
 
 /*
 #ifdef DEBUG
@@ -86,8 +86,8 @@ void computation(int count, double *B_col, double *dev_A, double *dev_B_col, dou
     printf("\n");
 #endif
 */
-   cudaEventRecord(stop, 0);
-   cudaEventSynchronize(stop);
-   cudaEventElapsedTime(&time, start, stop);
+   cudaEventRecord(stop_c, 0);
+   cudaEventSynchronize(stop_c);
+   cudaEventElapsedTime(&time, start_c, stop_c);
    *computation_Time += time;
 }
