@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 #ifdef GPU
     /*Device variabile declaration and allocation*/
     cublasHandle_t handle;
-    float total_time, computational_time;
+    float total_time=0.0, computational_time=0.0;
     double *dev_A, *dev_B_col, *dev_C;
 
     cudaEvent_t start, stop;
@@ -180,13 +180,17 @@ int main(int argc, char** argv) {
     cudaEventSynchronize(stop);
     cudaEventElapsedTime(&total_time, start, stop);
 
-    float max_total_time, max_computational_time;
+    float max_total_time=0.0, max_computational_time=0.0;
 
     MPI_Reduce(&total_time, &max_total_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
     MPI_Reduce(&computational_time, &max_computational_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
 
     comm_total = (max_total_time-max_computational_time)*0.001;
     compute_total = (max_computational_time)*0.001;
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+
     /*Result moved from device to host at the end of computation*/
     cudaMemcpy(C, dev_C, n_rows_local[irank] * N * sizeof(double), cudaMemcpyDeviceToHost);
 #endif
@@ -213,7 +217,7 @@ int main(int argc, char** argv) {
     free(A); free(B); free(C), free(B_col);
 
 #ifdef GPU
-    /*Deallocation of the device memory and time computation*/
+    /*Deallocation of the device memory*/
     cudaFree(dev_A);
     cudaFree(dev_B_col);
     cudaFree(dev_C);

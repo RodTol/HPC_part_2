@@ -50,13 +50,14 @@ all: $(EXE)
 
 $(EXE): $(OBJS)
 	$(CC) $(LINKFLAGS) -o $(EXE) $(OBJS) $(LDLIBS)
- 
+
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
 	$(CC) $(CFLAGS) $(LINKFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/gpu_computation.c.o : $(SRC_DIRS)/gpu_computation.cu
-	$(NVCC) $ -c $< -o $@
+	$(MKDIR_P) $(dir $@)
+	$(NVCC) -c $< -o $@
 
 
 run: clean all
