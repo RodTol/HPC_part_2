@@ -1,5 +1,5 @@
 CORES = 6
-N = 6
+N = 100
 
 #target
 BUILD_DIR = ./build

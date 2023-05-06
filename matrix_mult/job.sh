@@ -2,22 +2,29 @@
 #SBATCH -A tra23_units
 #SBATCH -p m100_usr_prod
 #SBATCH --time 01:00:00
-#SBATCH -N 1                  # nodes
-#SBATCH --ntasks-per-node=25
-#SBATCH --gres=gpu:1          # gpus per node out of 4
+#SBATCH -N 4                  # nodes
+#SBATCH --ntasks-per-node=32
+#SBATCH --gres=gpu:4          # gpus per node out of 4
 #SBATCH --mem=246000          # memory per node out of 246000MB
 #SBATCH --ntasks-per-core=1
 #SBATCH --job-name=tolloi_mat_mul
-#SBATCH -o ./slurm_output/guppy_server_1_%j.out
-
+#SBATCH -o ./output/run.out
+#SBATCH -e ./output/err.out
 module load autoload spectrum_mpi/10.3.1--binary
+module load openblas
+module load cuda
 
-cd /m100/home/usertrain/a08trb39/HPC_part_2/mat_mul_even
-n_proc=25
+export OMP_NUM_THREADS=1
 
-for N in 1000 5000 10000 15000 20000
+cd /m100/home/usertrain/a08trb39/HPC_part_2/matrix_mult
+
+n_proc = 32
+
+for N in 1000 5000 10000 15000 20000 25000 30000
 do
-	make run N=$N CORES=$n_proc 
+	make run N=$N CORES=$n_proc
+	make run N=$N CORES=$n_proc compilation=dgemm
+	make run N=$N CORES=$n_proc compilation=gpu
 done
 
 echo "JOB FINISHED"
