@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev_C,
  int *n_rows_local, int N, int n_loc, int irank, cublasHandle_t *handle);

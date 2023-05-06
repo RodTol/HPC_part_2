@@ -1,6 +1,4 @@
 #include "headers/gpu_computation.h"
-#include <stdlib.h>
-#include <unistd.h>
 
 void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev_C,
  int *n_rows_local, int N, int n_loc, int irank, cublasHandle_t *handle) {
@@ -52,13 +50,12 @@ void computation(int count, double *B_col, double *dev_A, double *dev_B_col, dou
     cudaMemcpy(dev_B_col, B_col, N * (n_loc + 1) * sizeof(double), cudaMemcpyHostToDevice);
 
     const double alpha = 1.0, beta = 0.0;
-    cudaEvent_t start_c, stop_c;
     float time;
+    cudaEvent_t start,stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
 
-    cudaEventCreate(&start_c);
-    cudaEventCreate(&stop_c);
-    cudaEventRecord(start_c, 0);
-
+    cudaEventRecord(start,0);
 /*
 #ifdef DEBUG
     double *B_col_tmp;
@@ -86,8 +83,17 @@ void computation(int count, double *B_col, double *dev_A, double *dev_B_col, dou
     printf("\n");
 #endif
 */
-   cudaEventRecord(stop_c, 0);
-   cudaEventSynchronize(stop_c);
-   cudaEventElapsedTime(&time, start_c, stop_c);
-   *computation_Time += time;
+    cudaEventRecord(stop,0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&time, start, stop);  
+    *computation_Time += time;
+
+#ifdef DEBUG
+    if (irank==0) {
+      printf("Computational time for cuda at count %d : %15.17f", count, *computation_Time);
+    }
+    
+#endif
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 }

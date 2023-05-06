@@ -113,16 +113,15 @@ int main(int argc, char** argv) {
 #ifdef GPU
     /*Device variabile declaration and allocation*/
     cublasHandle_t handle;
+    float total_time, computational_time;
     double *dev_A, *dev_B_col, *dev_C;
-    float TotalTime=0.0, max_TotalTime, computation_Time=0.0, max_computation_Time;
-    cudaEvent_t start, stop;
 
+    cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
-    cudaEventRecord(start, 0);
-
     initialise_cuda(A, &dev_A, &dev_B_col, &dev_C, n_rows_local, N, n_loc, irank, &handle);
+    cudaEventRecord(start, 0);
 #endif
 
     /*The multiplication*/
@@ -156,7 +155,7 @@ int main(int argc, char** argv) {
             1.0, A, N, B_col, n_rows_local[count], 0.0, C + displacement[count], N);
 #elif GPU
         computation(count, B_col, dev_A, dev_B_col, dev_C,
-         n_rows_local, displacement, N, n_loc, irank, &computation_Time, handle);
+         n_rows_local, displacement, N, n_loc, irank, &computational_time, handle);
 #else
         matrix_multiplication(A, B_col, C, N, n_rows_local, displacement, irank, count);
 #endif
@@ -179,7 +178,15 @@ int main(int argc, char** argv) {
 #ifdef GPU
     cudaEventRecord(stop, 0);
     cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&TotalTime, start, stop);
+    cudaEventElapsedTime(&total_time, start, stop);
+
+    float max_total_time, max_computational_time;
+
+    MPI_Reduce(&total_time, &max_total_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&computational_time, &max_computational_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
+
+    comm_total = (max_total_time-max_computational_time)*0.001;
+    compute_total = (max_computational_time)*0.001;
     /*Result moved from device to host at the end of computation*/
     cudaMemcpy(C, dev_C, n_rows_local[irank] * N * sizeof(double), cudaMemcpyDeviceToHost);
 #endif
@@ -210,17 +217,6 @@ int main(int argc, char** argv) {
     cudaFree(dev_A);
     cudaFree(dev_B_col);
     cudaFree(dev_C);
-
-    sleep(0.5*irank);
-    printf("(rank: %d totalTime: %15.17f computationTime: %15.17f)\n", irank, TotalTime, computation_Time);
-
-    MPI_Reduce(&TotalTime, &max_TotalTime, 1, MPI_FLOAT, MPI_MAX, 0, COMM);
-    MPI_Reduce(&computation_Time, &max_computation_Time, 1, MPI_FLOAT, MPI_MAX, 0, COMM);
-
-    if (irank == 0) {
-        comm_total = max_TotalTime - max_computation_Time;
-        compute_total = max_computation_Time;
-    }
 
     cublasDestroy(handle);
 #endif
