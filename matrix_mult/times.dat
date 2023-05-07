@@ -1,2 +1,3 @@
          N, n_proc_tot, comm_total, compute_total
 MPI      1000  32    0.096897583000  0.109696349000
+cuBLAS   1000  5    0.065004699707  0.025331645966

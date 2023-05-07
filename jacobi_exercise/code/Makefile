@@ -1,7 +1,7 @@
 # inputs for the executables
 
-dim = 10
-it  = 100
+dim = 60
+it  = 10000
 r = 3
 c = 3
 
