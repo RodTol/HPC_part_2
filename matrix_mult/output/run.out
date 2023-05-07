@@ -8,4 +8,44 @@ mpicc -Wall -O3 -I./src -I./src/headers  -c src/main.c -o build/./src/main.c.o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers  -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 32 a.out 1000
+mpirun -np 256 a.out 1000
+-------------------------------------------
+N: 1000, n_proc_tot: 256, n_loc: 3, rest: 232 
+-------------------------------------------
+[1;31mUsing basic MPI for computation
+[0m
+----@[1;32mExecution ended with a succes![0m@----
+[1;33mCommunication time:  0.020163095000 
+Computational time:  0.006961587000 
+[1;31mTotal time:          0.027124682000 
+[0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/linearized_matrix_utility.c -o build/./src/linearized_matrix_utility.c.o
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/main.c -o build/./src/main.c.o
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
+mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
+mpirun -np 256 a.out 1000
+-------------------------------------------
+N: 1000, n_proc_tot: 256, n_loc: 3, rest: 232 
+-------------------------------------------
+[1;31mUsing OpenBLAS DGEMM for computation
+[0m
+----@[1;32mExecution ended with a succes![0m@----
+[1;33mCommunication time:  0.023136920000 
+Computational time:  0.002913824000 
+[1;31mTotal time:          0.026050744000 
+[0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/linearized_matrix_utility.c -o build/./src/linearized_matrix_utility.c.o
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/main.c -o build/./src/main.c.o
+mkdir -p build/./src/
+mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build/./src/general_utility.c.o
+mkdir -p build/
+nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
