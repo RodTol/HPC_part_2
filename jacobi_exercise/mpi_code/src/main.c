@@ -1,11 +1,15 @@
 #include "headers/general_utility.h"
 #include "headers/linearized_matrix_utility.h"
+#include "headers/data_distr_utility.h"
 
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+
+#define COMM MPI_COMM_WORLD
+#define MASTER 0
 
 /*** function declarations ***/
 
@@ -34,6 +38,14 @@ int main(int argc, char* argv[]){
   size_t dimension = 0, iterations = 0, row_peek = 0, col_peek = 0;
   size_t byte_dimension = 0;
 
+  int n_proc_tot, irank;
+  int n_loc, rest;
+  int* n_rows_local;
+
+  MPI_Init ( & argc , & argv ) ;
+  MPI_Comm_rank ( COMM , & irank ) ;
+  MPI_Comm_size ( COMM , & n_proc_tot ) ;
+
   // check on input parameters
   if(argc != 5) {
     fprintf(stderr,"\nwrong number of arguments. Usage: ./a.out dim it n m\n");
@@ -55,10 +67,33 @@ int main(int argc, char* argv[]){
     return 1;
   }
 
+  /*Calculate matrix distribution sizes*/
+  n_loc = dimension/n_proc_tot;
+  rest = dimension % n_proc_tot;
+  if (irank == MASTER) { printf("-------------------------------------------\n"
+                            "N: %d, n_proc_tot: %d, n_loc: %d, rest: %d \n"
+                            "-------------------------------------------\n", (int) dimension, n_proc_tot, n_loc, rest);
+  }
 
   byte_dimension = sizeof(double) * ( dimension + 2 ) * ( dimension + 2 );
   matrix = ( double* )malloc( byte_dimension );
   matrix_new = ( double* )malloc( byte_dimension );
+
+  /*Now I can have a rest so, I need to calculate the
+  correct sizes before the allocation. Every process needs
+  this array*/
+  n_rows_local = (int *) malloc( n_proc_tot * sizeof(int) );
+  calculate_n_rows(n_rows_local, n_loc, rest, n_proc_tot);
+
+#ifdef DEBUG
+    if (irank == MASTER) {
+        printf("\n # of rows for each processor:\n");
+        for (int i = 0; i < n_proc_tot; i++) {
+            printf("(rank: %d rows: %d)\n", i, n_rows_local[i]);
+        }    
+    }
+    MPI_Barrier(COMM);
+#endif
 
   memset( matrix, 0, byte_dimension );
   memset( matrix_new, 0, byte_dimension );
