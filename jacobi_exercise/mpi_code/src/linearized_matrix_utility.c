@@ -86,6 +86,59 @@ void print_matrix_distributed (double * A, int irank,
 }
 
 /**
+ * @brief This function is used to print the full matrix, 
+ * scattered among n_proc_tot processor, on a file on a serial way.
+ * @note this is a NON SCALABLE function because
+ * the copy on a buffer requires that the matrix doesn't
+ * occuy more than half on a single node.
+ * 
+ * @param A the matrix
+ * @param irank rank of each processor
+ * @param dim_1 vector of #of rows for each submatrix
+ * @param dim_2 cols of each submatrix
+ * @param n_proc_tot number of total processors
+ * @param COMM MPI communicator
+*/
+void print_matrix_distributed_gnuplot (double * A, int irank,
+ int* dim_1 , int dim_2, int* displacement, int n_proc_tot, MPI_Comm COMM, char filename[]) {
+  
+  FILE *file;
+  const double h = 0.1;
+
+  /*NOTE: I want only the actual matrix, without the 
+  ghost layer*/
+  if ( irank == 0 ) {
+      file = fopen( filename, "w" );
+      for(int i = 1; i < dim_1[0]-1; ++i ) {
+         for(int j = 1; j < dim_2-1 ; ++j ) {
+          fprintf(file, "%f\t%f\t%f\n", h * (j-1), -h * (i-1), A[linear_index(i,j,dim_1[0]-2,dim_2-2)] );
+        }
+      }
+
+      double * A_tmp;
+
+      for (int count = 1; count < n_proc_tot ; count ++ ) {
+        int size= dim_1[count] * dim_2 * sizeof( double);
+        A_tmp = (double *) malloc( size );
+
+        MPI_Recv ( A_tmp , dim_1[count] * dim_2 , MPI_DOUBLE , count ,
+          count , COMM , MPI_STATUS_IGNORE ) ;
+        for(int i = 1; i < dim_1[count]-1; ++i ) {
+          for(int j = 1; j < dim_2-1; ++j ) {
+            fprintf(file, "%f\t%f\t%f\n", h * (j-1), -h * (i-1+displacement[count]), A[linear_index(i,j,dim_1[count]-2,dim_2-2)] );
+          }
+        }
+      }
+
+      fclose( file );
+  }
+  else {
+      MPI_Send ( A , dim_1[irank] * dim_2 , MPI_DOUBLE , 0 ,
+        irank , COMM );
+  }
+}
+
+/**
  * @brief This function initialize a given NxN matrix,
  * distributed among n_processors, to the identity
  * 
@@ -106,7 +159,15 @@ void create_identity_matrix_distributed (double * A, int irank,
 }
 
 void create_jacobi_start_distributed (double * A, int irank,
- int dim_1 , int dim_2,  int offset) {
+ int *dim_1 , int dim_2,  int* offset) {
+  
+  /*Firstly I set everything to 0.5*/
+  for (int i = 0; i < dim_1[irank]; i++) {
+    for (int j = 0; j < dim_2; j++) {
+      A[linear_index(i,j,dim_1[irank], dim_2)] = 0.5;
+    }
+  }
+  
 
 }
 
