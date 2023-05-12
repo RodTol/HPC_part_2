@@ -1,4 +1,5 @@
 #include "headers/linearized_matrix_utility.h"
+#include "headers/general_utility.h"
 /**
  * @brief This function creates a local identity matrix
  * of size dim X dim 
@@ -37,13 +38,18 @@ int linear_index ( int i, int j, int dim1, int dim2)
  * @param dim_1 rows dimension
  * @param dim_2 cols dimension
  */
-void print_matrix(double * A, int dim_1, int dim_2 ) {
-  //fprintf( stdout, "\n");
+void print_matrix(double * A, int dim_1, int dim_2, bool ghost) {
   for(int i = 0; i < dim_1; i++ ){
-    for(int j = 0; j < dim_2; j++ ){
-      fprintf( stdout, "%.3g ", A[ j + ( i * dim_2 ) ] );
+    if (i==0 || i==dim_1-1) {
+      if (ghost) printf_red();
     }
-    fprintf( stdout, "\n");
+    for(int j = 0; j < dim_2; j++ ){
+      printf("%.3f ", A[linear_index(i,j,dim_1,dim_2)]);
+    }
+    if (i==0 || i==dim_1-1) {
+      if (ghost) printf_reset();
+    }
+    printf("\n");
   }
 }
 
@@ -62,21 +68,22 @@ void print_matrix(double * A, int dim_1, int dim_2 ) {
  * @param COMM MPI communicator
 */
 void print_matrix_distributed (double * A, int irank,
- int* dim_1 , int dim_2, int n_proc_tot, MPI_Comm COMM) {
+ int* dim_1 , int dim_2, int n_proc_tot, MPI_Comm COMM, bool divisor) {
   
   if ( irank == 0 ) {
       /*This variable are only for irank==0
       so they can be moved inside the if*/
       double * A_tmp;
-      print_matrix ( A , dim_1[irank], dim_2) ;
-
+      print_matrix ( A , dim_1[irank], dim_2, true) ;
+      if (divisor)     printf("-----------------------------------\n");
       for (int count = 1; count < n_proc_tot ; count ++ ) {
           int size= dim_1[count] * dim_2 * sizeof( double);
           A_tmp = (double *) malloc( size );
 
           MPI_Recv ( A_tmp , dim_1[count] * dim_2 , MPI_DOUBLE , count ,
             count , COMM , MPI_STATUS_IGNORE ) ;
-          print_matrix ( A_tmp , dim_1[count], dim_2 ) ;
+          print_matrix ( A_tmp , dim_1[count], dim_2, true) ;
+          if (divisor) printf("-----------------------------------\n");
       }
   }
   else {
@@ -110,22 +117,24 @@ void print_matrix_distributed_gnuplot (double * A, int irank,
   if ( irank == 0 ) {
       file = fopen( filename, "w" );
       for(int i = 1; i < dim_1[0]-1; ++i ) {
-         for(int j = 1; j < dim_2-1 ; ++j ) {
-          fprintf(file, "%f\t%f\t%f\n", h * (j-1), -h * (i-1), A[linear_index(i,j,dim_1[0]-2,dim_2-2)] );
+         for(int j = 0; j < dim_2 ; ++j ) {
+          fprintf(file, "%f\t%f\t%f\n", h * (j), -h * (i-1), A[linear_index(i,j,dim_1[0],dim_2)] );
         }
       }
 
       double * A_tmp;
 
       for (int count = 1; count < n_proc_tot ; count ++ ) {
-        int size= dim_1[count] * dim_2 * sizeof( double);
+        size_t size= dim_1[count] * dim_2 * sizeof( double);
         A_tmp = (double *) malloc( size );
-
         MPI_Recv ( A_tmp , dim_1[count] * dim_2 , MPI_DOUBLE , count ,
-          count , COMM , MPI_STATUS_IGNORE ) ;
+          count , COMM , MPI_STATUS_IGNORE );
+
         for(int i = 1; i < dim_1[count]-1; ++i ) {
-          for(int j = 1; j < dim_2-1; ++j ) {
-            fprintf(file, "%f\t%f\t%f\n", h * (j-1), -h * (i-1+displacement[count]), A[linear_index(i,j,dim_1[count]-2,dim_2-2)] );
+          for(int j = 0; j < dim_2; ++j ) {
+            fprintf(file, "%f\t%f\t%f\n", h * (j), -h * (i-1+displacement[count]), A_tmp[linear_index(i,j,dim_1[count],dim_2)] );
+            printf("i : %d , j: %d, linear %d, irank %d, value %15.17f\n", i, j, linear_index(i,j,dim_1[count],dim_2),
+             count, A_tmp[linear_index(i,j,dim_1[count],dim_2)]);
           }
         }
       }
@@ -159,7 +168,7 @@ void create_identity_matrix_distributed (double * A, int irank,
 }
 
 void create_jacobi_start_distributed (double * A, int irank,
- int *dim_1 , int dim_2,  int* offset) {
+ int *dim_1 , int dim_2,  int* offset, int n_proc_tot) {
   
   /*Firstly I set everything to 0.5*/
   for (int i = 0; i < dim_1[irank]; i++) {
@@ -167,7 +176,28 @@ void create_jacobi_start_distributed (double * A, int irank,
       A[linear_index(i,j,dim_1[irank], dim_2)] = 0.5;
     }
   }
+
+  /*Extra ghost layer (over the boundaries) are set to 0*/
+  for (int j = 0; j < dim_2; j++) {
+    if (irank==0) {
+      A[linear_index(0,j,dim_1[irank],dim_2)] = 0;
+    }
+    if (irank==n_proc_tot-1) {
+      A[linear_index(dim_1[irank]-1,j,dim_1[irank],dim_2)] = 0;
+    }
+  }
   
+  double  increment = 100.0 / ( dim_2-1 );
+  /*Last row*/
+  if (irank==n_proc_tot-1) {
+    for (int j = 0; j < dim_2; j++) {
+      A[linear_index(dim_1[irank]-2,j,dim_1[irank],dim_2)] = j*increment;
+      //printf("i : %d , j: %d, value %15.17f\n", dim_1[irank]-2, j, j*increment);
+    }
+  }
+  
+  /*Left column*/
+
 
 }
 

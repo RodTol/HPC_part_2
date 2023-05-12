@@ -109,12 +109,13 @@ int main(int argc, char* argv[]){
 #endif
 
   /*Allocation of the spaces for each processor. Remember that each
-  matrix need extra 2 rows and cols for the ghots layer*/
+  matrix need extra 2 rows for the ghots layer, but for the first and the last
+  process these are extra since they have a boundary*/
   dim_1_local = (int *) malloc(n_proc_tot*sizeof(int));
   for (int count = 0; count < n_proc_tot; count++) {
     dim_1_local[count] = n_rows_local[count] + 2;
   }
-  dim_2_local = dimension + 2;
+  dim_2_local = dimension;
   
 #ifdef DEBUG
     if (irank == MASTER) {
@@ -136,7 +137,9 @@ int main(int argc, char* argv[]){
   memset( matrix, 0, matrix_local_dimension );
   memset( matrix_new, 0, matrix_local_dimension );
 
-  create_jacobi_start_distributed(matrix, irank, dim_1_local, dim_2_local, displacement);
+  create_jacobi_start_distributed(matrix, irank, dim_1_local, dim_2_local,
+   displacement, n_proc_tot);
+  MPI_Barrier(COMM);
   /*
   
   // set up borders 
@@ -150,10 +153,10 @@ int main(int argc, char* argv[]){
   }
   */
   //save_gnuplot( matrix, dimension, "initial.dat");
-#ifdef DEBUG
+//#ifdef DEBUG
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
-    n_proc_tot, COMM);
-#endif
+    n_proc_tot, COMM, true);
+//#endif
   print_matrix_distributed_gnuplot(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
