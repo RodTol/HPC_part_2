@@ -1,5 +1,12 @@
 #include "headers/linearized_matrix_utility.h"
 
+/**
+ * @brief This function creates a local identity
+ * matrix of size dim X dim, made of doubles
+ * 
+ * @param A the matrix
+ * @param dim the size of the matrix
+*/
 void create_identity_matrix (double * A, int dim) {
   memset( A, 0, dim * dim * sizeof(double) );
   for (int i = 0; i < dim; i++){
@@ -8,6 +15,13 @@ void create_identity_matrix (double * A, int dim) {
   
 }
 
+/**
+ * @brief This function prints a local matrix
+ * of size dim X dim, made of doubles
+ * 
+ * @param A the matrix
+ * @param dim the size of the matrix
+*/
 void print_matrix_square(double * A, int dim ){
   fprintf( stdout, "\n");
   for(int i = 0; i < dim; i++ ){
