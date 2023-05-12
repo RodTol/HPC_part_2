@@ -47,8 +47,10 @@ int main(int argc, char* argv[]){
   MPI_Comm_size ( COMM , & n_proc_tot ) ;
 
   // check on input parameters
-  if(argc != 5) {
+  if(irank == MASTER && argc != 5) {
+    printf_red();
     fprintf(stderr,"\nwrong number of arguments. Usage: ./a.out dim it n m\n");
+    printf_reset();
     return 1;
   }
 
@@ -57,27 +59,35 @@ int main(int argc, char* argv[]){
   row_peek = atoi(argv[3]);
   col_peek = atoi(argv[4]);
 
-  printf("matrix size = %zu\n", dimension);
-  printf("number of iterations = %zu\n", iterations);
-  printf("element for checking = Mat[%zu,%zu]\n",row_peek, col_peek);
+  if (irank == MASTER) {
+    printf_yellow();
+    printf("--------------------------------------------------------------------------\n"
+           "Matrix size: %zu, # of iteration: %zu, Elements for checking =  Mat[%zu,%zu]\n"
+           "--------------------------------------------------------------------------\n",
+          dimension, iterations, row_peek, col_peek);
+    printf_reset();
+  }
 
   if((row_peek > dimension) || (col_peek > dimension)){
-    fprintf(stderr, "Cannot Peek a matrix element outside of the matrix dimension\n");
-    fprintf(stderr, "Arguments n and m must be smaller than %zu\n", dimension);
-    return 1;
+    if (irank == MASTER) {
+      printf_red();
+      fprintf(stderr, "Cannot Peek a matrix element outside of the matrix dimension\n");
+      fprintf(stderr, "Arguments n and m must be smaller than %zu\n", dimension);
+      printf_reset();
+      return 1;
+    }
   }
 
   /*Calculate matrix distribution sizes*/
   n_loc = dimension/n_proc_tot;
   rest = dimension % n_proc_tot;
-  if (irank == MASTER) { printf("-------------------------------------------\n"
-                            "N: %d, n_proc_tot: %d, n_loc: %d, rest: %d \n"
-                            "-------------------------------------------\n", (int) dimension, n_proc_tot, n_loc, rest);
+  if (irank == MASTER) {
+    printf_yellow();
+    printf("-------------------------------------------\n"
+           "N: %zu, n_proc_tot: %d, n_loc: %d, rest: %d \n"
+           "-------------------------------------------\n", dimension, n_proc_tot, n_loc, rest);
+    printf_reset();
   }
-
-  byte_dimension = sizeof(double) * ( dimension + 2 ) * ( dimension + 2 );
-  matrix = ( double* )malloc( byte_dimension );
-  matrix_new = ( double* )malloc( byte_dimension );
 
   /*Now I can have a rest so, I need to calculate the
   correct sizes before the allocation. Every process needs
@@ -95,14 +105,23 @@ int main(int argc, char* argv[]){
     MPI_Barrier(COMM);
 #endif
 
+  /*Allocation of the spaces for each processor. Remember that each
+  matrix need extra 2 rows and cols for the ghots layer*/
+  byte_dimension = sizeof(double) * ( dimension + 2 ) * ( n_loc + 2 );
+  matrix = ( double* )malloc( byte_dimension );
+  matrix_new = ( double* )malloc( byte_dimension );
+
+  /*Both are set to zero*/
   memset( matrix, 0, byte_dimension );
   memset( matrix_new, 0, byte_dimension );
 
   //fill initial values  
-  for( i = 1; i <= dimension; ++i )
+  
+  /*for( i = 1; i <= dimension; ++i )
     for( j = 1; j <= dimension; ++j )
       matrix[ ( i * ( dimension + 2 ) ) + j ] = 0.5;
-	      
+	*/
+      
   // set up borders 
   increment = 100.0 / ( dimension + 1 );
   

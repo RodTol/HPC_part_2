@@ -1,21 +1,17 @@
 #include "headers/linearized_matrix_utility.h"
-
+/**
+ * @brief This function creates a local identity matrix
+ * of size dim X dim 
+ * 
+ * @param A the matrix
+ * @param dim the size of the matrix
+*/
 void create_identity_matrix (double * A, int dim) {
   memset( A, 0, dim * dim * sizeof(double) );
   for (int i = 0; i < dim; i++){
     A[i + i*dim] = 1.0;
   }
   
-}
-
-void print_matrix_square(double * A, int dim ){
-  fprintf( stdout, "\n");
-  for(int i = 0; i < dim; i++ ){
-    for(int j = 0; j < dim; j++ ){
-      fprintf( stdout, "%.3g ", A[ j + ( i * dim ) ] );
-    }
-    fprintf( stdout, "\n");
-  }
 }
 
 /**
@@ -34,7 +30,7 @@ int linear_index ( int i, int j, int dim1, int dim2)
 }
 
 /**
- * @brief This function print a matrix of dimension 
+ * @brief This function print a local matrix of dimension 
  * dim1 X dim2
  * 
  * @param A matrix
@@ -107,6 +103,11 @@ void create_identity_matrix_distributed (double * A, int irank,
     j_glob = i_loc + offset ;
     A [ j_glob + ( i_loc * dim_2 ) ] = 1.0;
   }
+}
+
+void create_jacobi_start_distributed (double * A, int irank,
+ int dim_1 , int dim_2,  int offset) {
+
 }
 
 void matrix_multiplication(double* A, double* B_col, double* C, 
