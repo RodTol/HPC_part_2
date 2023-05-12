@@ -48,7 +48,7 @@ clean:
 flush:
 	rm -f *.dat
 
-plot:
+plot: run
 	@gnuplot -p plot.plt
 
 MKDIR_P ?= mkdir -p

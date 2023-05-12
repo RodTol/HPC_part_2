@@ -133,8 +133,8 @@ void print_matrix_distributed_gnuplot (double * A, int irank,
         for(int i = 1; i < dim_1[count]-1; ++i ) {
           for(int j = 0; j < dim_2; ++j ) {
             fprintf(file, "%f\t%f\t%f\n", h * (j), -h * (i-1+displacement[count]), A_tmp[linear_index(i,j,dim_1[count],dim_2)] );
-            printf("i : %d , j: %d, linear %d, irank %d, value %15.17f\n", i, j, linear_index(i,j,dim_1[count],dim_2),
-             count, A_tmp[linear_index(i,j,dim_1[count],dim_2)]);
+            //printf("i : %d , j: %d, linear %d, irank %d, value %15.17f\n", i, j, linear_index(i,j,dim_1[count],dim_2),
+            // count, A_tmp[linear_index(i,j,dim_1[count],dim_2)]);
           }
         }
       }
@@ -158,7 +158,7 @@ void print_matrix_distributed_gnuplot (double * A, int irank,
  * @param offset offset if rest!=0
 */
 void create_identity_matrix_distributed (double * A, int irank,
- int dim_1 , int dim_2,  int offset) {
+ int dim_1 , int dim_2, int offset) {
   int j_glob = 0;
   memset ( A , 0 , dim_1 * dim_2 * sizeof ( double ) ) ;
   for (int i_loc = 0; i_loc < dim_1 ; i_loc ++ ) {
@@ -168,7 +168,7 @@ void create_identity_matrix_distributed (double * A, int irank,
 }
 
 void create_jacobi_start_distributed (double * A, int irank,
- int *dim_1 , int dim_2,  int* offset, int n_proc_tot) {
+ int *dim_1 , int dim_2, int* offset, int n_proc_tot) {
   
   /*Firstly I set everything to 0.5*/
   for (int i = 0; i < dim_1[irank]; i++) {
@@ -191,13 +191,15 @@ void create_jacobi_start_distributed (double * A, int irank,
   /*Last row*/
   if (irank==n_proc_tot-1) {
     for (int j = 0; j < dim_2; j++) {
-      A[linear_index(dim_1[irank]-2,j,dim_1[irank],dim_2)] = j*increment;
+      A[linear_index(dim_1[irank]-2,j,dim_1[irank],dim_2)] = (dim_2-j)*increment;
       //printf("i : %d , j: %d, value %15.17f\n", dim_1[irank]-2, j, j*increment);
     }
   }
   
   /*Left column*/
-
+  for (int i = 1; i < dim_1[irank]-1; i++) {
+    A[linear_index(i,0,dim_1[irank],dim_2)] = (i+offset[irank])*increment;
+  }
 
 }
 

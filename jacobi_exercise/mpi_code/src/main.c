@@ -12,10 +12,6 @@
 #define MASTER 0
 
 /*** function declarations ***/
-
-// save matrix to file
-void save_gnuplot( double *M, size_t dim, char filename[]);
-
 // evolve Jacobi
 void evolve( double * matrix, double *matrix_new, size_t dimension );
 
@@ -137,49 +133,49 @@ int main(int argc, char* argv[]){
   memset( matrix, 0, matrix_local_dimension );
   memset( matrix_new, 0, matrix_local_dimension );
 
+t_start = seconds();
   create_jacobi_start_distributed(matrix, irank, dim_1_local, dim_2_local,
    displacement, n_proc_tot);
+  create_jacobi_start_distributed(matrix_new, irank, dim_1_local, dim_2_local,
+   displacement, n_proc_tot);
   MPI_Barrier(COMM);
-  /*
-  
-  // set up borders 
-  increment = 100.0 / ( dimension + 1 );
-  
-  for( i=1; i <= dimension+1; ++i ){
-    matrix[ i * ( dimension + 2 ) ] = i * increment;
-    matrix[ ( ( dimension + 1 ) * ( dimension + 2 ) ) + ( dimension + 1 - i ) ] = i * increment;
-    matrix_new[ i * ( dimension + 2 ) ] = i * increment;
-    matrix_new[ ( ( dimension + 1 ) * ( dimension + 2 ) ) + ( dimension + 1 - i ) ] = i * increment;
-  }
-  */
-  //save_gnuplot( matrix, dimension, "initial.dat");
-//#ifdef DEBUG
+t_end = seconds();
+
+#ifdef DEBUG
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);
-//#endif
+#endif
   print_matrix_distributed_gnuplot(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
-  /*
+  if (irank==MASTER) {
+    printf_red();
+    printf( "\nElapsed initialisation time = %f seconds\n", t_end - t_start );
+    printf_reset();
+  }
+
   // start algorithm
   t_start = seconds();
   for( it = 0; it < iterations; ++it ){
-    
-    evolve( matrix, matrix_new, dimension );
+
+    evolve_mpi( matrix, matrix_new, dimension);
 
     // swap the pointers
     tmp_matrix = matrix;
     matrix = matrix_new;
     matrix_new = tmp_matrix;
-
   }
   t_end = seconds();
-  
-  printf( "\nelapsed time = %f seconds\n", t_end - t_start );
-  printf( "\nmatrix[%zu,%zu] = %f\n", row_peek, col_peek, matrix[ ( row_peek + 1 ) * ( dimension + 2 ) + ( col_peek + 1 ) ] );
 
-  save_gnuplot( matrix, dimension, "solution.dat" );
-  */
+  if (irank==MASTER) {
+    printf_red();
+    printf( "\nElapsed computation time = %f seconds\n", t_end - t_start );
+    printf_reset();
+  }
+
+  print_matrix_distributed_gnuplot(matrix, irank, dim_1_local, dim_2_local,
+    displacement, n_proc_tot, COMM, "solution.dat");
+
   free( matrix );
   free( matrix_new );
 
@@ -188,33 +184,21 @@ int main(int argc, char* argv[]){
   return 0;
 }
 
-void evolve( double * matrix, double *matrix_new, size_t dimension ){
+
+void evolve_mpi( double * matrix, double *matrix_new, size_t dimension ){
   
   size_t i , j;
 
   //This will be a row dominant program.
-  for( i = 1 ; i <= dimension; ++i )
-    for( j = 1; j <= dimension; ++j )
+  for( i = 1 ; i <= dimension; ++i ) {
+    for( j = 1; j <= dimension; ++j ) {
       matrix_new[ ( i * ( dimension + 2 ) ) + j ] = ( 0.25 ) * 
-	( matrix[ ( ( i - 1 ) * ( dimension + 2 ) ) + j ] + 
-	  matrix[ ( i * ( dimension + 2 ) ) + ( j + 1 ) ] + 	  
-	  matrix[ ( ( i + 1 ) * ( dimension + 2 ) ) + j ] + 
-	  matrix[ ( i * ( dimension + 2 ) ) + ( j - 1 ) ] ); 
-}
-
-void save_gnuplot( double *M, size_t dimension, char filename[]){
-  
-  size_t i , j;
-  const double h = 0.1;
-  FILE *file;
-
-  file = fopen( filename, "w" );
-
-  for( i = 0; i < dimension + 2; ++i )
-    for( j = 0; j < dimension + 2; ++j )
-      fprintf(file, "%f\t%f\t%f\n", h * j, -h * i, M[ ( i * ( dimension + 2 ) ) + j ] );
-
-  fclose( file );
+        ( matrix[ ( ( i - 1 ) * ( dimension + 2 ) ) + j ] + 
+          matrix[ ( i * ( dimension + 2 ) ) + ( j + 1 ) ] + 	  
+          matrix[ ( ( i + 1 ) * ( dimension + 2 ) ) + j ] + 
+          matrix[ ( i * ( dimension + 2 ) ) + ( j - 1 ) ] ); 
+    }
+  }
 
 }
 
