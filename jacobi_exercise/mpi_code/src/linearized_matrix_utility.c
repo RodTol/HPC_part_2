@@ -132,33 +132,40 @@ void print_matrix_distributed_file (double * A, int irank,
   FILE *file;
   const double h = 0.1;
 
-  /*NOTE: I want only the actual matrix, without the 
-  ghost layer*/
+  /*NOTE: I want only the actual matrix, without the ghost layer*/
   if ( irank == 0 ) {
       file = fopen( filename, "w" );
-      for(int i = 1; i < dim_1[0]-1; ++i ) {
+      /*First proc skip last row(ghost layer)*/
+      for(int i = 0; i < dim_1[0]-1; ++i ) {
          for(int j = 0; j < dim_2 ; ++j ) {
-          fprintf(file, "%f\t%f\t%f\n", h * (j), -h * (i-1), A[linear_index(i,j,dim_1[0],dim_2)] );
+          fprintf(file, "%f\t%f\t%f\n", h * (j), -h * (i), A[linear_index(i,j,dim_1[0],dim_2)] );
         }
       }
 
       double * A_tmp;
 
-      for (int count = 1; count < n_proc_tot ; count ++ ) {
+      for (int count = 1; count < n_proc_tot-1 ; count ++ ) {
         size_t size= dim_1[count] * dim_2 * sizeof( double);
         A_tmp = (double *) malloc( size );
         MPI_Recv ( A_tmp , dim_1[count] * dim_2 , MPI_DOUBLE , count ,
           count , COMM , MPI_STATUS_IGNORE );
-
+        /*All other proc skips last and first rows*/
         for(int i = 1; i < dim_1[count]-1; ++i ) {
           for(int j = 0; j < dim_2; ++j ) {
             fprintf(file, "%f\t%f\t%f\n", h * (j), -h * (i-1+displacement[count]), A_tmp[linear_index(i,j,dim_1[count],dim_2)] );
-            //printf("i : %d , j: %d, linear %d, irank %d, value %15.17f\n", i, j, linear_index(i,j,dim_1[count],dim_2),
-            // count, A_tmp[linear_index(i,j,dim_1[count],dim_2)]);
           }
         }
       }
-
+      size_t size= dim_1[n_proc_tot-1] * dim_2 * sizeof( double);
+      A_tmp = (double *) malloc( size );
+      MPI_Recv ( A_tmp , dim_1[n_proc_tot-1] * dim_2 , MPI_DOUBLE , n_proc_tot-1 ,
+        n_proc_tot-1 , COMM , MPI_STATUS_IGNORE );
+      /*Last proc skips first row*/
+      for(int i = 1; i < dim_1[n_proc_tot-1]; ++i ) {
+        for(int j = 0; j < dim_2; ++j ) {
+          fprintf(file, "%f\t%f\t%f\n", h * (j), -h * (i-1+displacement[n_proc_tot-1]), A_tmp[linear_index(i,j,dim_1[n_proc_tot-1],dim_2)] );
+        }
+      }
       fclose( file );
   }
   else {

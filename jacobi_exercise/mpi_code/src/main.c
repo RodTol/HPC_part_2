@@ -165,7 +165,7 @@ t_end = seconds();
   // start algorithm
   t_start = seconds();
   for( it = 0; it < iterations; ++it ){
-    //ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
+    ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
     //evolve_mpi(matrix, matrix_new, dimension, irank);
 
     // swap the pointers
