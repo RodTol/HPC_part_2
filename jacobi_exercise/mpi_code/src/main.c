@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
   double *matrix, *matrix_new, *tmp_matrix;
 
   size_t dimension = 0, iterations = 0, row_peek = 0, col_peek = 0;
-  size_t matrix_local_dimension = 0;
+  size_t matrix_local_dimension = 0, matrix_with_borders_dim=0;
 
   int n_proc_tot, irank;
   int n_loc, rest, dim_2_local;
@@ -66,24 +66,26 @@ int main(int argc, char* argv[]){
           dimension, iterations, row_peek, col_peek);
     printf_reset();
   }
+   
+  matrix_with_borders_dim =  dimension+2;
 
-  if((row_peek > dimension) || (col_peek > dimension)){
+  if((row_peek > matrix_with_borders_dim) || (col_peek > matrix_with_borders_dim+2)){
     if (irank == MASTER) {
       printf_red();
       fprintf(stderr, "Cannot Peek a matrix element outside of the matrix dimension\n");
-      fprintf(stderr, "Arguments n and m must be smaller than %zu\n", dimension);
+      fprintf(stderr, "Arguments n and m must be smaller than %zu\n", matrix_with_borders_dim);
       printf_reset();
       return 1;
     }
   }
   /*Calculate matrix distribution sizes*/
-  n_loc = dimension/n_proc_tot;
-  rest = dimension % n_proc_tot;
+  n_loc = matrix_with_borders_dim/n_proc_tot;
+  rest = matrix_with_borders_dim % n_proc_tot;
   if (irank == MASTER) {
     printf_yellow();
     printf("-------------------------------------------\n"
-           "N: %zu, n_proc_tot: %d, n_loc: %d, rest: %d \n"
-           "-------------------------------------------\n", dimension, n_proc_tot, n_loc, rest);
+           "Total matrix size: %zu, n_proc_tot: %d, n_loc: %d, rest: %d \n"
+           "-------------------------------------------\n", matrix_with_borders_dim, n_proc_tot, n_loc, rest);
     printf_reset();
   }
 
@@ -108,13 +110,16 @@ int main(int argc, char* argv[]){
 #endif
 
   /*Allocation of the spaces for each processor. Remember that each
-  matrix need extra 2 rows for the ghots layer, but for the first and the last
-  process these are extra since they have a boundary*/
+  matrix need extra 2 rows for the ghots layer. The last and first
+  process already have an extra row since they have the boundary*/
   dim_1_local = (int *) malloc(n_proc_tot*sizeof(int));
-  for (int count = 0; count < n_proc_tot; count++) {
+  
+  dim_1_local[0] = n_rows_local[0]+1;
+  dim_1_local[n_proc_tot-1] = n_rows_local[n_proc_tot-1]+1;
+  for (int count = 1; count < n_proc_tot-1; count++) {
     dim_1_local[count] = n_rows_local[count] + 2;
   }
-  dim_2_local = dimension;
+  dim_2_local = matrix_with_borders_dim;
   
 #ifdef DEBUG
     if (irank == MASTER) {
@@ -160,13 +165,13 @@ t_end = seconds();
   // start algorithm
   t_start = seconds();
   for( it = 0; it < iterations; ++it ){
-    ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
-    evolve_mpi(matrix, matrix_new, dimension, irank);
+    //ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
+    //evolve_mpi(matrix, matrix_new, dimension, irank);
 
     // swap the pointers
-    tmp_matrix = matrix;
-    matrix = matrix_new;
-    matrix_new = tmp_matrix;
+    //tmp_matrix = matrix;
+    //matrix = matrix_new;
+    //matrix_new = tmp_matrix;
   }
   t_end = seconds();
 

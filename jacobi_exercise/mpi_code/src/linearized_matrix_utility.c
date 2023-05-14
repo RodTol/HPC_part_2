@@ -39,18 +39,38 @@ int linear_index ( int i, int j, int dim1, int dim2)
  * @param dim_2 cols dimension
  */
 void print_matrix(double * A, int dim_1, int dim_2, bool ghost) {
-  for(int i = 0; i < dim_1; i++ ){
-    if (i==0 || i==dim_1-1) {
-      if (ghost) printf_red();
-    }
+  
+  /*Top ghost*/
+  if (ghost) printf_red();
+  for (int j = 0; j < dim_2; j++) {
+    printf("%.3f ", A[linear_index(0,j,dim_1,dim_2)]);
+  }
+  printf("\n");
+  if (ghost) printf_reset();
+
+  /*Middle*/
+  for(int i = 1; i < dim_1-1; i++ ){
     for(int j = 0; j < dim_2; j++ ){
+      if (j==0 || j==dim_2-1) {
+        if (ghost) printf_red();
+      }
       printf("%.3f ", A[linear_index(i,j,dim_1,dim_2)]);
-    }
-    if (i==0 || i==dim_1-1) {
-      if (ghost) printf_reset();
+      if (j==0 || j==dim_2-1) {
+        if (ghost) printf_reset();
+      }
     }
     printf("\n");
   }
+
+  /*Bottom ghost*/
+  if (ghost) printf_red();
+  for (int j = 0; j < dim_2; j++) {
+    printf("%.3f ", A[linear_index(dim_1-1,j,dim_1,dim_2)]);
+  }
+  printf("\n");
+  if (ghost) printf_reset();
+
+
 }
 
 /**
@@ -177,28 +197,39 @@ void create_jacobi_start_distributed (double * A, int irank,
     }
   }
 
-  /*Extra ghost layer (over the boundaries) are set to 0*/
+  /*Top boundary is set to 0*/
   for (int j = 0; j < dim_2; j++) {
     if (irank==0) {
       A[linear_index(0,j,dim_1[irank],dim_2)] = 0;
     }
-    if (irank==n_proc_tot-1) {
-      A[linear_index(dim_1[irank]-1,j,dim_1[irank],dim_2)] = 0;
-    }
+  }
+
+  /*Right boundary is set to o*/
+  for (int i = 0; i < dim_1[irank]; i++) {
+    A[linear_index(i,dim_2-1,dim_1[irank],dim_2)] = 0;
   }
   
-  double  increment = 100.0 / ( dim_2-1 );
+  double increment = 100.0 / (dim_2-1);
   /*Last row*/
   if (irank==n_proc_tot-1) {
     for (int j = 0; j < dim_2; j++) {
-      A[linear_index(dim_1[irank]-2,j,dim_1[irank],dim_2)] = (dim_2-j)*increment;
-      //printf("i : %d , j: %d, value %15.17f\n", dim_1[irank]-2, j, j*increment);
+      A[linear_index(dim_1[irank]-1,j,dim_1[irank],dim_2)] = (dim_2-j-1)*increment;
     }
   }
   
   /*Left column*/
+  if (irank==0) {
+    A[linear_index(0,0,dim_1[irank],dim_2)] = 0;
+  }
+  /*I don't need to touch the bottom left corner because
+  is already setted up by the row initialisation*/
+
   for (int i = 1; i < dim_1[irank]-1; i++) {
-    A[linear_index(i,0,dim_1[irank],dim_2)] = (i+offset[irank])*increment;
+    int displacement = offset[irank];
+    if (irank!=0) {
+      displacement = displacement -1; 
+    }
+    A[linear_index(i,0,dim_1[irank],dim_2)] = (i+displacement)*increment;
   }
 
 }
