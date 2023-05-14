@@ -106,7 +106,7 @@ void print_matrix_distributed (double * A, int irank,
  * @param n_proc_tot number of total processors
  * @param COMM MPI communicator
 */
-void print_matrix_distributed_gnuplot (double * A, int irank,
+void print_matrix_distributed_file (double * A, int irank,
  int* dim_1 , int dim_2, int* displacement, int n_proc_tot, MPI_Comm COMM, char filename[]) {
   
   FILE *file;

@@ -12,8 +12,11 @@
 #define MASTER 0
 
 /*** function declarations ***/
+//Send and receive ghosts layers
+void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_1_local, int dim_2_local);
+
 // evolve Jacobi
-void evolve( double * matrix, double *matrix_new, size_t dimension );
+void evolve( double * matrix, double *matrix_new, size_t dimension, int irank );
 
 // return the elapsed time
 double seconds( void );
@@ -23,7 +26,7 @@ double seconds( void );
 int main(int argc, char* argv[]){
 
   // timing variables
-  double t_start, t_end, increment;
+  double t_start, t_end;
 
   // indexes for loops
   size_t it;
@@ -145,7 +148,7 @@ t_end = seconds();
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);
 #endif
-  print_matrix_distributed_gnuplot(matrix, irank, dim_1_local, dim_2_local,
+  print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
   if (irank==MASTER) {
@@ -157,8 +160,8 @@ t_end = seconds();
   // start algorithm
   t_start = seconds();
   for( it = 0; it < iterations; ++it ){
-
-    evolve_mpi( matrix, matrix_new, dimension);
+    ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
+    evolve_mpi(matrix, matrix_new, dimension, irank);
 
     // swap the pointers
     tmp_matrix = matrix;
@@ -173,20 +176,71 @@ t_end = seconds();
     printf_reset();
   }
 
-  print_matrix_distributed_gnuplot(matrix, irank, dim_1_local, dim_2_local,
+#ifdef DEBUG
+  MPI_Barrier(COMM);
+  if (irank==MASTER) {
+    printf_yellow();
+    printf("\n");
+    printf("-------Evolution executed-------\n");
+    printf_reset();
+  }
+  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
+    n_proc_tot, COMM, true);
+#endif
+  print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
 
-  free( matrix );
-  free( matrix_new );
+  free(matrix);
+  free(matrix_new);
+
+  free(n_rows_local);
+  free(dim_1_local);
+  free(displacement);
 
   MPI_Finalize();
 
   return 0;
 }
 
-
-void evolve_mpi( double * matrix, double *matrix_new, size_t dimension ){
+void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_1_local, int dim_2_local) {
   
+  int next = irank+1;
+  int previous = irank-1;
+
+  if (irank==0) {
+    /*Send the last actual row to next and receive
+    from next in its bottom ghost layer*/
+    MPI_Sendrecv(matrix+(dim_1_local[irank]-2)*dim_2_local, dim_2_local,
+     MPI_DOUBLE, next, 0,
+     matrix+(dim_1_local[irank]-1)*dim_2_local, dim_2_local,
+     MPI_DOUBLE, next, 0, COMM, MPI_STATUS_IGNORE);
+  } else if (irank==n_proc_tot-1) {
+    /*Send the first actual row to previous and receive
+    from previous in its top ghost layer*/
+    MPI_Sendrecv(matrix+dim_2_local, dim_2_local,
+     MPI_DOUBLE, previous, 0,
+     matrix, dim_2_local,
+     MPI_DOUBLE, previous, 0, COMM, MPI_STATUS_IGNORE);
+  } else {
+    /*Send the first actual row to previous and receive
+    from previous in its top ghost layer*/
+    MPI_Sendrecv(matrix+dim_2_local, dim_2_local,
+     MPI_DOUBLE, previous, 0,
+     matrix, dim_2_local,
+     MPI_DOUBLE, previous, 0, COMM, MPI_STATUS_IGNORE);
+    /*Send the last actual row to next and receive
+    from next in its bottom ghost layer*/
+    MPI_Sendrecv(matrix+(dim_1_local[irank]-2)*dim_2_local, dim_2_local,
+     MPI_DOUBLE, next, 0,
+     matrix+(dim_1_local[irank]-1)*dim_2_local, dim_2_local,
+     MPI_DOUBLE, next, 0, COMM, MPI_STATUS_IGNORE);
+  }
+
+}
+
+
+void evolve_mpi( double * matrix, double *matrix_new, size_t dimension, int irank){
+
   size_t i , j;
 
   //This will be a row dominant program.
