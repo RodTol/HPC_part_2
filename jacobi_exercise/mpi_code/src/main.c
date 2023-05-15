@@ -16,7 +16,7 @@
 void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_1_local, int dim_2_local);
 
 // evolve Jacobi
-void evolve( double * matrix, double *matrix_new, size_t dimension, int irank );
+void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank );
 
 // return the elapsed time
 double seconds( void );
@@ -78,14 +78,16 @@ int main(int argc, char* argv[]){
       return 1;
     }
   }
+  
   /*Calculate matrix distribution sizes*/
   n_loc = matrix_with_borders_dim/n_proc_tot;
   rest = matrix_with_borders_dim % n_proc_tot;
   if (irank == MASTER) {
     printf_yellow();
-    printf("-------------------------------------------\n"
+    printf("------------------------------------------------------------\n"
            "Total matrix size: %zu, n_proc_tot: %d, n_loc: %d, rest: %d \n"
-           "-------------------------------------------\n", matrix_with_borders_dim, n_proc_tot, n_loc, rest);
+           "------------------------------------------------------------\n",
+            matrix_with_borders_dim, n_proc_tot, n_loc, rest);
     printf_reset();
   }
 
@@ -136,18 +138,22 @@ int main(int argc, char* argv[]){
   matrix_local_dimension = sizeof(double) * ( dim_2_local ) * ( dim_1_local[irank] );
   matrix = ( double* )malloc( matrix_local_dimension );
   matrix_new = ( double* )malloc( matrix_local_dimension );
+  tmp_matrix = ( double* )malloc( matrix_local_dimension );
+
 
   /*Both are set to zero*/
   memset( matrix, 0, matrix_local_dimension );
   memset( matrix_new, 0, matrix_local_dimension );
+  memset( tmp_matrix, 0, matrix_local_dimension );
 
-t_start = seconds();
+
+  t_start = seconds();
   create_jacobi_start_distributed(matrix, irank, dim_1_local, dim_2_local,
    displacement, n_proc_tot);
   create_jacobi_start_distributed(matrix_new, irank, dim_1_local, dim_2_local,
    displacement, n_proc_tot);
   MPI_Barrier(COMM);
-t_end = seconds();
+  t_end = seconds();
 
 #ifdef DEBUG
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
@@ -166,12 +172,12 @@ t_end = seconds();
   t_start = seconds();
   for( it = 0; it < iterations; ++it ){
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
-    //evolve_mpi(matrix, matrix_new, dimension, irank);
+    evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
 
     // swap the pointers
-    //tmp_matrix = matrix;
-    //matrix = matrix_new;
-    //matrix_new = tmp_matrix;
+    tmp_matrix = matrix;
+    matrix = matrix_new;
+    matrix_new = tmp_matrix;
   }
   t_end = seconds();
 
@@ -197,6 +203,10 @@ t_end = seconds();
 
   free(matrix);
   free(matrix_new);
+
+  /*I think it's optional because one pointer is set
+  equal to another*/
+  //free(tmp_matrix);
 
   free(n_rows_local);
   free(dim_1_local);
@@ -243,19 +253,17 @@ void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_
 
 }
 
-
-void evolve_mpi( double * matrix, double *matrix_new, size_t dimension, int irank){
-
+void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank ) {
   size_t i , j;
 
   //This will be a row dominant program.
-  for( i = 1 ; i <= dimension; ++i ) {
-    for( j = 1; j <= dimension; ++j ) {
-      matrix_new[ ( i * ( dimension + 2 ) ) + j ] = ( 0.25 ) * 
-        ( matrix[ ( ( i - 1 ) * ( dimension + 2 ) ) + j ] + 
-          matrix[ ( i * ( dimension + 2 ) ) + ( j + 1 ) ] + 	  
-          matrix[ ( ( i + 1 ) * ( dimension + 2 ) ) + j ] + 
-          matrix[ ( i * ( dimension + 2 ) ) + ( j - 1 ) ] ); 
+  for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
+    for( j = 1; j <= dim_2_local-2; ++j ) {
+      matrix_new[ linear_index(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
+        ( matrix[ linear_index(i-1,j,dim_1_local[irank],dim_2_local) ] + 
+          matrix[ linear_index(i,j+1,dim_1_local[irank],dim_2_local) ] + 	  
+          matrix[ linear_index(i+1,j,dim_1_local[irank],dim_2_local) ] + 
+          matrix[ linear_index(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
     }
   }
 
