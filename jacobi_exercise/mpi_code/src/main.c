@@ -26,13 +26,13 @@ double seconds( void );
 int main(int argc, char* argv[]){
 
   // timing variables
-  double t_start, t_end;
+  float t_start, t_end, time, max_time;
 
   // indexes for loops
   size_t it;
   
   // initialize matrix
-  double *matrix, *matrix_new, *tmp_matrix;
+  double *matrix, *matrix_new, *tmp_matrix; 
 
   size_t dimension = 0, iterations = 0, row_peek = 0, col_peek = 0;
   size_t matrix_local_dimension = 0, matrix_with_borders_dim=0;
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]){
       return 1;
     }
   }
-  
+
   /*Calculate matrix distribution sizes*/
   n_loc = matrix_with_borders_dim/n_proc_tot;
   rest = matrix_with_borders_dim % n_proc_tot;
@@ -147,14 +147,14 @@ int main(int argc, char* argv[]){
   memset( tmp_matrix, 0, matrix_local_dimension );
 
 
-  t_start = seconds();
+  t_start = MPI_Wtime();
   create_jacobi_start_distributed(matrix, irank, dim_1_local, dim_2_local,
    displacement, n_proc_tot);
   create_jacobi_start_distributed(matrix_new, irank, dim_1_local, dim_2_local,
    displacement, n_proc_tot);
   MPI_Barrier(COMM);
-  t_end = seconds();
-
+  t_end = MPI_Wtime();
+  time = t_end-t_start;
 #ifdef DEBUG
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);
@@ -162,14 +162,16 @@ int main(int argc, char* argv[]){
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
+  MPI_Reduce(&time, &max_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
+
   if (irank==MASTER) {
     printf_red();
-    printf( "\nElapsed initialisation time = %f seconds\n", t_end - t_start );
+    printf( "\nElapsed initialisation time = %f seconds\n", max_time );
     printf_reset();
   }
 
   // start algorithm
-  t_start = seconds();
+  t_start = MPI_Wtime();
   for( it = 0; it < iterations; ++it ){
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
     evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
@@ -179,11 +181,13 @@ int main(int argc, char* argv[]){
     matrix = matrix_new;
     matrix_new = tmp_matrix;
   }
-  t_end = seconds();
+  t_end = MPI_Wtime();
+  time = t_end-t_start;
+  MPI_Reduce(&time, &max_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
 
   if (irank==MASTER) {
     printf_red();
-    printf( "\nElapsed computation time = %f seconds\n", t_end - t_start );
+    printf( "\nElapsed computation time = %f seconds\n", max_time );
     printf_reset();
   }
 
