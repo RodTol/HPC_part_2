@@ -20,7 +20,7 @@ INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 
 #compiler and standard flags
 CC = mpicc
-CFLAGS = -Wall -O3 $(INC_FLAGS)
+CFLAGS = -acc -Wall -O3 $(INC_FLAGS)
 	
 ifdef flags	
 	ifeq ($(flags), debug)

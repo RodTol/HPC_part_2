@@ -46,6 +46,21 @@ int main(int argc, char* argv[]){
   MPI_Comm_rank ( COMM , & irank ) ;
   MPI_Comm_size ( COMM , & n_proc_tot ) ;
 
+  /*Open ACC calls for setup*/
+  acc_device_t device_type = acc_get_device_type();
+  int  n_dev = acc_get_num_devices(device_type);
+  acc_set_device_num(irank%n_dev, device_type);
+  acc_init(device_type);
+
+  if (irank == MASTER) {
+    printf_yellow();
+    printf("-------------------------------\n"
+           "OpenACC # of devices: %d \n"
+           "-------------------------------\n",
+           n_dev);
+    printf_reset();
+  }
+
   // check on input parameters
   if(irank == MASTER && argc != 5) {
     printf_red();
@@ -67,7 +82,7 @@ int main(int argc, char* argv[]){
           dimension, iterations, row_peek, col_peek);
     printf_reset();
   }
-   
+
   matrix_with_borders_dim =  dimension+2;
 
   if((row_peek > matrix_with_borders_dim) || (col_peek > matrix_with_borders_dim+2)){
@@ -156,10 +171,12 @@ int main(int argc, char* argv[]){
   MPI_Barrier(COMM);
   t_end = MPI_Wtime();
   time = t_end-t_start;
+
 #ifdef DEBUG
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);
 #endif
+
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
@@ -176,13 +193,13 @@ int main(int argc, char* argv[]){
   for( it = 0; it < iterations; ++it ){
 
 
-    ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
-    evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    //ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
+    //evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
 
     // swap the pointers
-    tmp_matrix = matrix;
-    matrix = matrix_new;
-    matrix_new = tmp_matrix;
+    //tmp_matrix = matrix;
+    //matrix = matrix_new;
+    //matrix_new = tmp_matrix;
 
 
   }

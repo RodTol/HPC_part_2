@@ -94,7 +94,7 @@ void print_matrix_distributed (double * A, int irank,
       /*This variable are only for irank==0
       so they can be moved inside the if*/
       double * A_tmp;
-      print_matrix ( A , dim_1[irank], dim_2, true) ;
+      print_matrix ( A , dim_1[irank], dim_2, true);
       if (divisor)     printf("-----------------------------------\n");
       for (int count = 1; count < n_proc_tot ; count ++ ) {
           int size= dim_1[count] * dim_2 * sizeof( double);
