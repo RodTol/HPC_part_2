@@ -1,5 +1,5 @@
 # inputs for the executables
-dim = 60
+dim = 5
 it  = 10000
 r = 3
 c = 3
@@ -13,7 +13,7 @@ EXE=$(SRCS:.c=.x)
 all: $(EXE)
 
 run: clean all
-	./ $(EXE) $(dim) $(it) $(r) $(c)
+	./$(EXE) $(dim) $(it) $(r) $(c)
 
 %.x: %.c
 	$(CC) $< $(CFLAGS) -o $@
