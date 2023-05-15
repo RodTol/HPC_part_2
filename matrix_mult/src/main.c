@@ -121,6 +121,10 @@ int main(int argc, char** argv) {
     cudaEventCreate(&stop);
 
     initialise_cuda(A, &dev_A, &dev_B_col, &dev_C, n_rows_local, N, n_loc, irank, &handle);
+    if (irank==MASTER) {
+        printf("Succesful allocation CUDA\n");
+    }
+    
     cudaEventRecord(start, 0);
 #endif
 
