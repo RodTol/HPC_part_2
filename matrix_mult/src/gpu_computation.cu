@@ -11,7 +11,9 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
     cudaMalloc( (void **) dev_B_col, N * (n_loc + 1) * sizeof(double));
     cudaMalloc( (void **) dev_C, n_rows_local[irank] * N * sizeof(double) );
 
-    cudaMemcpy(*dev_A, A, n_rows_local[irank] * N * sizeof(double), cudaMemcpyHostToDevice);
+    cudaError_t err = cudaMemcpy(*dev_A, A, n_rows_local[irank] * N * sizeof(double), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) printf("Error allocating memory on the device: %s\n", cudaGetErrorString(err));
+
 }
 
 /*
