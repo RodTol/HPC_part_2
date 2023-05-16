@@ -2,16 +2,19 @@
 /.vscode/*
 
 #Build files
-mat_mul_even/build/*
+small_exercise/mat_mul_even/build/*
 
 #dat
-mat_mul_even/*.dat
+small_exercise/mat_mul_even/*.dat
 
 #slurm
-mat_mul_even/slurm_output
+small_exercise/mat_mul_even/slurm_output
 
 #sphere hdf5
-3D_parallel_sphere/*.h5
+small_exercise/3D_parallel_sphere/*.h5
+
+matrix_mult/output/*
 
 #fftw_es1 .dat
-fftw_es1/data/*
+fftw_es1/C/data/*
+fftw_es1/C/build/src/*
