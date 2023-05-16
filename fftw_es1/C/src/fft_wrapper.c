@@ -16,7 +16,7 @@
 #include <fftw3.h>
 #include <stdbool.h>
 #include <string.h>
-#include "utilities.h"
+#include "headers/utilities.h"
 
 double seconds(){
 

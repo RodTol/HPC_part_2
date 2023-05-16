@@ -14,7 +14,7 @@
  * Last revision: March 2016
  */
 
-#include "utilities.h"
+#include "headers/utilities.h"
 #include <complex.h>
 #include <fftw3-mpi.h>
 #include <fftw3.h>
@@ -177,14 +177,19 @@ int main(int argc, char **argv) {
    * mpi_output_routines folder
    *
    */
-  plot_data_2d("diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+  plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                1, diffusivity);
-  
-  plot_data_2d("diffusivity2", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
-               2, diffusivity);
+  MPI_Barrier(MPI_COMM_WORLD); /*This barrier are here to prevent some problems
+                              in the writing of .dat files*/
 
-  plot_data_2d("diffusivity3", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+  plot_data_2d("data/diffusivity2", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+               2, diffusivity);
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  plot_data_2d("data/diffusivity3", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                3, diffusivity);
+  MPI_Barrier(MPI_COMM_WORLD);
+
 
   /*
    * Now normalize the concentration
@@ -217,7 +222,7 @@ int main(int argc, char **argv) {
     conc[count] *= ss_global;
   }
 
-  plot_data_2d("concentration_init",n1,n2,n3,n1_local,n1_local_offset,
+  plot_data_2d("data/concentration_init",n1,n2,n3,n1_local,n1_local_offset,
                 2, conc);
 
   /*
@@ -328,7 +333,7 @@ int main(int argc, char **argv) {
 
       // HINT: Use parallel version of output routines
       char title[80];
-      sprintf(title, "concentration_%d", 1 + (istep - 1) / interval);
+      sprintf(title, "data/concentration_%d", 1 + (istep - 1) / interval);
       plot_data_2d(title, n1, n2, n3, n1_local,
         n1_local_offset, 2, conc);
       //plot_data_1d("1d_conc", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,

@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
-#include "utilities.h"
+#include "headers/utilities.h"
 
 int FileExists(const char *filename)
 {    
@@ -226,7 +226,7 @@ void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
                 displ[i] = sizes[i-1] + displ[i-1];
             }        
         }
-        for (i2=0; i2< n2; ++i2) {
+        for (i2=0; i2 < n2; ++i2) {
             for ( i1 = 0; i1 < n1_local; ++i1) {
                 index = index_f (i1,i2,i3, n1_local, n2 , n3);
                 local_buffer[i1] = data[index];
