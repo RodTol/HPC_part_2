@@ -12,3 +12,6 @@ mat_mul_even/slurm_output
 
 #sphere hdf5
 3D_parallel_sphere/*.h5
+
+#fftw_es1 .dat
+fftw_es1/data/*
