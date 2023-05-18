@@ -16,7 +16,7 @@
 //Send and receive ghosts layers
 void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_1_local, int dim_2_local);
 
-int linear_index ( int i, int j, int dim1, int dim2)
+int linear_index_local( int i, int j, int dim1, int dim2);
 
 // evolve Jacobi
 void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank );
@@ -47,18 +47,33 @@ int main(int argc, char* argv[]){
 
   /*Open ACC calls for setup*/
   acc_device_t device_type = acc_get_device_type();
-  int  n_dev = acc_get_num_devices(device_type);
+  int  n_dev_tot = acc_get_num_devices(device_type);
+  int n_dev = irank%n_dev_tot;
   acc_set_device_num(irank%n_dev, device_type);
   acc_init(device_type);
 
+  /*I check what device was assigned to each process*/
   if (irank == MASTER) {
     printf_yellow();
     printf("-------------------------------\n"
-           "OpenACC # of devices: %d \n"
-           "-------------------------------\n",
-           n_dev);
+           "There are in total %d devices  \n"
+           "I am %d and I use the device %d\n",
+           n_dev_tot,irank, n_dev);
+    int n_dev_tmp;
+    for (int count = 1; count < n_proc_tot; count++) {
+        MPI_Recv(&n_dev_tmp , 1 , MPI_INTEGER , count ,
+        count , COMM, MPI_STATUS_IGNORE);
+        printf("-------------------------------\n"
+        "I am %d and I use the device %d\n",
+        count, n_dev_tmp);
+    }
     printf_reset();
+  } else {
+    MPI_Send(&n_dev , 1 , MPI_INTEGER , 0 ,
+        irank , COMM);
   }
+
+  MPI_Barrier(COMM);
 
   // check on input parameters
   if(irank == MASTER && argc != 5) {
@@ -281,7 +296,7 @@ void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_
 
 }
 
-int linear_index ( int i, int j, int dim1, int dim2)
+int linear_index_local ( int i, int j, int dim1, int dim2)
 {
   return dim2*i + j; 
 }
@@ -290,14 +305,14 @@ void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim
   size_t i , j;
 
   //This will be a row dominant program.
-  #pragma acc kernels
+  //#pragma acc parallel loop
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
-      matrix_new[ linear_index(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
-        ( matrix[ linear_index(i-1,j,dim_1_local[irank],dim_2_local) ] + 
-          matrix[ linear_index(i,j+1,dim_1_local[irank],dim_2_local) ] + 	  
-          matrix[ linear_index(i+1,j,dim_1_local[irank],dim_2_local) ] + 
-          matrix[ linear_index(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
+      matrix_new[ linear_index_local(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
+        ( matrix[ linear_index_local(i-1,j,dim_1_local[irank],dim_2_local) ] + 
+          matrix[ linear_index_local(i,j+1,dim_1_local[irank],dim_2_local) ] + 	  
+          matrix[ linear_index_local(i+1,j,dim_1_local[irank],dim_2_local) ] + 
+          matrix[ linear_index_local(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
     }
   }
 
