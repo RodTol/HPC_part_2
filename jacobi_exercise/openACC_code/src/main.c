@@ -16,6 +16,8 @@
 //Send and receive ghosts layers
 void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_1_local, int dim_2_local);
 
+int linear_index ( int i, int j, int dim1, int dim2)
+
 // evolve Jacobi
 void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank );
 
@@ -279,11 +281,16 @@ void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_
 
 }
 
+int linear_index ( int i, int j, int dim1, int dim2)
+{
+  return dim2*i + j; 
+}
+
 void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank ) {
   size_t i , j;
 
   //This will be a row dominant program.
-  #pragma acc parallel loop
+  #pragma acc kernels
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
       matrix_new[ linear_index(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
@@ -296,13 +303,4 @@ void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim
 
 }
 
-// A Simple timer for measuring the walltime
-double seconds(){
-
-    struct timeval tmp;
-    double sec;
-    gettimeofday( &tmp, (struct timezone *)0 );
-    sec = tmp.tv_sec + ((double)tmp.tv_usec)/1000000.0;
-    return sec;
-}
 
