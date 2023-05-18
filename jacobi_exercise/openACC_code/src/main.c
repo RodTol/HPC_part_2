@@ -283,7 +283,7 @@ void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim
   size_t i , j;
 
   //This will be a row dominant program.
-  #pragma acc kernels
+  #pragma acc parallel loop
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
       matrix_new[ linear_index(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
