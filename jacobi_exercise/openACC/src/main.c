@@ -19,9 +19,6 @@ void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_
 // evolve Jacobi
 void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank );
 
-// return the elapsed time
-double seconds( void );
-
 /*** end function declaration ***/
 
 int main(int argc, char* argv[]){
@@ -176,7 +173,7 @@ int main(int argc, char* argv[]){
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);
 #endif
-
+  /*This need to be transformed to a parallel I/O operations*/
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
@@ -192,16 +189,18 @@ int main(int argc, char* argv[]){
   t_start = MPI_Wtime();
   for( it = 0; it < iterations; ++it ){
 
+    ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
+    
+    //Communication with the GPU
 
-    //ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
-    //evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    //This is the two function we can parallelize with OpenACC
+    evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
 
-    // swap the pointers
-    //tmp_matrix = matrix;
-    //matrix = matrix_new;
-    //matrix_new = tmp_matrix;
-
-
+    // The swap of the pointer will be more elaborate,
+    // since we have also to communicate with the GPU
+    tmp_matrix = matrix;
+    matrix = matrix_new;
+    matrix_new = tmp_matrix;
   }
   t_end = MPI_Wtime();
   time = t_end-t_start;
@@ -224,6 +223,7 @@ int main(int argc, char* argv[]){
   print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);
 #endif
+  /*This need to be transformed to a parallel I/O operations*/
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
 
@@ -283,6 +283,7 @@ void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim
   size_t i , j;
 
   //This will be a row dominant program.
+  #pragma acc kernels
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
       matrix_new[ linear_index(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
@@ -293,15 +294,5 @@ void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim
     }
   }
 
-}
-
-// A Simple timer for measuring the walltime
-double seconds(){
-
-    struct timeval tmp;
-    double sec;
-    gettimeofday( &tmp, (struct timezone *)0 );
-    sec = tmp.tv_sec + ((double)tmp.tv_usec)/1000000.0;
-    return sec;
 }
 
