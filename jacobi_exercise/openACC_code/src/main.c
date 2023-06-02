@@ -19,7 +19,7 @@ void ghost_layer_transfer(double * matrix, int irank, int n_proc_tot, int * dim_
 int linear_index_local( int i, int j, int dim1, int dim2);
 
 // evolve Jacobi
-void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank );
+void evolve_openacc( double * matrix_old,  double *matrix_new, int * dim_1_local, int dim_2_local, int irank );
 
 /*** end function declaration ***/
 
@@ -207,11 +207,9 @@ int main(int argc, char* argv[]){
   for( it = 0; it < iterations; ++it ){
 
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
-    
-    //Communication with the GPU
 
     //This is the two function we can parallelize with OpenACC
-    evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
 
     // The swap of the pointer will be more elaborate,
     // since we have also to communicate with the GPU
@@ -301,18 +299,19 @@ int linear_index_local ( int i, int j, int dim1, int dim2)
   return dim2*i + j; 
 }
 
-void evolve_mpi( double * matrix, double *matrix_new, int * dim_1_local, int dim_2_local, int irank ) {
+void evolve_openacc( double * matrix_old, double *matrix_new, int * dim_1_local, int dim_2_local, int irank ) {
   size_t i , j;
-
+  size_t size = dim_1_local[irank]*dim_2_local;
   //This will be a row dominant program.
-  //#pragma acc parallel loop
+  #pragma acc data copyin(matrix_old[:size], matrix_new[:size])
+  #pragma acc parallel loop
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
       matrix_new[ linear_index_local(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
-        ( matrix[ linear_index_local(i-1,j,dim_1_local[irank],dim_2_local) ] + 
-          matrix[ linear_index_local(i,j+1,dim_1_local[irank],dim_2_local) ] + 	  
-          matrix[ linear_index_local(i+1,j,dim_1_local[irank],dim_2_local) ] + 
-          matrix[ linear_index_local(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
+        ( matrix_old[ linear_index_local(i-1,j,dim_1_local[irank],dim_2_local) ] + 
+          matrix_old[ linear_index_local(i,j+1,dim_1_local[irank],dim_2_local) ] + 	  
+          matrix_old[ linear_index_local(i+1,j,dim_1_local[irank],dim_2_local) ] + 
+          matrix_old[ linear_index_local(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
     }
   }
 

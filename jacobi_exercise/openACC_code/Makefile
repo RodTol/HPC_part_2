@@ -20,7 +20,7 @@ INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 
 #compiler and standard flags
 CC = mpicc
-CFLAGS = -acc -ta=nvidia -Minfo=accel -Wall -O3 $(INC_FLAGS)
+CFLAGS = -fast -acc -ta=nvidia -Minfo=all -Wall -O3 $(INC_FLAGS)
 	
 ifdef flags	
 	ifeq ($(flags), debug)
