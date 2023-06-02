@@ -209,6 +209,7 @@ int main(int argc, char* argv[]){
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
 
     //This is the two function we can parallelize with OpenACC
+    #pragma acc data copyin(matrix_old[:size], matrix_new[:size])
     evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
 
     // The swap of the pointer will be more elaborate,
@@ -303,7 +304,6 @@ void evolve_openacc( double * matrix_old, double *matrix_new, int * dim_1_local,
   size_t i , j;
   size_t size = dim_1_local[irank]*dim_2_local;
   //This will be a row dominant program.
-  #pragma acc data copyin(matrix_old[:size], matrix_new[:size])
   #pragma acc parallel loop
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
