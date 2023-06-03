@@ -4,10 +4,6 @@ time = 10000
 r = 3
 c = 3
 
-#mpi link e include
-#INCMPI = -I${MPI_ROOT}/include
-#LIBMPI = -L${MPI_ROOT}/lib -lmpiprofilesupport -lmpi_ibm
-
 #target
 BUILD_DIR = ./build
 EXE = a.out
