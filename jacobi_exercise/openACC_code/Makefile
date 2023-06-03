@@ -5,8 +5,8 @@ r = 3
 c = 3
 
 #mpi link e include
-INCMPI = -I${MPI_ROOT}/include
-LIBMPI = -L${MPI_ROOT}/lib -lmpiprofilesupport -lmpi_ibm
+#INCMPI = -I${MPI_ROOT}/include
+#LIBMPI = -L${MPI_ROOT}/lib -lmpiprofilesupport -lmpi_ibm
 
 #target
 BUILD_DIR = ./build
@@ -23,8 +23,8 @@ INC_DIRS = $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 
 #compiler and standard flags
-CC = pgcc
-CFLAGS = -fast -acc -ta=tesla -Minfo=all $(INC_FLAGS)
+CC = mpicc
+CFLAGS = -g -fast -acc -Minfo=all -o acc $(INC_FLAGS)
 	
 ifdef flags	
 	ifeq ($(flags), debug)
@@ -35,11 +35,11 @@ endif
 all: $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) $(LINKFLAGS) $(LIBMPI) -o $(EXE) $(OBJS)
+	$(CC) $(LINKFLAGS) -o $(EXE) $(OBJS)
 
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ $(INCMPI)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 run: clean all
 	mpirun -np $(CORES) $(EXE) $(dim) $(time) $(r) $(c)
