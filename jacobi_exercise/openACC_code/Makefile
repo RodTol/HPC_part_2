@@ -24,9 +24,12 @@ INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 
 #compiler and standard flags
 CC = mpicc
-CFLAGS = -g -fast -acc -Minfo=all -o acc $(INC_FLAGS)
-	
-ifdef flags	
+CFLAGS = -fast -acc -Minfo=accel $(INC_FLAGS)
+
+#linkflags to libraries
+LINKFLAGS = -acc -Minfo=accel
+
+ifdef flags
 	ifeq ($(flags), debug)
 		CFLAGS+= -DDEBUG
 	endif
@@ -35,7 +38,7 @@ endif
 all: $(EXE)
 
 $(EXE): $(OBJS)
-	$(CC) $(LINKFLAGS) -o $(EXE) $(OBJS)
+	$(CC) $(LINKFLAGS) $(OBJS) -o $(EXE)
 
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
@@ -48,7 +51,7 @@ run: clean all
 
 clean:
 	rm -f $(OBJS) $(EXE)
-	
+
 flush:
 	rm -f *.dat
 

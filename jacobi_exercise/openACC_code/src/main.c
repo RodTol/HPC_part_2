@@ -53,6 +53,7 @@ int main(int argc, char* argv[]){
   acc_init(device_type);
 
   /*I check what device was assigned to each process*/
+
   if (irank == MASTER) {
     printf_yellow();
     printf("-------------------------------\n"
@@ -74,6 +75,7 @@ int main(int argc, char* argv[]){
   }
 
   MPI_Barrier(COMM);
+
 
   // check on input parameters
   if(irank == MASTER && argc != 5) {
@@ -209,15 +211,29 @@ int main(int argc, char* argv[]){
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
 
     //This is the two function we can parallelize with OpenACC
-    #pragma acc data copyin(matrix_old[:size], matrix_new[:size])
-    evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    //evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
 
+    size_t i , j;
+    size_t size = dim_1_local[irank]*dim_2_local;
+
+    #pragma acc data copyin(matrix[:size], matrix_new[:size])
+    #pragma acc parallel loop collapse(2) present(matrix[:size], matrix_new[:size])
+    for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
+        for( j = 1; j <= dim_2_local-2; ++j ) {
+          matrix_new[ linear_index_local(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
+            ( matrix[ linear_index_local(i-1,j,dim_1_local[irank],dim_2_local) ] + 
+              matrix[ linear_index_local(i,j+1,dim_1_local[irank],dim_2_local) ] + 	  
+              matrix[ linear_index_local(i+1,j,dim_1_local[irank],dim_2_local) ] + 
+              matrix[ linear_index_local(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
+        }
+    }
     // The swap of the pointer will be more elaborate,
     // since we have also to communicate with the GPU
     tmp_matrix = matrix;
     matrix = matrix_new;
     matrix_new = tmp_matrix;
   }
+
   t_end = MPI_Wtime();
   time = t_end-t_start;
   MPI_Reduce(&time, &max_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
@@ -304,6 +320,7 @@ void evolve_openacc( double * matrix_old, double *matrix_new, int * dim_1_local,
   size_t i , j;
   size_t size = dim_1_local[irank]*dim_2_local;
   //This will be a row dominant program.
+  /*
   #pragma acc parallel loop
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
@@ -314,7 +331,7 @@ void evolve_openacc( double * matrix_old, double *matrix_new, int * dim_1_local,
           matrix_old[ linear_index_local(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
     }
   }
-
+  */
 }
 
 
