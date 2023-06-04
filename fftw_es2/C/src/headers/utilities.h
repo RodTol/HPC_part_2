@@ -6,8 +6,10 @@
 #ifndef _FFTW_UTLITIES_
 #define _FFTW_UTLITIES_
 #include <complex.h>
-#include <fftw3.h>
 #include <sys/time.h>
+#include <fftw3.h>
+#include <mpi.h>
+#include <fftw3-mpi.h>
 #include <stdbool.h>
 #define pi 3.14159265358979323846
 
@@ -19,17 +21,22 @@ typedef struct {
 
   fftw_plan fw_plan_i1; 
   fftw_plan fw_plan_i2; 
-  fftw_plan fw_plan_i3; 
+  //fftw_plan fw_plan_i3; 
 
   fftw_plan bw_plan_i1;
   fftw_plan bw_plan_i2;
-  fftw_plan bw_plan_i3;
+  //fftw_plan bw_plan_i3;
 
-  fftw_complex *fftw_data;
+  fftw_complex *data;
   ptrdiff_t global_size_grid;
   ptrdiff_t local_size_grid;
+  ptrdiff_t all_to_all_block_size;
+  /*Dimensioni prima distribuzione dati*/
   ptrdiff_t local_n1;
   ptrdiff_t local_n1_offset;
+  /*Dimensioni seconda distribuzione dati*/
+  ptrdiff_t local_n2;
+  ptrdiff_t local_n2_offset;
  
   ptrdiff_t n1;
   ptrdiff_t n2;
@@ -42,11 +49,11 @@ typedef struct {
 
 
 double seconds();
-inline int index_f ( int i1, int i2, int i3, int n1, int n2, int n3 );
-
+int index_f ( int i1, int i2, int i3, int n1, int n2, int n3 );
 
 void plot_data_1d( char* name, int n1, int n2, int n3, int dir, double* data );
-void plot_data_2d( char* name, int n1, int n2, int n3, int dir, double* data );
+void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local,
+ int n1_local_offset, int dir, double* data);
 void init_fftw( fftw_dist_handler* fft, int n1, int n2, int n3, MPI_Comm comm );
 void close_fftw( fftw_dist_handler* fft );
 

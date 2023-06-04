@@ -179,16 +179,12 @@ int main(int argc, char **argv) {
    */
   plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                1, diffusivity);
-  MPI_Barrier(MPI_COMM_WORLD); /*This barrier are here to prevent some problems
-                              in the writing of .dat files*/
 
   plot_data_2d("data/diffusivity2", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                2, diffusivity);
-  MPI_Barrier(MPI_COMM_WORLD);
 
   plot_data_2d("data/diffusivity3", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                3, diffusivity);
-  MPI_Barrier(MPI_COMM_WORLD);
 
 
   /*
