@@ -59,7 +59,7 @@ int main( int argc, char* argv[] ){
   // time step for time integration
   double dt = 2.e-3; 
   // number of time steps
-  int nstep = 100; 
+  int nstep = 300; 
   // Radius of diffusion channel
   double rad_diff = 0.7;
   // Radius of starting concentration
@@ -68,7 +68,7 @@ int main( int argc, char* argv[] ){
 
   double *diffusivity, *conc, *dconc, *aux1, *aux2;
   
-  int ii, i1, i2, i3, ipol, istep, index;
+  int i1, i2, i3, ipol, istep, index;
 
   double f1conc, f2conc, f3conc, f1diff, f2diff, f3diff, fac;
   double x1, x2 , x3, rr;
@@ -189,6 +189,44 @@ int main( int argc, char* argv[] ){
   plot_data_2d("data/diffusivity3", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                3, diffusivity);
   
+
+  /*Debuggin for r2mean and ss*/
+  if (irank == 0) {
+    double tmp_ss;
+    printf("I am %d, this is my ss: %17.15f\n", irank, ss);
+    for (int i = 1; i < n_proc_tot; i++) {
+      MPI_Recv(&tmp_ss, 1, MPI_DOUBLE, i, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      printf("I am %d, this is my ss: %17.15f\n", i, ss);
+    }
+  } else {
+    MPI_Send(&ss, 1, MPI_DOUBLE, 0, irank, MPI_COMM_WORLD);
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
+
+
+  /*
+  * Now normalize the concentration and print
+  *
+  */
+  fac = L1 * L2 * L3 / (global_size_grid);
+  MPI_Allreduce(&ss, &global_ss, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  global_ss = 1.0 / (global_ss * fac);
+
+  for (int count = 0; count < local_size_grid; ++count) {
+    conc[count] *= global_ss;
+  }
+
+  plot_data_2d("data/concentration_init",n1,n2,n3,n1_local,n1_local_offset,
+                2, conc);
+
+
+  /*
+    * Now everything is defined: system size, diffusivity inside the system, and
+    * the starting concentration
+    *
+    * Start the dynamics
+    *
+    */                
 
   close_fftw(&fft_h);
   free(diffusivity);

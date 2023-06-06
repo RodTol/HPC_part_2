@@ -30,7 +30,7 @@ void plot_data_1d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
     MPI_Comm_rank( MPI_COMM_WORLD, &mype );
     MPI_Comm_size( MPI_COMM_WORLD, &npes );
    
-    snprintf(buf, sizeof(buf), "%s_%d.dat", name, num); 
+    snprintf(buf, sizeof(buf), "%s.dat", name);
     
     owner=npes+1;  
     if ( (n1/2 > n1_local_offset) &&  (n1/2 <= n1_local_offset + n1_local) ) 

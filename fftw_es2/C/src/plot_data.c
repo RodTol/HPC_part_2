@@ -81,12 +81,15 @@ void plot_data_1d( char* name, int n1, int n2, int n3, int dir, double* data)
     fclose(fp);
 }
 
+
+/*Questa funz va modificata perchè per ora fà il print giusto solo per
+una distributizione dei dati lungo n1. Se voglio avere anche quella su n2
+devo introdurre un nuovo parametro*/
 void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local,
  int n1_local_offset, int dir, double* data)
 {
     int i1, i2, i3, i;
     FILE *fp;
-    int num = 1;    
     char buf[256];
     int index;
 

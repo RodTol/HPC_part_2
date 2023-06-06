@@ -113,7 +113,6 @@ void fft_3d(fftw_mpi_handler* fft, double *data_direct, fftw_complex* data_rec, 
     // Now distinguish in which direction the FFT is performed
     if ( direct_to_reciprocal) {
 
-      /*"Complessifico" cit benatti*/
 	    for(i = 0; i < fft->local_size_grid; i++) {
 	      fft->fftw_data[i]  = data_direct[i] + 0.0 * I;
 	    } 

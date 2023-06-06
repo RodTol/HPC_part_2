@@ -39,6 +39,11 @@ int index_f ( int i1, int i2, int i3, int n1, int n2, int n3){
   return n3*n2*i1 + n3*i2 + i3; 
 }
 
+void reorder( ) {
+
+}
+
+
 void init_fftw(fftw_dist_handler *fft, int n1, int n2, int n3, MPI_Comm comm){
   
   int n_proc_tot, irank;
@@ -59,6 +64,8 @@ void init_fftw(fftw_dist_handler *fft, int n1, int n2, int n3, MPI_Comm comm){
   if( ( ( n1 % n_proc_tot ) || ( n2 % n_proc_tot ) ) && !irank ){    fprintf( stdout, "\nN1 dimension must be multiple of the number of processes. The program will be aborted...\n\n" );
     MPI_Abort( comm, 1 );
   }
+
+  fftw_mpi_init();
 
   /* Fill the missing parts */
   fft->n1 = n1;
@@ -124,6 +131,8 @@ void close_fftw( fftw_dist_handler *fft ){
     //fftw_destroy_plan( fft->fw_plan_i3 );
 
     fftw_free( fft->data );
+
+    fftw_cleanup();
 }
 
 /* This subroutine uses fftw to calculate 3-dimensional discrete FFTs.
@@ -144,67 +153,77 @@ void close_fftw( fftw_dist_handler *fft ){
  * f(l) = 1/N \sum_{k=0}^{N-1} exp(+ 2 \pi I k*l/N) F(k)
  * 
  */
-// void fft_3d( fftw_dist_handler* fft, double *data_direct, fftw_complex* data_rec, bool direct_to_reciprocal ){
+void fft_3d( fftw_dist_handler* fft, double *data_direct, fftw_complex* data_rec, bool direct_to_reciprocal ){
 
-//   double fac;
-//   int i1, i2, i3, index, start_index, end_index, index_buf, i2_loc;
-//   int n2 = fft->n2, n3 = fft->n3, n1 = fft->n1, n_proc_tot, block_dim, nblock;
+  double fac;
+  int i1, i2, i3, index, start_index, end_index, index_buf, i2_loc;
+  int n1 = fft->n1, n2 = fft->n2, n3 = fft->n3, n_proc_tot, block_dim, nblock;
 
-//   /* Allocate buffers to send and receive data */
-
-//   MPI_Comm_size( fft->mpi_comm, &n_proc_tot );
+  /* Allocate buffers to send and receive data */
+  MPI_Comm_size( fft->mpi_comm, &n_proc_tot );
     
-//   // Now distinguish in which direction the FFT is performed
-//   if( direct_to_reciprocal ){
-//     /* among i3 dimension */
-//     for( i1 = 0; i1 < fft->local_n1; i1++ ){
-//       for( i2 = 0; i2 < n2; i2++ ){
-// 	for( i3 = 0; i3 < n3; i3++ ){
-	  
-// 	  // Fill the missing part 
-//     }
+  // Now distinguish in which direction the FFT is performed
+  if( direct_to_reciprocal ) {
+
+    /*Rendo i valori complessi (per la memoria ?)*/
+    for(int i = 0; i < fft->local_size_grid; i++) {
+      fft->data[i]  = data_direct[i] + 0.0 * I;
+    } 
+
+    /* among i3 dimension */
+    for( i1 = 0; i1 < fft->local_n1; i1++ ){
+      for( i2 = 0; i2 < n2; i2++ ){
+	      for( i3 = 0; i3 < n3; i3++ ){
+          // Fill the missing part 
+        }
+      }
+    }  
       
-//     /* among i2 dimension */
-//     for( i1 = 0; i1 < fft->local_n1; i1++ ){
-//       for( i3 = 0; i3 < n3; i3++ ){
-// 	for( i2 = 0; i2 < n2; i2++ ){
-	    
-// 	  // Fill the missing part 
-// 	}
-//       }
-//     }
+    /* among i2 dimension */
+    for( i1 = 0; i1 < fft->local_n1; i1++ ){
+      for( i3 = 0; i3 < n3; i3++ ){
+	      for( i2 = 0; i2 < n2; i2++ ){
+	        // Fill the missing part 
+	      }
+      }
+    }
 
-//     /*
-//      * Reorder the different data blocks to be contigous in memory.
-//      * The new distribution will allow to use the Alltoall function
-//      *
-//      */
+    /*I due cicli qua sopra li posso sostituire con una chimata sola a
+    fftw_execute sul piano 2D ?*/
 
-//     // Perform an Alltoall communication 
-
-//     /*  among i1 dimension */
-//     for( i3 = 0; i3 < n3; i3++ ){
-//       for( i2 = 0; i2 < /*block_dim*/; i2++ ){
-// 	for( i1 = 0; i1 < n1; i1++ ){
-	  
-// 	  // Fill the missing part 
-// 	}
-//       }
-//     }
-
-//     // Perform an Alltoall communication 
-
-//     /*
-//      * Reoder the different data blocks to be consistent with the initial distribution.
-//      *
-//      */      
-
-//   }
-//   else{
+    /*
+     * Reorder the different data blocks to be contigous in memory.
+     * The new distribution will allow to use the Alltoall function
+     *
+     * Slides 19 e 20
+     */
     
-//     /* Implement the reverse transform */
+    reorder();
 
-//   }
+    // Perform an Alltoall communication 
+
+    /*  among i1 dimension */
+    for( i3 = 0; i3 < n3; i3++ ){
+      for( i2 = 0; i2 < fft->local_n2; i2++ ){
+	      for( i1 = 0; i1 < n1; i1++ ){
+	        // Fill the missing part 
+	      }
+      }
+    }
+
+    // Perform an Alltoall communication 
+
+    /*
+     * Reoder the different data blocks to be consistent with the initial distribution.
+     *
+     */      
+
+  } else {
+    /*Copio i dati da cui farò l'inversa in fft->data*/
+    memcpy(fft->data, data_rec, fft->local_size_grid*sizeof(fftw_complex));
+    /* Implement the reverse transform */
+
+  }
   
-// }
+}
 
