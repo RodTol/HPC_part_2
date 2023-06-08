@@ -17,6 +17,12 @@ INC_FLAGS = $(addprefix -I ,$(INC_DIRS))
 CC=mpicc
 CFLAGS = -O3 -Wall -I$(FFTW_INC) $(INC_FLAGS) 
 
+ifdef flags	
+	ifeq ($(flags), debug)
+		CFLAGS+= -DDEBUG
+	endif
+endif
+
 CORES=4
 
 all: $(EXE)

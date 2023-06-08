@@ -105,19 +105,6 @@ int main( int argc, char* argv[] ){
     */
   init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD );
 
-  /*Debugging purpouse*/
-  MPI_Barrier(MPI_COMM_WORLD);
-  if (irank == 0) {
-    int tmp;
-    printf("I am %d, this is my n1: %ld \n", irank, fft_h.local_n1);
-    for (int i = 1; i < n_proc_tot; i++) {
-      MPI_Recv(&tmp, 1, MPI_INT, i, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      printf("I am %d, this is my n1: %d \n", i, tmp);
-    }
-  } else {
-    MPI_Send(&(fft_h.local_n1), 1, MPI_INT, 0, irank, MPI_COMM_WORLD);
-  }
-
   local_size_grid = (fft_h.local_n1) * n2 * n3;
   global_size_grid = n1 * n2 * n3;
   n1_local = fft_h.local_n1;
@@ -179,7 +166,6 @@ int main( int argc, char* argv[] ){
     }
   }
 
-  
   plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                1, diffusivity);
 
@@ -188,7 +174,6 @@ int main( int argc, char* argv[] ){
 
   plot_data_2d("data/diffusivity3", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                3, diffusivity);
-  
 
   /*Debuggin for r2mean and ss*/
   if (irank == 0) {
@@ -202,7 +187,6 @@ int main( int argc, char* argv[] ){
     MPI_Send(&ss, 1, MPI_DOUBLE, 0, irank, MPI_COMM_WORLD);
   }
   MPI_Barrier(MPI_COMM_WORLD);
-
 
   /*
   * Now normalize the concentration and print
@@ -219,14 +203,18 @@ int main( int argc, char* argv[] ){
   plot_data_2d("data/concentration_init",n1,n2,n3,n1_local,n1_local_offset,
                 2, conc);
 
-
   /*
     * Now everything is defined: system size, diffusivity inside the system, and
     * the starting concentration
     *
     * Start the dynamics
     *
-    */                
+    */       
+#ifdef DEBUG   
+  fftw_complex * aux;
+  aux = ( fftw_complex* ) fftw_malloc( fft_h.local_size_grid * sizeof(fftw_complex) );
+  fft_3d(&fft_h, conc, aux, true);
+#endif
 
   close_fftw(&fft_h);
   free(diffusivity);

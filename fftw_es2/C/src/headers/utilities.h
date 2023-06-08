@@ -28,6 +28,8 @@ typedef struct {
   //fftw_plan bw_plan_i3;
 
   fftw_complex *data;
+  fftw_complex *data_by_column;
+  
   ptrdiff_t global_size_grid;
   ptrdiff_t local_size_grid;
   ptrdiff_t all_to_all_block_size;
