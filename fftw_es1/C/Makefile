@@ -29,7 +29,7 @@ $(BUILD_DIR)/%.o : %.c
 run: flush clean all
 	mpirun -np $(CORES) $(EXE)
 
-plot: run
+plot:
 	gnuplot animate.plt
 
 flush:

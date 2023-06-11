@@ -204,14 +204,115 @@ int main( int argc, char* argv[] ){
     *
     * Start the dynamics
     *
-    */       
-#ifdef DEBUG   
-  fftw_complex * aux;
-  aux = ( fftw_complex* ) fftw_malloc( fft_h.local_size_grid * sizeof(fftw_complex) );
-  fft_3d(&fft_h, conc, aux, true);
-  fft_3d(&fft_h, conc, aux, false);
+    */
 
-#endif
+  if (irank == 0) {
+    printf_red();
+    printf("Dynamic is starting\n Local_size_grid is %d\n fac is: %17.15f \n",
+   local_size_grid, fac);
+    printf_reset();
+  }
+  
+  /*Questa variabile indica ogni quanti frame voglio fare una stampa*/
+  int interval = 10;
+  start = seconds();
+
+  /*Inizializzo dconc (si può mettere fuori perche
+  è ridondante)*/
+  for (i1=0; i1< local_size_grid; ++i1) dconc[i1] = 0.0;
+
+  for (istep = 1; istep <= nstep; ++istep) {
+    /*Devo fare la trasf sulle 3 direzioni e sommare i contributi*/
+    
+    for (ipol =1; ipol<=3; ++ipol ) {
+
+        derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1);
+
+        for (i1=0; i1< local_size_grid; ++i1) {
+          aux1[i1] *= diffusivity[i1];
+        }
+
+        derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2);
+
+        for (i1=0; i1< local_size_grid; ++i1) {
+          dconc[i1] += aux2[i1];
+        } 
+    }
+
+    /*Aggiorno l'array della concentrazione*/
+    for (i1=0; i1< local_size_grid; ++i1) {
+      conc[i1] += dt*dconc[i1];
+      dconc[i1] = 0.0;
+    } 
+    
+    /*Voglio un frame ogni 10*/
+    if (istep%interval == 1) {
+      // Check the normalization of conc
+      ss = 0.;
+      r2mean = 0.;
+
+      // HINT: the conc array is distributed, so only a part of it is on
+      // each processor
+
+      for (i3 = 0; i3 < n3; ++i3) {
+        x3=L3*((double)i3)/n3 - 0.5*L3;
+        for (i2 = 0; i2 < n2; ++i2) {
+          x2=L2*((double)i2)/n2 - 0.5*L2;
+          for (i1 = 0; i1 < n1_local; ++i1) {
+            x1 = L1 * ( (double) (i1 + n1_local_offset) ) / n1 - 0.5 * L1;
+            rr = pow( x1, 2)  + pow( x2, 2) + pow( x3, 2);
+            index = index_f(i1, i2, i3, n1_local, n2, n3);
+            ss += conc[index];
+            r2mean += conc[index]*rr;
+          }
+        }
+      }
+
+      /*Debuggin for r2mean and ss*/
+      /*if (irank == 0) {
+        double tmp_ss;
+        double tmp_r2mean;
+        printf("I am %d, this is my ss: %17.15f and r2mean: %17.15f\n", irank, ss, r2mean);
+        for (int i = 1; i < n_proc_tot; i++) {
+          MPI_Recv(&tmp_ss, 1, MPI_DOUBLE, i, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+          MPI_Recv(&tmp_r2mean, 1, MPI_DOUBLE, i, i+1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+          printf("I am %d, this is my ss: %17.15f and r2mean: %17.15f\n", i, tmp_ss, tmp_r2mean);
+        }
+      } else {
+        MPI_Send(&ss, 1, MPI_DOUBLE, 0, irank, MPI_COMM_WORLD);
+        MPI_Send(&ss, 1, MPI_DOUBLE, 0, irank+1, MPI_COMM_WORLD);
+      }
+      MPI_Barrier(MPI_COMM_WORLD);*/
+
+      /*
+      * HINT: global values of ss and r2mean must be globally computed and
+      distributed to all processes
+      *
+      */
+      MPI_Allreduce( &ss, &global_ss, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+      MPI_Allreduce( &r2mean, &global_r2mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD );
+      
+      global_ss = global_ss * fac;
+      global_r2mean = global_r2mean * fac;
+
+      end = seconds();
+
+      if (irank == 0) {
+        printf_green();
+        printf("Time: %d , r2mean: %17.15f, ss: %17.15f, Elapsed time per iteration %f, rank: %d \n",
+          istep, global_r2mean, global_ss, (end-start)/istep, irank);
+        printf_reset();
+      }
+
+      // HINT: Use parallel version of output routines
+      char title[80];
+      sprintf(title, "data/concentration_%d", 1 + (istep - 1) / interval);
+      plot_data_2d(title, n1, n2, n3, n1_local,
+        n1_local_offset, 2, conc);
+      //plot_data_1d("1d_conc", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+        //3, conc);
+    }
+  }
 
   close_fftw(&fft_h);
   free(diffusivity);
