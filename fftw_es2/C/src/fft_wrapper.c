@@ -11,12 +11,8 @@
  *
  */ 
 
-#include <complex.h>
-#include <mpi.h>
-#include <fftw3-mpi.h>
-#include <fftw3.h>
-#include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 #include "headers/utilities.h"
 
 
@@ -44,8 +40,6 @@ void init_fftw(fftw_dist_handler *fft, int n1, int n2, int n3, MPI_Comm comm){
   int n_proc_tot, irank;
   MPI_Comm_size( comm, &n_proc_tot );
   MPI_Comm_rank( comm, &irank );
-
-  //int buffer_size = 0;
   fft->mpi_comm = comm;
 
   /*
@@ -56,7 +50,8 @@ void init_fftw(fftw_dist_handler *fft, int n1, int n2, int n3, MPI_Comm comm){
    *
    */
   /*Già nella consegna, non vuole i resti!!*/
-  if( ( ( n1 % n_proc_tot ) || ( n2 % n_proc_tot ) ) && !irank ){    fprintf( stdout, "\nN1 dimension must be multiple of the number of processes. The program will be aborted...\n\n" );
+  if( ( ( n1 % n_proc_tot ) || ( n2 % n_proc_tot ) ) && !irank ){    
+    fprintf( stdout, "\nN1 dimension must be multiple of the number of processes. The program will be aborted...\n\n" );
     MPI_Abort( comm, 1 );
   }
 
@@ -83,8 +78,9 @@ void init_fftw(fftw_dist_handler *fft, int n1, int n2, int n3, MPI_Comm comm){
   fft->local_size_grid = fft->local_n1*n2*n3;
   /*Dimensione del volume da mandare nella all to all*/
   fft->all_to_all_block_size = fft->local_n1*fft->local_n2*n3;
+
   fft->data = ( fftw_complex* ) fftw_malloc( fft->local_size_grid * sizeof( fftw_complex ) );
-  fft->data_by_column = ( fftw_complex* ) fftw_malloc( fft->local_size_grid * sizeof( fftw_complex ) );
+  fft->data_redistributed = ( fftw_complex* ) fftw_malloc( fft->local_size_grid * sizeof( fftw_complex ) );
   /*
    * Allocate fft->fftw_data and create an FFTW plan for each 1D FFT among all dimensions
    *
@@ -96,21 +92,52 @@ void init_fftw(fftw_dist_handler *fft, int n1, int n2, int n3, MPI_Comm comm){
   /*Per usare l'interfaccia avanzata, devo passare un vettore
   con le dimensioni sui cui fare la fft*/
   int dims[] = {n2,n3};
+  int dim_1[] = {n1};
   /*Usiamo l'interfaccia avanzata ma assumendo i dati contigui*/
   fft->fw_plan_i1 = fftw_plan_many_dft(2, dims, fft->local_n1,
-    fft->data, dims, 1, fft->n2*fft->n1, fft->data, 
+    fft->data, dims, 1, fft->n2*fft->n3, fft->data, 
     dims, 1, fft->n2*fft->n3, FFTW_FORWARD, FFTW_ESTIMATE);
 
   /*Qua posso farlo come se avessi i dati contigui, ma dovr
   implementare il riordine. Oppure, introdurre già lo strife*/
-  fft->fw_plan_i2 = NULL;
+  fft->fw_plan_i2 = fftw_plan_many_dft(1, dim_1, fft->local_n2*fft->n3,
+    fft->data_redistributed, dim_1, fft->local_n2*fft->n3, 1, fft->data_redistributed,
+    dim_1, fft->local_n2*fft->n3, 1, FFTW_FORWARD, FFTW_ESTIMATE);
   //fft->fw_plan_i3 = NULL;
 
   fft->bw_plan_i1 = fftw_plan_many_dft(2, dims, fft->local_n1,
-    fft->data, dims, 1, fft->n2*fft->n1, fft->data, 
-    dims, 1, fft->n2*fft->n3, FFTW_BACKWARD, FFTW_ESTIMATE);;
-  fft->bw_plan_i2 = NULL;
+    fft->data, dims, 1, fft->n2*fft->n3, fft->data, 
+    dims, 1, fft->n2*fft->n3, FFTW_BACKWARD, FFTW_ESTIMATE);
+  fft->bw_plan_i2 = fftw_plan_many_dft(1, dim_1, fft->local_n2*fft->n3,
+    fft->data_redistributed, dim_1, fft->local_n2*fft->n3, 1, fft->data_redistributed,
+    dim_1, fft->local_n2*fft->n3, 1, FFTW_BACKWARD, FFTW_ESTIMATE);
   //fft->bw_plan_i3 = NULL;
+
+  MPI_Datatype column_block;
+  MPI_Type_vector(fft->local_n1, fft->local_n2*n3, n2*n3, MPI_C_DOUBLE_COMPLEX, &column_block);
+  MPI_Type_commit(&column_block);
+
+  fft->send_n_of_blocks = (int *)malloc(n_proc_tot * sizeof(int));
+  fft->recv_n_of_blocks = (int *)malloc(n_proc_tot * sizeof(int));
+  fft->send_displacement = (int *)malloc(n_proc_tot * sizeof(int));
+  fft->recv_displacement = (int *)malloc(n_proc_tot * sizeof(int));
+  fft->send_type = (MPI_Datatype *)malloc(n_proc_tot * sizeof(MPI_Datatype));
+  fft->recv_type = (MPI_Datatype *)malloc(n_proc_tot * sizeof(MPI_Datatype));
+  
+  for (int i = 0; i < n_proc_tot; i++) {
+    fft->send_type[i] = column_block;
+    fft->recv_type[i] = MPI_C_DOUBLE_COMPLEX;
+    fft->send_n_of_blocks[i] = 1;
+    fft->recv_n_of_blocks[i] = fft->all_to_all_block_size;
+  }
+
+  fft->send_displacement[0] = 0*sizeof(fftw_complex);
+  fft->recv_displacement[0] = 0*sizeof(fftw_complex);
+  for (int i = 0; i < n_proc_tot-1; i++)
+  {
+    fft->send_displacement[i+1] = fft->send_displacement[i] + fft->local_n2*n3*sizeof(fftw_complex);
+    fft->recv_displacement[i+1] = fft->recv_displacement[i] + fft->all_to_all_block_size*sizeof(fftw_complex); 
+  }
 
 }
 
@@ -125,7 +152,14 @@ void close_fftw( fftw_dist_handler *fft ){
     //fftw_destroy_plan( fft->fw_plan_i3 );
 
     fftw_free( fft->data );
-    fftw_free( fft->data_by_column);
+    fftw_free( fft->data_redistributed);
+
+    free(fft->send_n_of_blocks);
+    free(fft->recv_n_of_blocks);
+    free(fft->send_displacement); 
+    free(fft->recv_displacement);
+    free(fft->send_type);
+    free(fft->recv_type);
 
     fftw_cleanup();
 }
@@ -152,38 +186,63 @@ void fft_3d( fftw_dist_handler* fft, double *data_direct, fftw_complex* data_rec
  bool direct_to_reciprocal ){
 
   double fac;
+  int n_proc_tot;
   int i1, i2, i3;
-  int n1 = fft->n1, n2 = fft->n2, n3 = fft->n3, n_proc_tot;
+  int n1 = fft->n1, n2 = fft->n2, n3 = fft->n3;
+  int local_size_grid = fft->local_size_grid;
+  fftw_complex * data = fft->data;
+  fftw_complex * data_redistributed = fft->data_redistributed;
 
-  /* Allocate buffers to send and receive data */
   MPI_Comm_size( fft->mpi_comm, &n_proc_tot );
     
   // Now distinguish in which direction the FFT is performed
   if( direct_to_reciprocal ) {
 
     /*Rendo i valori complessi (per la memoria ?)*/
-    for(int i = 0; i < fft->local_size_grid; i++) {
-      fft->data[i]  = data_direct[i] + 0.0 * I;
+    for(int i = 0; i < local_size_grid; i++) {
+      data[i]  = data_direct[i] + 0.0 * I;
     } 
-    fftw_execute_dft(fft->fw_plan_i1, fft->data, fft->data);
+
+    /*I perform the first fft on the n2-n3 plan locally*/
+    fftw_execute(fft->fw_plan_i1);
      
     //Perform all_to_all
-
+    MPI_Alltoallw(data, fft->send_n_of_blocks, fft->send_displacement, fft->send_type,
+     data_redistributed, fft->recv_n_of_blocks, fft->recv_displacement, fft->recv_type, MPI_COMM_WORLD);
+    
     //Perform fft on n1 direction
+    fftw_execute(fft->fw_plan_i2);
 
     // Perform an Alltoall communication 
-
-    /*
-     * Reoder the different data blocks to be consistent with the initial distribution.
-     *
-     */      
-
+    MPI_Alltoallw(data_redistributed, fft->recv_n_of_blocks, fft->recv_displacement, fft->recv_type,
+     data, fft->send_n_of_blocks, fft->send_displacement, fft->send_type, MPI_COMM_WORLD);    
+    
+    /*Copy the data into the data_rec array*/
+    memcpy(data_rec, data, fft->local_size_grid*sizeof(fftw_complex));
   } else {
     /*Copio i dati da cui farò l'inversa in fft->data*/
-    memcpy(fft->data, data_rec, fft->local_size_grid*sizeof(fftw_complex));
+    memcpy(data, data_rec, fft->local_size_grid*sizeof(fftw_complex));
+
     /* Implement the reverse transform */
+    fftw_execute(fft->bw_plan_i1);
+     
+    MPI_Alltoallw(data, fft->send_n_of_blocks, fft->send_displacement, fft->send_type,
+     data_redistributed, fft->recv_n_of_blocks, fft->recv_displacement, fft->recv_type, MPI_COMM_WORLD);
+    
+    fftw_execute(fft->bw_plan_i2);
+
+    MPI_Alltoallw(data_redistributed, fft->recv_n_of_blocks, fft->recv_displacement, fft->recv_type,
+     data, fft->send_n_of_blocks, fft->send_displacement, fft->send_type, MPI_COMM_WORLD);
+    
+    /*Normalizzo sulla globale*/
+    fac = 1.0 / ( fft->global_size_grid );
+
+    for(int i = 0; i < fft->local_size_grid; ++i ) {
+      data_direct[i] = creal(data[i])*fac;
+    }
 
   }
+  
   
 }
 

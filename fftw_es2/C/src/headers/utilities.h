@@ -9,40 +9,41 @@
 #include <sys/time.h>
 #include <fftw3.h>
 #include <mpi.h>
-#include <fftw3-mpi.h>
 #include <stdbool.h>
 #define pi 3.14159265358979323846
-
-#include <mpi.h>
-
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 typedef struct {
 
   fftw_plan fw_plan_i1; 
   fftw_plan fw_plan_i2; 
-  //fftw_plan fw_plan_i3; 
 
   fftw_plan bw_plan_i1;
   fftw_plan bw_plan_i2;
-  //fftw_plan bw_plan_i3;
 
   fftw_complex *data;
-  fftw_complex *data_by_column;
+  fftw_complex *data_redistributed;
   
   ptrdiff_t global_size_grid;
   ptrdiff_t local_size_grid;
   ptrdiff_t all_to_all_block_size;
-  /*Dimensioni prima distribuzione dati*/
+  /*Dimensioni per la prima distribuzione dati*/
   ptrdiff_t local_n1;
   ptrdiff_t local_n1_offset;
-  /*Dimensioni seconda distribuzione dati*/
+  /*Dimensioni per la seconda distribuzione dati*/
   ptrdiff_t local_n2;
   ptrdiff_t local_n2_offset;
  
   ptrdiff_t n1;
   ptrdiff_t n2;
   ptrdiff_t n3;
+  /*Parameters for all to all distributions*/
+  MPI_Datatype *send_type;
+  MPI_Datatype *recv_type;
+  int *send_n_of_blocks;
+  int *recv_n_of_blocks;
+  int *send_displacement;
+  int *recv_displacement;
 
   MPI_Comm mpi_comm;  
   

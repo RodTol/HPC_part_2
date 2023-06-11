@@ -198,8 +198,8 @@ for ( i1 = 0; i1 < n1_local; ++i1 ){
           // Check the normalization of conc
           ss = 0.;
           r2mean = 0.;
-    global_ss = 0.;
-    global_r2mean = 0.;
+          global_ss = 0.;
+          global_r2mean = 0.;
 
           // HINT: the conc array is distributed, so only a part of it is on each processor
           for( i3 = 0; i3 < n3; ++i3 ){
@@ -218,7 +218,7 @@ for ( i1 = 0; i1 < n1_local; ++i1 ){
     }   
   }
     }
-          /*
+      /*
       * HINT: global values of ss and r2mean must be globally computed and distributed to all processes
       *
       */

@@ -14,12 +14,7 @@
  * Last revision: March 2016
  */
 
-#include <complex.h>
-#include <fftw3-mpi.h>
-#include <fftw3.h>
 #include <math.h>
-#include <mpi.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "headers/utilities.h"
@@ -214,6 +209,8 @@ int main( int argc, char* argv[] ){
   fftw_complex * aux;
   aux = ( fftw_complex* ) fftw_malloc( fft_h.local_size_grid * sizeof(fftw_complex) );
   fft_3d(&fft_h, conc, aux, true);
+  fft_3d(&fft_h, conc, aux, false);
+
 #endif
 
   close_fftw(&fft_h);

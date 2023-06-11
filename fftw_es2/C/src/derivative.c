@@ -7,10 +7,6 @@
  *
  */
 
-#include <complex.h>
-#include <mpi.h>
-#include <fftw3-mpi.h>
-#include <fftw3.h>
 #include <stdbool.h>
 #include "headers/utilities.h"
 
