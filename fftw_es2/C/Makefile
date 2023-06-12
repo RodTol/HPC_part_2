@@ -21,6 +21,10 @@ ifdef flags
 	ifeq ($(flags), debug)
 		CFLAGS+= -DDEBUG
 	endif
+
+	ifeq ($(flags), info)
+		CFLAGS+= -DPRINT_INFO
+	endif
 endif
 
 CORES=4

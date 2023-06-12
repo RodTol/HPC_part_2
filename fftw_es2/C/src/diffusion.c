@@ -1,25 +1,7 @@
-/* Assignment: 
- * Parallelize the code, using fftw-mpi
- * This amount to 
- *   - distribute the data contained in diffusivity, conc, dconc, aux1, aux2 in the way fftw-mpi expects
- *   - modify the fftw calls in fftw-mpi in p_fftw_wrapper
- * You will need to modify the files
- *   - diffusion.c   
- *   - derivative.c
- *   - fftw_wrapper.c
- *   - plot_data.c
- * In these files you will find some HINTs, make good use of them :)
- *
- * Created by G.P. Brandino, I. Girotto, R. Gebauer
- * Last revision: March 2016
- */
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "headers/utilities.h"
-// HINT: include mpi and fftw3-mpi 
-//       http://www.fftw.org/doc/MPI-Files-and-Data-Types.html#MPI-Files-and-Data-Types
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
@@ -51,20 +33,21 @@ int main( int argc, char* argv[] ){
   double L1 = 10., L2 = 10., L3 = 20.;
   // Grid size  
   int n1 = 48, n2 = 48, n3 = 96;
-  // time step for time integration
+  // Time step for time integration
   double dt = 2.e-3; 
-  // number of time steps
+  // Number of time steps
   int nstep = 300; 
   // Radius of diffusion channel
   double rad_diff = 0.7;
   // Radius of starting concentration
   double rad_conc = 0.6;
-  double start, end;
-
-  double *diffusivity, *conc, *dconc, *aux1, *aux2;
   
   int i1, i2, i3, ipol, istep, index;
-
+#ifdef PRINT_INFO
+  double start, end;
+#endif
+  double *diffusivity, *conc, *dconc, *aux1, *aux2;
+  
   double f1conc, f2conc, f3conc, f1diff, f2diff, f3diff, fac;
   double x1, x2 , x3, rr;
   double ss, r2mean, global_ss, global_r2mean;
@@ -72,44 +55,24 @@ int main( int argc, char* argv[] ){
   fftw_dist_handler fft_h;
   int irank, n_proc_tot;
   int n1_local, n1_local_offset;
-  int n2_local, n2_local_offset;
   int local_size_grid, global_size_grid;
 
-  /* 
-    * Initializzation of the MPI environment 
-    *
-    */
+  // Initializzation of the MPI environment
   MPI_Init( &argc, &argv );
   MPI_Comm_rank( MPI_COMM_WORLD, &irank);
   MPI_Comm_size( MPI_COMM_WORLD, &n_proc_tot);
 
   /*
-    * Allocate distribute memory arrays
-    * HINT: the arrays need to be distributed, so you have to set the correct sizes 
-    *       Use fftw_mpi_local_size_3d to calculate sizes
-    *       http://www.fftw.org/doc/MPI-Data-Distribution-Functions.html
-    *
-    * More hints are reported into the fft_wrapper.c file where the fft_init_mpi is defined
-    *
-    */
-
-  /*
-    * initialize the fftw system and local dimension
+    * Initialize the fftw system and local dimension
     * as the value returned from the parallel FFT grid initializzation 
     *
     */
   init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD );
 
-  local_size_grid = (fft_h.local_n1) * n2 * n3;
-  global_size_grid = n1 * n2 * n3;
+  local_size_grid = fft_h.local_size_grid;
+  global_size_grid = fft_h.global_size_grid;
   n1_local = fft_h.local_n1;
   n1_local_offset = fft_h.local_n1_offset;
-
-  n1_local = fft_h.local_n1;
-  n1_local_offset = fft_h.local_n1_offset;  
-
-  n2_local = fft_h.local_n2;
-  n2_local_offset = fft_h.local_n2_offset;  
   
   diffusivity = ( double* ) malloc( local_size_grid * sizeof(double) );
   conc = ( double* ) malloc( local_size_grid * sizeof(double) );
@@ -124,9 +87,7 @@ int main( int argc, char* argv[] ){
    * ss is to integrate (and normalize) the concentration
    *
    */
-
   ss = 0.0;
-
   for (i3 = 0; i3 < n3; ++i3) {
     x3 = L3 * ((double)i3) / n3;
     f3diff = exp(-pow((x3 - 0.5 * L3) / rad_diff, 2));
@@ -135,24 +96,21 @@ int main( int argc, char* argv[] ){
       x2 = L2 * ((double)i2) / n2;
       f2diff = exp(-pow((x2 - 0.5 * L2) / rad_diff, 2));
       f2conc = exp(-pow((x2 - 0.5 * L2) / rad_conc, 2));
-
+#ifdef DEBUG
       if (irank == 1 && i3 == 24 && i2 == 22) {
         printf("I am %d, these are my X1: ", irank);
       }    
-      /*Qua prova a far andare i1 da 0 a local_n1, ma sposta
-        il fatto che metà va da uno e metà all'altro direttamente
-        dentro x1!*/
+#endif
       for (i1 = 0; i1 < n1_local; ++i1) {
         x1 = L1 * ((double)i1 + n1_local_offset) / n1;
-
+#ifdef DEBUG
         if (irank == 1 && i3 == 24 && i2 == 22) {
           printf("%.3f ", x1);
           if (i1 == n1_local-1) printf("\n");
         }
-
+#endif
         f1diff = exp(-pow((x1 - 0.5 * L1) / rad_diff, 2));
         f1conc = exp(-pow((x1 - 0.5 * L1) / rad_conc, 2));
-
         index = index_f(i1, i2, i3, n1_local, n2, n3);
         diffusivity[index] = MAX(f1diff * f2diff, f2diff * f3diff);
         conc[index] = f1conc * f2conc * f3conc;
@@ -161,6 +119,7 @@ int main( int argc, char* argv[] ){
     }
   }
 
+  // Plot the diffusivity in all 3 directions
   plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                1, diffusivity);
 
@@ -170,7 +129,8 @@ int main( int argc, char* argv[] ){
   plot_data_2d("data/diffusivity3", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                3, diffusivity);
 
-  /*Debuggin for r2mean and ss*/
+#ifdef DEBUG
+  //Debugging check for r2mean and ss
   if (irank == 0) {
     double tmp_ss;
     printf("I am %d, this is my ss: %17.15f\n", irank, ss);
@@ -182,11 +142,9 @@ int main( int argc, char* argv[] ){
     MPI_Send(&ss, 1, MPI_DOUBLE, 0, irank, MPI_COMM_WORLD);
   }
   MPI_Barrier(MPI_COMM_WORLD);
+#endif
 
-  /*
-  * Now normalize the concentration and print
-  *
-  */
+  // Now normalize the concentration and print it on the 2nd direction
   fac = L1 * L2 * L3 / (global_size_grid);
   MPI_Allreduce(&ss, &global_ss, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   global_ss = 1.0 / (global_ss * fac);
@@ -202,50 +160,45 @@ int main( int argc, char* argv[] ){
     * Now everything is defined: system size, diffusivity inside the system, and
     * the starting concentration
     *
-    * Start the dynamics
-    *
+    * We can start the dynamics
     */
-
+#ifdef PRINT_INFO
   if (irank == 0) {
     printf_red();
     printf("Dynamic is starting\n Local_size_grid is %d\n fac is: %17.15f \n",
    local_size_grid, fac);
     printf_reset();
   }
-  
-  /*Questa variabile indica ogni quanti frame voglio fare una stampa*/
+#endif
+  //This variable selects how many steps to do before printing a frame
+  //for the final animation
   int interval = 10;
+#ifdef PRINT_INFO
   start = seconds();
-
-  /*Inizializzo dconc (si può mettere fuori perche
-  è ridondante)*/
+#endif
+  // I initialize dconc
   for (i1=0; i1< local_size_grid; ++i1) dconc[i1] = 0.0;
 
   for (istep = 1; istep <= nstep; ++istep) {
-    /*Devo fare la trasf sulle 3 direzioni e sommare i contributi*/
-    
+    //I need to make the transform in all 3 direction and sum the contribution    
     for (ipol =1; ipol<=3; ++ipol ) {
-
         derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, conc, aux1);
-
         for (i1=0; i1< local_size_grid; ++i1) {
           aux1[i1] *= diffusivity[i1];
         }
-
         derivative(&fft_h, n1, n2, n3, L1, L2, L3, ipol, aux1, aux2);
-
         for (i1=0; i1< local_size_grid; ++i1) {
           dconc[i1] += aux2[i1];
         } 
     }
 
-    /*Aggiorno l'array della concentrazione*/
+    //I update the concentration array and reset dconc
     for (i1=0; i1< local_size_grid; ++i1) {
       conc[i1] += dt*dconc[i1];
       dconc[i1] = 0.0;
     } 
     
-    /*Voglio un frame ogni 10*/
+    // Print the frame looking at the interval variable
     if (istep%interval == 1) {
       // Check the normalization of conc
       ss = 0.;
@@ -253,7 +206,6 @@ int main( int argc, char* argv[] ){
 
       // HINT: the conc array is distributed, so only a part of it is on
       // each processor
-
       for (i3 = 0; i3 < n3; ++i3) {
         x3=L3*((double)i3)/n3 - 0.5*L3;
         for (i2 = 0; i2 < n2; ++i2) {
@@ -268,8 +220,8 @@ int main( int argc, char* argv[] ){
         }
       }
 
-      /*Debuggin for r2mean and ss*/
-      /*if (irank == 0) {
+      /*Debuggin for r2mean and ss
+      if (irank == 0) {
         double tmp_ss;
         double tmp_r2mean;
         printf("I am %d, this is my ss: %17.15f and r2mean: %17.15f\n", irank, ss, r2mean);
@@ -282,7 +234,8 @@ int main( int argc, char* argv[] ){
         MPI_Send(&ss, 1, MPI_DOUBLE, 0, irank, MPI_COMM_WORLD);
         MPI_Send(&ss, 1, MPI_DOUBLE, 0, irank+1, MPI_COMM_WORLD);
       }
-      MPI_Barrier(MPI_COMM_WORLD);*/
+      MPI_Barrier(MPI_COMM_WORLD);
+      */
 
       /*
       * HINT: global values of ss and r2mean must be globally computed and
@@ -295,22 +248,20 @@ int main( int argc, char* argv[] ){
       global_ss = global_ss * fac;
       global_r2mean = global_r2mean * fac;
 
+#ifdef PRINT_INFO
       end = seconds();
-
       if (irank == 0) {
         printf_green();
         printf("Time: %d , r2mean: %17.15f, ss: %17.15f, Elapsed time per iteration %f, rank: %d \n",
           istep, global_r2mean, global_ss, (end-start)/istep, irank);
         printf_reset();
       }
-
+#endif
       // HINT: Use parallel version of output routines
       char title[80];
       sprintf(title, "data/concentration_%d", 1 + (istep - 1) / interval);
       plot_data_2d(title, n1, n2, n3, n1_local,
         n1_local_offset, 2, conc);
-      //plot_data_1d("1d_conc", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
-        //3, conc);
     }
   }
 

@@ -1,12 +1,3 @@
-/* Assignment 
- *
- * Adapt this routine to handle distributed arrays for data and deriv
- *
- * Created by G.P. Brandino, I. Girotto, R. Gebauer
- * Last revision: March 2016
- *
- */
-
 #include <stdbool.h>
 #include "headers/utilities.h"
 
