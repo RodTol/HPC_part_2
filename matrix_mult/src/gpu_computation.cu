@@ -6,6 +6,7 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
     cudaGetDeviceCount(&n_gpus);
     cudaSetDevice(irank % n_gpus);
     cublasCreate(handle);
+    
     // Allocate memory on the device
     cudaMalloc( (void **) dev_A, n_rows_local[irank] * N * sizeof(double) );
     cudaMalloc( (void **) dev_B_col, N * (n_loc + 1) * sizeof(double));

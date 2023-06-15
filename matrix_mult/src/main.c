@@ -219,6 +219,7 @@ int main(int argc, char** argv) {
 
     /*Final output and deallocation of the memory*/
     free(A); free(B); free(C), free(B_col);
+    free(n_rows_local); free(displacement); free(n_elements_local); free(displacement_col); 
 
 #ifdef GPU
     /*Deallocation of the device memory*/
