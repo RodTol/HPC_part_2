@@ -113,6 +113,12 @@ int main(int argc, char** argv) {
     correct size, since the # of rows is not constant.*/
     displacement_col = (int *) malloc ( n_proc_tot * sizeof(int) );
 
+#ifdef DEBUG
+    if (irank == MASTER) {
+        printf("\n Allocation completed\n");
+    }
+#endif
+
 #ifdef GPU
     /*Device variabile declaration and allocation*/
     cublasHandle_t handle;
