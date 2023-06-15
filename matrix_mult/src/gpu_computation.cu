@@ -6,14 +6,6 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
     //cudaGetDeviceCount(&n_gpus);
     //cudaSetDevice(irank % n_gpus);
     cublasCreate(handle);
-
-#ifdef DEBUG
-    for (int i = 0; i < irank%n_gpus; i++)
-    {
-      printf()      
-    }
-    
-#endif
     
     // Allocate memory on the device
     cudaError_t errA = cudaMalloc( (void **) dev_A, n_rows_local[irank] * N * sizeof(double) );
@@ -26,7 +18,7 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
 
     cudaError_t err = cudaMemcpy(*dev_A, A, n_rows_local[irank] * N * sizeof(double), cudaMemcpyHostToDevice);
     if (err != cudaSuccess) printf("Error copying A on the device: %s\n", cudaGetErrorString(err));
-    
+
 }
 
 /*
