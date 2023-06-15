@@ -1,3 +1,10 @@
+# The assignement
+The objective of this assignment is to implement the matrix multiplication in 3 different ways:
+1. Naive multiplication: just some for loops on the data
+2. Use the of openblas dgemm
+3. Use of the cublas dgemm
+In all these cases, the matrices are distributed among one direction. There's no need for a specific size of the matrices because the code has been written with the capa
+
 # Software Stack
 For this solution I used the following modules on Marconi100:
 1. profile/base
