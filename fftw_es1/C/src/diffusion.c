@@ -1,30 +1,7 @@
-/* Assignment:
- * Parallelize the code, using fftw-mpi
- * This amount to
- *   - distribute the data contained in diffusivity, conc, dconc, aux1, aux2 in
- * the way fftw-mpi expects
- *   - modify the fftw calls in fftw-mpi in p_fftw_wrapper
- * You will need to modify the files
- *   - diffusion.c
- *   - derivative.c
- *   - fftw_wrapper.c
- * In these files you will find some HINTs, make good use of them :)
- *
- * Created by G.P. Brandino, I. Girotto, R. Gebauer
- * Last revision: March 2016
- */
-
 #include "headers/utilities.h"
-#include <complex.h>
-#include <fftw3-mpi.h>
-#include <fftw3.h>
 #include <math.h>
-#include <mpi.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-// HINT: include mpi and fftw3-mpi
-//       http://www.fftw.org/doc/MPI-Files-and-Data-Types.html#MPI-Files-and-Data-Types
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 

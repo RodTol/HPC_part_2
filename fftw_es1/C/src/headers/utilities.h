@@ -1,8 +1,3 @@
-/* 
- * Created by G.P. Brandino, I. Girotto, R. Gebauer
- * Last revision: March 2016
- */
-
 #ifndef _FFTW_UTLITIES_
 #define _FFTW_UTLITIES_
 #include <complex.h>
@@ -13,7 +8,11 @@
 #include <stdbool.h>
 #define pi 3.14159265358979323846
 
-
+/**
+ * @brief This struct is created to store and save all the parameters
+ * and information that will be used during the execution
+ * 
+ */
 typedef struct {
 
   fftw_plan fw_plan; 
@@ -39,7 +38,6 @@ void init_fftw( fftw_mpi_handler* fft, int n1, int n2, int n3, MPI_Comm mpi_comm
 void close_fftw( fftw_mpi_handler* fft );
 
 void derivative( fftw_mpi_handler* fft,int n1, int n2, int n3, double L1, double L2, double L3, int ipol, double* data, double* deriv );
-/* New interface for fft_3d which includes a parameter of kind fftw_mpi_handler */
 void fft_3d( fftw_mpi_handler* fft, double *data_direct, fftw_complex* data_rec, bool direct_to_reciprocal );
 
 #endif

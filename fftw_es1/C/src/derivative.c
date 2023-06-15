@@ -11,11 +11,6 @@
  *
  */
 
-#include <complex.h>
-#include <mpi.h>
-#include <fftw3-mpi.h>
-#include <fftw3.h>
-#include <stdbool.h>
 #include "headers/utilities.h"
 
 /*Qua devo far passare tutte le reference a n1 a local_n1 preso dall'handler. Ricorda
