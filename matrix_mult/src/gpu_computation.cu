@@ -8,12 +8,16 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
     cublasCreate(handle);
     
     // Allocate memory on the device
-    cudaMalloc( (void **) dev_A, n_rows_local[irank] * N * sizeof(double) );
-    cudaMalloc( (void **) dev_B_col, N * (n_loc + 1) * sizeof(double));
-    cudaMalloc( (void **) dev_C, n_rows_local[irank] * N * sizeof(double) );
+    cudaError_t errA = cudaMalloc( (void **) dev_A, n_rows_local[irank] * N * sizeof(double) );
+    if (errA != cudaSuccess) printf("Error allocating memory of A on the device: %s\n", cudaGetErrorString(errA));
+    cudaError_t errB = cudaMalloc( (void **) dev_B_col, N * (n_loc + 1) * sizeof(double));
+    if (errB != cudaSuccess) printf("Error allocating memory of B_col on the device: %s\n", cudaGetErrorString(errB));
+    cudaError_t errC = cudaMalloc( (void **) dev_C, n_rows_local[irank] * N * sizeof(double) );
+    if (errC != cudaSuccess) printf("Error allocating memory of C on the device: %s\n", cudaGetErrorString(errC));
+
 
     cudaError_t err = cudaMemcpy(*dev_A, A, n_rows_local[irank] * N * sizeof(double), cudaMemcpyHostToDevice);
-    if (err != cudaSuccess) printf("Error allocating memory on the device: %s\n", cudaGetErrorString(err));
+    if (err != cudaSuccess) printf("Error copying A on the device: %s\n", cudaGetErrorString(err));
 
 }
 
@@ -97,6 +101,4 @@ void computation(int count, double *B_col, double *dev_A, double *dev_B_col, dou
     }
     
 #endif
-    cudaEventDestroy(start);
-    cudaEventDestroy(stop);
 }
