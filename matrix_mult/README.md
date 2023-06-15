@@ -6,3 +6,5 @@ For this solution I used the following modules on Marconi100:
 4. openblas/0.3.9--gnu--8.4.0   
 5. cuda/11.0   
 6. spectrum_mpi/10.4.0--binary  
+
+Secondo me la max matrices è 44000*44000: questo perchè sono 3 matrici (A, B e C)

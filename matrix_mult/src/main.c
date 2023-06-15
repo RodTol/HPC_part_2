@@ -97,8 +97,11 @@ int main(int argc, char** argv) {
     create_null_array(C, n_rows_local[irank]*N);
     
     /*Column buffer for the multiplication*/
-    B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
-    create_null_array(B_col, (n_loc+1)*N);
+    //B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
+    //create_null_array(B_col, (n_loc+1)*N);
+
+    B_col = (double *) malloc( size * sizeof(double) );
+    create_null_array(B_col, size);
 
     /*How many elements each processor should give to the 
     column buffer. This array will be updated at each step, since
