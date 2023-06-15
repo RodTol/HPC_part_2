@@ -66,12 +66,11 @@ int main(int argc, char** argv) {
             printf("(rank: %d rows: %d)\n", i, n_rows_local[i]);
         }    
     }
-    MPI_Barrier(COMM);
 #endif
 
     /*This the offset. It will be necessary to create the column
     block for the multiplication. All the process needs this array*/
-    displacement = (int *) malloc(n_proc_tot*sizeof(int));
+    displacement = (int *) malloc(n_proc_tot * sizeof(int));
     calculate_displ(displacement, n_rows_local, n_proc_tot);
 
 #ifdef DEBUG
@@ -81,7 +80,6 @@ int main(int argc, char** argv) {
             printf("(rank: %d rows: %d)\n", i, displacement[i]);
         }    
     }
-    MPI_Barrier(COMM);
 #endif
 
     /*Allocation and initialisation*/
@@ -98,7 +96,7 @@ int main(int argc, char** argv) {
     
     /*Column buffer for the multiplication*/
     B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
-    create_null_array(B_col, (n_loc+1)*N);
+    //create_null_array(B_col, (n_loc+1)*N);
 
     /*How many elements each processor should give to the 
     column buffer. This array will be updated at each step, since
