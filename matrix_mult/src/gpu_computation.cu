@@ -4,7 +4,7 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
  int *n_rows_local, int N, int n_loc, int irank, cublasHandle_t *handle) {
     int n_gpus;
     cudaGetDeviceCount(&n_gpus);
-    //cudaSetDevice(irank % n_gpus);
+    cudaSetDevice(irank % n_gpus);
     cublasCreate(handle);
 
 #ifdef DEBUG
