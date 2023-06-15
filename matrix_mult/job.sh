@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -A tra23_units
+#SBATCH -A tra23_units_bis
 #SBATCH -p m100_usr_prod
 #SBATCH --time 03:00:00
 #SBATCH -N 8                  # nodes
@@ -22,7 +22,7 @@ cd /m100/home/usertrain/a08trb39/HPC_part_2/matrix_mult
 n_proc=32
 ((n_proc*=8))
 
-for N in 1000 5000 10000 15000 20000 25000 30000
+for N in 1000 5000 10000 15000 20000 25000 30000 35000 40000
 #for N in 30000
 do
 	make run N=$N CORES=$n_proc

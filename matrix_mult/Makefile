@@ -1,5 +1,7 @@
 CORES = 6
 N = 100
+n_socket=16
+n_node=32
 
 #target
 BUILD_DIR = ./build
@@ -61,7 +63,7 @@ $(BUILD_DIR)/gpu_computation.c.o : $(SRC_DIRS)/gpu_computation.cu
 
 
 run: clean all
-	mpirun -np $(CORES) $(EXE) $(N)
+	mpirun -np $(CORES) -npersocket $(n_socket) -npernode $(n_node) --bind-to core  $(EXE) $(N)
 
 .PHONY: clean
 
