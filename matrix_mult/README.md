@@ -15,3 +15,10 @@ For this solution I used the following modules on Marconi100:
 6. spectrum_mpi/10.4.0--binary  
 
 Secondo me la max matrices è 44000*44000: questo perchè sono 3 matrici (A, B e C)
+
+# How to run the code
+I created a [launcher.sh](launcher.sh) file but it's useful only in some occasion. For a more general command use:
+```
+make run N=<size> CORES=<number of total process> n_socket=<# of process for each socket> n_node=<#of process for each node> compilation=<dgemm or gpu> flags=<debug>
+```
+The are some default values: n_socket = 16, n_node = 32. If the compilation variable is not specified, the naive versione will be compiled.
