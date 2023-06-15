@@ -10,7 +10,7 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
 #ifdef DEBUG
     if (irank==0)
     {
-      printf("I found %i devices\n", n_gpus)
+      printf("I found %i devices\n", n_gpus);
     }
     
 #endif
