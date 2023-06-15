@@ -170,12 +170,11 @@ int main(int argc, char** argv) {
 
 
 #ifdef DEBUG
-
         if (irank == MASTER) {
             printf("\nMatrix C at count = %d \n", count);
         }
-        print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
-        MPI_Barrier(COMM);
+        //print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
+        //MPI_Barrier(COMM);
 #endif
     }
 

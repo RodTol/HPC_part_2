@@ -91,6 +91,6 @@ void MPI_build_column(int* n_rows_local, int* displacement, int* n_elements_loca
     MPI_Type_commit(&my_column_block);
 
     MPI_Allgatherv(B + displacement[count], 1, my_column_block, B_col, n_elements_local, displacement_col, MPI_DOUBLE, MPI_COMM_WORLD);
-    MPI_Type_free(&my_column_block);
+    //MPI_Type_free(&my_column_block);
 
 }
