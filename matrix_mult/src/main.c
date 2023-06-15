@@ -219,7 +219,7 @@ int main(int argc, char** argv) {
         if (irank == MASTER) {
             printf("\nMatrix C \n");
         }
-        print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
+        //print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
 #endif
 
     /*Final output and deallocation of the memory*/
