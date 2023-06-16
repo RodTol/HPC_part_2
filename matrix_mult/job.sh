@@ -24,7 +24,7 @@ n_proc=32
 n_proc_gpu=4
 ((n_proc_gpu*=8))
 
-for N in 1000 5000 10000 15000 20000 25000 30000 40000
+for N in 1000 5000 10000 15000 20000 30000 35000 40000 45000 50000
 #for N in 30000
 do
 	make run N=$N CORES=$n_proc n_socket=16 n_node=32
