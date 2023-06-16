@@ -69,6 +69,7 @@ run: clean all
 
 clean:
 	rm -f $(OBJS) $(EXE)
+	rm -f $(BUILD_DIR)/gpu_computation.c.o
 	
 flush:
 	rm -f *.dat
