@@ -82,10 +82,10 @@ int main(int argc, char** argv) {
 #endif
 
     /*Allocation and initialisation*/
-    int size= N * n_rows_local[irank] * sizeof( double);
+    size_t size= N * n_rows_local[irank] * sizeof( double);
     A = (double *) malloc( size );
     array_of_random_doubles(A, n_rows_local[irank]*N);
-    
+
     MPI_Barrier(COMM);
 #ifdef DEBUG
     if (irank == MASTER) {

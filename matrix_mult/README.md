@@ -30,3 +30,4 @@ make run N=<size> CORES=<number of total process> n_socket=<# of process for eac
 The are some default values: n_socket = 16, n_node = 32. If the compilation variable is not specified, the naive versione will be compiled.
 
 ## Some Results:
+The code has a "warmup time" where it generates all the numbers inside the matrices, so the actual running time is way longer than the actual computation.
