@@ -86,13 +86,30 @@ int main(int argc, char** argv) {
     A = (double *) malloc( size );
     array_of_random_doubles(A, n_rows_local[irank]*N);
 
+#ifdef DEBUG
+    if (irank == MASTER) {
+        printf("\n A Allocation and initialisation completed\n");
+    }
+#endif
+
     B = (double *) malloc( size );
     create_identity_matrix_distributed(B, irank, n_rows_local[irank], N, displacement[irank]);
-    //array_of_random_doubles(B, n_rows_local[irank]*N);
+
+#ifdef DEBUG
+    if (irank == MASTER) {
+        printf("\n B Allocation and initialisation completed\n");
+    }
+#endif
 
     C = (double *) malloc( size );
     create_null_array(C, n_rows_local[irank]*N);
-    
+
+#ifdef DEBUG
+    if (irank == MASTER) {
+        printf("\n C Allocation and initialisation completed\n");
+    }
+#endif    
+
     B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
 
     /*How many elements each processor should give to the 
@@ -105,11 +122,6 @@ int main(int argc, char** argv) {
     correct size, since the # of rows is not constant.*/
     displacement_col = (int *) malloc ( n_proc_tot * sizeof(int) );
 
-#ifdef DEBUG
-    if (irank == MASTER) {
-        printf("\n Allocation and initialisation completed\n");
-    }
-#endif
 
 #ifdef GPU
     /*Device variabile declaration and allocation*/
