@@ -67,5 +67,11 @@ void array_of_random_doubles(double * A, int dim)
    for (int i = 0; i < dim; ++i) {
       srand(i + id + time(NULL));
       A[i] =  min + (rand() / div);
+#ifdef DEBUG      
+      if (i % 5000==0 && i >=5000)
+      {
+        printf("\n Generated 5000 number \n");
+      }
+#endif      
    }
 }

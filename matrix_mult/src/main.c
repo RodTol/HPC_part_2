@@ -85,7 +85,8 @@ int main(int argc, char** argv) {
     int size= N * n_rows_local[irank] * sizeof( double);
     A = (double *) malloc( size );
     array_of_random_doubles(A, n_rows_local[irank]*N);
-
+    
+    MPI_Barrier(COMM);
 #ifdef DEBUG
     if (irank == MASTER) {
         printf("\n A Allocation and initialisation completed\n");
@@ -216,17 +217,17 @@ int main(int argc, char** argv) {
         if (irank == MASTER) {
             printf("\nMatrix A \n");
         }
-        //print_matrix_distributed(A, irank, n_rows_local, N, n_proc_tot, COMM);
+        if (N <= 10) print_matrix_distributed(A, irank, n_rows_local, N, n_proc_tot, COMM);
 
         if (irank == MASTER) {
             printf("\nMatrix B \n");
         }
-        //print_matrix_distributed(B, irank, n_rows_local, N, n_proc_tot, COMM);
+        if (N <= 10) print_matrix_distributed(B, irank, n_rows_local, N, n_proc_tot, COMM);
 
         if (irank == MASTER) {
             printf("\nMatrix C \n");
         }
-        //print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
+        if (N <= 10) print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
 #endif
 
     /*Final output and deallocation of the memory*/
