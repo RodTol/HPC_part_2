@@ -1,5 +1,19 @@
 #include "headers/gpu_computation.h"
 
+/**
+ * @brief This function encapsulates the calls for the initialisation of the CUDA
+ * environment
+ * 
+ * @param A input matrix
+ * @param dev_A device copy of the input matrix
+ * @param dev_B_col device copy of the transposed matrix
+ * @param dev_C device copy of the result matrix
+ * @param n_rows_local array that stores the # of local rows in each process
+ * @param N Size of the matrix
+ * @param n_loc 
+ * @param irank 
+ * @param handle 
+ */
 void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev_C,
  int *n_rows_local, int N, int n_loc, int irank, cublasHandle_t *handle) {
     int n_gpus;
@@ -19,7 +33,8 @@ void initialise_cuda(double *A, double **dev_A, double **dev_B_col, double **dev
     // Allocate memory on the device
     cudaError_t errA = cudaMalloc( (void **) dev_A, n_rows_local[irank] * N * sizeof(double) );
     if (errA != cudaSuccess) printf("Error allocating memory of A on the device: %s\n", cudaGetErrorString(errA));
-    cudaError_t errB = cudaMalloc( (void **) dev_B_col, N * (n_loc + 1) * sizeof(double));
+    //cudaError_t errB = cudaMalloc( (void **) dev_B_col, N * (n_loc + 1) * sizeof(double));
+    cudaError_t errB = cudaMalloc( (void **) dev_B_col, n_rows_local[irank] * N * sizeof(double));
     if (errB != cudaSuccess) printf("Error allocating memory of B_col on the device: %s\n", cudaGetErrorString(errB));
     cudaError_t errC = cudaMalloc( (void **) dev_C, n_rows_local[irank] * N * sizeof(double) );
     if (errC != cudaSuccess) printf("Error allocating memory of C on the device: %s\n", cudaGetErrorString(errC));
@@ -63,7 +78,8 @@ void computation(int count, double *B_col, double *dev_A, double *dev_B_col, dou
     printf("\n");
 #endif
 */
-    cudaMemcpy(dev_B_col, B_col, N * (n_loc + 1) * sizeof(double), cudaMemcpyHostToDevice);
+    //cudaMemcpy(dev_B_col, B_col, N * (n_loc + 1) * sizeof(double), cudaMemcpyHostToDevice);
+    cudaMemcpy(dev_B_col, B_col, n_rows_local[irank] * N * sizeof(double), cudaMemcpyHostToDevice);
 
     const double alpha = 1.0, beta = 0.0;
     float time;

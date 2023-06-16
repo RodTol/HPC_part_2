@@ -123,6 +123,20 @@ void create_identity_matrix_distributed (double * A, int irank,
   }
 }
 
+
+/**
+ * @brief This function implements the naive computation of the
+ * matrix multiplication
+ * 
+ * @param A The first matrix
+ * @param B_col The transposed second matrix
+ * @param C The result matrix 
+ * @param N Size of the matrix
+ * @param n_rows_local array that stores the # of local rows in each process
+ * @param displacement array that stores the offsets of each process
+ * @param irank rank of each process
+ * @param count index of the multiplication
+ */
 void matrix_multiplication(double* A, double* B_col, double* C, 
   int N, int* n_rows_local, int* displacement, int irank, int count) {
   for (int i = 0; i < n_rows_local[irank]; i++) {       // A is n_loc x N (i,j)

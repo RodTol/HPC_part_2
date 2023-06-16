@@ -53,9 +53,8 @@ int main(int argc, char** argv) {
 #endif
     }
     
-    /*Now I can have a rest so, I need to calculate the
-    correct sizes before the allocation. Every process needs
-    this array*/
+    /*I need to calculate the correct sizes before the allocation.
+     Every process needs this array*/
     n_rows_local = (int *) malloc( n_proc_tot * sizeof(int) );
     calculate_n_rows(n_rows_local, n_loc, rest, n_proc_tot);
 
@@ -94,9 +93,8 @@ int main(int argc, char** argv) {
     C = (double *) malloc( size );
     create_null_array(C, n_rows_local[irank]*N);
     
-    /*Column buffer for the multiplication*/
-    B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
-    //create_null_array(B_col, (n_loc+1)*N);
+    //B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
+    B_col = (double *) malloc( size );
 
     /*How many elements each processor should give to the 
     column buffer. This array will be updated at each step, since
@@ -110,7 +108,7 @@ int main(int argc, char** argv) {
 
 #ifdef DEBUG
     if (irank == MASTER) {
-        printf("\n Allocation completed\n");
+        printf("\n Allocation and initialisation completed\n");
     }
 #endif
 
@@ -128,7 +126,6 @@ int main(int argc, char** argv) {
     if (irank==MASTER) {
         printf("Succesful allocation CUDA\n");
     }
-    
     cudaEventRecord(start, 0);
 #endif
 
@@ -150,7 +147,7 @@ int main(int argc, char** argv) {
         }
         MPI_Barrier(COMM);
 #endif
-
+        /*All mpi calls are inside this function*/
         MPI_build_column(n_rows_local, displacement, n_elements_local, displacement_col,
            B, B_col, irank, count, N);
 
@@ -178,9 +175,9 @@ int main(int argc, char** argv) {
             printf("\nMatrix C at count = %d \n", count);
         }
         //print_matrix_distributed(C, irank, n_rows_local, N, n_proc_tot, COMM);
-        //MPI_Barrier(COMM);
 #endif
     }
+    /*End of computation*/
 
 #ifdef GPU
     cudaEventRecord(stop, 0);
@@ -189,6 +186,7 @@ int main(int argc, char** argv) {
 
     float max_total_time=0.0, max_computational_time=0.0;
 
+    /*I compute the times for the gpu version of the code*/
     MPI_Reduce(&total_time, &max_total_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
     MPI_Reduce(&computational_time, &max_computational_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
 
@@ -235,6 +233,7 @@ int main(int argc, char** argv) {
 
     MPI_Barrier(COMM);
 
+    /*I save the result in a times.dat file*/
     FILE* file;
     char* title = "times.dat";
     if (irank == MASTER) {
@@ -256,7 +255,7 @@ int main(int argc, char** argv) {
         fclose(file);
     }
 
-
+    /*The code also print on the terminal a quick resume of the run*/
     if (irank == MASTER) {
         printf("\n----@");
         printf_green();
