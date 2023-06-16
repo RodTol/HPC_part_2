@@ -93,8 +93,7 @@ int main(int argc, char** argv) {
     C = (double *) malloc( size );
     create_null_array(C, n_rows_local[irank]*N);
     
-    //B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
-    B_col = (double *) malloc( size );
+    B_col = (double *) malloc( (n_loc+1) * N * sizeof(double) );
 
     /*How many elements each processor should give to the 
     column buffer. This array will be updated at each step, since
@@ -205,12 +204,12 @@ int main(int argc, char** argv) {
         if (irank == MASTER) {
             printf("\nMatrix A \n");
         }
-        print_matrix_distributed(A, irank, n_rows_local, N, n_proc_tot, COMM);
+        //print_matrix_distributed(A, irank, n_rows_local, N, n_proc_tot, COMM);
 
         if (irank == MASTER) {
             printf("\nMatrix B \n");
         }
-        print_matrix_distributed(B, irank, n_rows_local, N, n_proc_tot, COMM);
+        //print_matrix_distributed(B, irank, n_rows_local, N, n_proc_tot, COMM);
 
         if (irank == MASTER) {
             printf("\nMatrix C \n");
