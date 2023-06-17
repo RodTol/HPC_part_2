@@ -1,0 +1,114 @@
+/var/spool/slurmd/job10292648/slurm_script: line 20: cd: /m100/home/usertrain/a08trb39/HPC_part_2/matrix_mult: Permission denied
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+src/general_utility.c: In function ‘array_of_random_doubles’:
+src/general_utility.c:65:10: warning: unused variable ‘div’ [-Wunused-variable]
+   double div = RAND_MAX/(max-min);
+          ^~~
+slurmstepd: error: *** JOB 10292648 ON r209n13 CANCELLED AT 2023-06-16T21:06:13 DUE TO TIME LIMIT ***
