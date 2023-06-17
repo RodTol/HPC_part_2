@@ -1,7 +1,7 @@
 # Second exercise on fftw
 
 ## The Assignment
-The objective is to implement a code that performs the evolution of a system using the fft, but without the use of the fftw-mpi library. In order to so, I have used the advanced interface of fftw and the MPI_Alltoall routine.
+The objective is to implement a code that performs the evolution of a system calculating the fft, but without the use of the fftw-mpi library. In order to so, I have used the advanced interface of fftw and the MPI_Alltoall routine.
 
 ## The fft
 The code works by splitting the data on the `n1` direction among all the process, and perform the fft on the `n2-n3` plan. After, it will reorder the data inside a buffer using the MPI_Alltoallw routine (see next paragraph) in such a way that the orginal matrix is now distributed among the process along the `n2` direction. It's now possible to perform the fft on the `n1` direction and then go back to the original data order. In this way there's no need to change the plot routines.  

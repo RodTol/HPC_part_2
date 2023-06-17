@@ -1,20 +1,4 @@
-/*
- * This routines calcuates the directional derivatives of given data using FFTW
- *
- * Created by G.P. Brandino, I. Girotto, R. Gebauer
- * Last revision: March 2016
- *
- * Assignment 
- *
- * Adapt this routine to handle distributed arrays for data and derivative
- * Remind a new fft_mpi_handler is defined in utilities.h, change fft_3d accordingly
- *
- */
-
 #include "headers/utilities.h"
-
-/*Qua devo far passare tutte le reference a n1 a local_n1 preso dall'handler. Ricorda
-però di aggiungere l'offset dove calcolo l'indice (esempio i = i1 + loca_n1_offset).*/
 
 /*
  * Calculate the derivative in direction ipol of the array 'data'
@@ -40,7 +24,6 @@ void derivative( fftw_mpi_handler* fft, int n1, int n2, int n3, double L1, doubl
       for( i1 = 0; i1 < fft->local_n1; ++i1 ){
         
         i = i1 + fft->local_n1_offset;
-        /*Qua devo toccare i non i1*/
         if( i > n1/2 ) i = i -n1;
         if( i == n1/2 ) i = 0;
     

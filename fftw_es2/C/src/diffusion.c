@@ -36,12 +36,12 @@ int main( int argc, char* argv[] ){
   // Time step for time integration
   double dt = 2.e-3; 
   // Number of time steps
-  int nstep = 300; 
+  int nstep = 601; 
   // Radius of diffusion channel
   double rad_diff = 0.7;
   // Radius of starting concentration
   double rad_conc = 0.6;
-  
+  double start_tot, end_tot;
   int i1, i2, i3, ipol, istep, index;
 #ifdef PRINT_INFO
   double start, end;
@@ -176,6 +176,7 @@ int main( int argc, char* argv[] ){
 #ifdef PRINT_INFO
   start = seconds();
 #endif
+  start_tot =  MPI_Wtime();
   // I initialize dconc
   for (i1=0; i1< local_size_grid; ++i1) dconc[i1] = 0.0;
 
@@ -263,6 +264,19 @@ int main( int argc, char* argv[] ){
       plot_data_2d(title, n1, n2, n3, n1_local,
         n1_local_offset, 2, conc);
     }
+  }
+
+  end_tot =  MPI_Wtime();
+
+  if (irank == 0) {
+      printf("\n----@");
+      printf_green();
+      printf("Execution ended with a succes!");
+      printf_reset();
+      printf("@----\n");
+      printf_red();
+      printf("Total time: %15.12f for %i time steps\n", end_tot-start_tot, nstep);
+      printf_reset();
   }
 
   close_fftw(&fft_h);

@@ -1,22 +1,8 @@
-/* Assignement:
- * Here you have to modify the includes, the array sizes and the fftw calls, to use the fftw-mpi
- *
- * Regarding the fftw calls. here is the substitution 
- * fftw_plan_dft_3d -> fftw_mpi_plan_dft_3d
- * ftw_execute_dft  > fftw_mpi_execute_dft 
- * use fftw_mpi_local_size_3d for local size of the arrays
- * 
- * Created by G.P. Brandino, I. Girotto, R. Gebauer
- * Last revision: March 2016
- */ 
 #include <string.h>
 #include "headers/utilities.h"
 
 double seconds(){
-  /* 
-   * Return the second elapsed since Epoch (00:00:00 UTC, January 1, 1970) 
-   *
-   */
+/* Return the second elapsed since Epoch (00:00:00 UTC, January 1, 1970) */
   struct timeval tmp;
   double sec;
 
@@ -27,42 +13,33 @@ double seconds(){
 }
 
 /* 
- * Index linearization is computed following row-major order.
- * For more informtion see FFTW documentation:
- * http://www.fftw.org/doc/Row_002dmajor-Format.html#Row_002dmajor-Format
- *
+ *  Index linearization is computed following row-major order.
  */
 int index_f ( int i1, int i2, int i3, int n1, int n2, int n3)
 {
   return n3*n2*i1 + n3*i2 + i3; 
 }
 
-
+/**
+ * @brief This function initialize the fft handler with all the parameters and
+ * variables that will be used during the execution
+ * 
+ * @param fft the handler
+ * @param n* grid size
+ * @param comm MPI communicator
+ */
 void init_fftw(fftw_mpi_handler *fft, int n1, int n2, int n3, MPI_Comm comm)
 {
-  /*
-   * Call to fftw_mpi_init is needed to initialize a parallel enviroment for the fftw_mpi
-   * See also: http://www.fftw.org/doc/MPI-Initialization.html
-   */
+  // I initialize the MPI environment
   fftw_mpi_init();
   fft->mpi_comm = comm;
-  /*
-   *  Allocate a distributed grid for complex FFT using aligned memory allocation
-   *  See details here:
-   *  http://www.fftw.org/fftw3_doc/Allocating-aligned-memory-in-Fortran.html#Allocating-aligned-memory-in-Fortran
-   *  HINT: the allocation size is given by fftw_mpi_local_size_3d (see also http://www.fftw.org/doc/MPI-Data-Distribution-Functions.html)
-   *
-   */
+
   fft->global_size_grid = n1*n2*n3;
-  /*Local_n1 e local_n1_offset non sono sicuro siano chiamati nella maniera giusta*/
+  //I use the fftw_mpi routine to calculate the size for my matrices
   fft->local_size_grid = fftw_mpi_local_size_3d(n1, n2, n3, fft->mpi_comm, &(fft->local_n1),&(fft->local_n1_offset));
-  //fft->fftw_data = fftw_alloc_complex(fft->local_size_grid);
   fft->fftw_data = ( fftw_complex* ) fftw_malloc( fft->local_size_grid * sizeof( fftw_complex ) );
-  /*
-   * Create an FFTW plan for a distributed FFT grid
-   * Use fftw_mpi_plan_dft_3d: http://www.fftw.org/doc/MPI-Plan-Creation.html#MPI-Plan-Creation
-   *
-   */
+
+  //I create the fftw_mpi_plan using the routine. I just need one for all 3 dimensions
   fft->fw_plan = fftw_mpi_plan_dft_3d(n1, n2, n3, fft->fftw_data,
 	 fft->fftw_data, comm, FFTW_FORWARD, FFTW_ESTIMATE);
   fft->bw_plan = fftw_mpi_plan_dft_3d(n1, n2, n3, fft->fftw_data,
@@ -70,17 +47,22 @@ void init_fftw(fftw_mpi_handler *fft, int n1, int n2, int n3, MPI_Comm comm)
 
 }
 
+/**
+ * @brief This function is meant to deallocate and close the fftw process
+ * 
+ * @param fft 
+ */
 void close_fftw(fftw_mpi_handler *fft)
 {
   fftw_destroy_plan(fft->bw_plan);
   fftw_destroy_plan(fft->fw_plan);
   fftw_free(fft->fftw_data);
-  //fftw_mpi_cleanup();
+  fftw_mpi_cleanup();
 }
 
 
-/* 
- * This subroutine uses fftw to calculate 3-dimensional discrete FFTs.
+/**
+ * @brief This subroutine uses fftw to calculate 3-dimensional discrete FFTs.
  * The data in direct space is assumed to be real-valued
  * The data in reciprocal space is complex. 
  * direct_to_reciprocal indicates in which direction the FFT is to be calculated
@@ -97,6 +79,10 @@ void close_fftw(fftw_mpi_handler *fft)
  * F(k) = \sum_{l=0}^{N-1} exp(- 2 \pi I k*l/N) f(l)
  * f(l) = 1/N \sum_{k=0}^{N-1} exp(+ 2 \pi I k*l/N) F(k)
  * 
+ * @param fft the handler with all the information
+ * @param data_direct the real data
+ * @param data_rec the complex data
+ * @param direct_to_reciprocal the direction of the fft
  */
 void fft_3d(fftw_mpi_handler* fft, double *data_direct, fftw_complex* data_rec, bool direct_to_reciprocal)
 {
@@ -106,21 +92,21 @@ void fft_3d(fftw_mpi_handler* fft, double *data_direct, fftw_complex* data_rec, 
   // Now distinguish in which direction the FFT is performed
   if ( direct_to_reciprocal) {
 
-    /*Rendo i valori complessi*/
+    // Since fft->data is fftw_complex, we need to make data_direct complex
     for(i = 0; i < fft->local_size_grid; i++) {
       fft->fftw_data[i]  = data_direct[i] + 0.0 * I;
     } 
-    /*Qua cambio la chiamata e uso il piano*/
+    //I perform the fft with the fftw_mpi routine and copy the results
     fftw_mpi_execute_dft( fft->fw_plan, fft->fftw_data, fft->fftw_data );
     memcpy(data_rec, fft->fftw_data, fft->local_size_grid*sizeof(fftw_complex)); 
   }
   else {
+    //I perform the fft with the fftw_mpi routine and copy the results
     memcpy(fft->fftw_data, data_rec, fft->local_size_grid*sizeof(fftw_complex));
     fftw_mpi_execute_dft(fft->bw_plan, fft->fftw_data, fft->fftw_data);
     
-    /*Normalizzo sulla globale*/
+    //I normalize the data
     fac = 1.0 / ( fft->global_size_grid );
-
     for( i = 0; i < fft->local_size_grid; ++i ) {
       data_direct[i] = creal(fft->fftw_data[i])*fac;
     }
