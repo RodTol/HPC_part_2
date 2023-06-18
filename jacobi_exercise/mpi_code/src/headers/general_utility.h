@@ -17,3 +17,4 @@ bool file_exists(const char *filename);
 
 void create_null_array (double * A, int dim);
 void array_of_random_doubles(double * A, int dim);
+double randfrom(double min, double max);
