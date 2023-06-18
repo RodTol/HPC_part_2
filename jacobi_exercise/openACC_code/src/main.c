@@ -53,13 +53,13 @@ int main(int argc, char* argv[]){
   acc_init(device_type);
 
   /*I check what device was assigned to each process*/
-
   if (irank == MASTER) {
     printf_yellow();
     printf("-------------------------------\n"
            "There are in total %d devices  \n"
            "I am %d and I use the device %d\n",
-           n_dev_tot,irank, n_dev);
+             n_dev_tot,irank, n_dev);
+
     int n_dev_tmp;
     for (int count = 1; count < n_proc_tot; count++) {
         MPI_Recv(&n_dev_tmp , 1 , MPI_INTEGER , count ,
@@ -73,9 +73,6 @@ int main(int argc, char* argv[]){
     MPI_Send(&n_dev , 1 , MPI_INTEGER , 0 ,
         irank , COMM);
   }
-
-  MPI_Barrier(COMM);
-
 
   // check on input parameters
   if(irank == MASTER && argc != 5) {
@@ -167,7 +164,8 @@ int main(int argc, char* argv[]){
 #endif
 
   /*Each process knows only its size*/
-  matrix_local_dimension = sizeof(double) * ( dim_2_local ) * ( dim_1_local[irank] );
+  size_t size = dim_1_local[irank]*dim_2_local;
+  matrix_local_dimension = sizeof(double) * size );
   matrix = ( double* )malloc( matrix_local_dimension );
   matrix_new = ( double* )malloc( matrix_local_dimension );
   tmp_matrix = ( double* )malloc( matrix_local_dimension );
@@ -189,10 +187,10 @@ int main(int argc, char* argv[]){
   time = t_end-t_start;
 
 #ifdef DEBUG
-  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
-    n_proc_tot, COMM, true);
+  if (dimension <=11) {  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
+    n_proc_tot, COMM, true); }
 #endif
-  /*This need to be transformed to a parallel I/O operations*/
+
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
@@ -204,34 +202,32 @@ int main(int argc, char* argv[]){
     printf_reset();
   }
 
+  //Copy the data from host to device
+  #pragma acc data copyin(matrix[:size], matrix_new[:size])
+
   // start algorithm
   t_start = MPI_Wtime();
   for( it = 0; it < iterations; ++it ){
 
-    ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
-
-    //This is the two function we can parallelize with OpenACC
-    //evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
-
-    size_t i , j;
-    size_t size = dim_1_local[irank]*dim_2_local;
-
-    #pragma acc data copyin(matrix[:size], matrix_new[:size])
-    #pragma acc parallel loop collapse(2) present(matrix[:size], matrix_new[:size])
-    for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
-        for( j = 1; j <= dim_2_local-2; ++j ) {
-          matrix_new[ linear_index_local(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
-            ( matrix[ linear_index_local(i-1,j,dim_1_local[irank],dim_2_local) ] + 
-              matrix[ linear_index_local(i,j+1,dim_1_local[irank],dim_2_local) ] + 	  
-              matrix[ linear_index_local(i+1,j,dim_1_local[irank],dim_2_local) ] + 
-              matrix[ linear_index_local(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
-        }
+    //Swap pointers
+    if (it % 2 == 0) {
+    #pragma acc update host(matrix_new[size:size], matrix_new[size:size])
+    } else {
+    #pragma acc update host(matrix[size:size], matrix[size:size])
     }
-    // The swap of the pointer will be more elaborate,
-    // since we have also to communicate with the GPU
-    tmp_matrix = matrix;
-    matrix = matrix_new;
-    matrix_new = tmp_matrix;
+    //Exchange ghost layers
+    if (it % 2 == 0)     ghost_layer_transfer(matrix_new, irank, n_proc_tot, dim_1_local, dim_2_local);
+    else     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
+    
+    //Update with new ghost layers
+    if (it % 2 == 0) {
+    #pragma acc update device(matrix_new[0 : size], matrix_new[0 : size])
+    } else {
+    #pragma acc update device(matrix[0 : size], matrix[0 : size])
+    }
+
+    //Actual evolution
+    //evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
   }
 
   t_end = MPI_Wtime();
@@ -252,10 +248,9 @@ int main(int argc, char* argv[]){
     printf("-------Evolution executed-------\n");
     printf_reset();
   }
-  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
-    n_proc_tot, COMM, true);
+  if (dimension <=11) {print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
+    n_proc_tot, COMM, true);}
 #endif
-  /*This need to be transformed to a parallel I/O operations*/
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
 
@@ -320,8 +315,7 @@ void evolve_openacc( double * matrix_old, double *matrix_new, int * dim_1_local,
   size_t i , j;
   size_t size = dim_1_local[irank]*dim_2_local;
   //This will be a row dominant program.
-  /*
-  #pragma acc parallel loop
+  #pragma acc parallel loop collapse(2) present(matrix_old[:size], matrix_new[:size])
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {
       matrix_new[ linear_index_local(i,j,dim_1_local[irank],dim_2_local) ] = ( 0.25 ) * 
@@ -331,7 +325,6 @@ void evolve_openacc( double * matrix_old, double *matrix_new, int * dim_1_local,
           matrix_old[ linear_index_local(i,j-1,dim_1_local[irank],dim_2_local) ] ); 
     }
   }
-  */
 }
 
 
