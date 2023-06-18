@@ -15,6 +15,12 @@ small_exercise/3D_parallel_sphere/*.h5
 
 matrix_mult/output/*
 
+jacobi_exercise/.vscode/*
+
 #fftw_es1 .dat
 fftw_es1/C/data/*
 fftw_es1/C/build/src/*
+
+#fftw_es1 .dat
+fftw_es2/C/data/*
+fftw_es2/C/build/src/*
