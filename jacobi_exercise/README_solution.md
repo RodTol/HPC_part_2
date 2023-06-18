@@ -1,0 +1,1 @@
+Se vuoi puoi far notare che la funzione per scrivere la matrice e quella per printarla intera su terminale non sono scalabili

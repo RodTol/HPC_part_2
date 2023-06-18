@@ -156,8 +156,8 @@ int main(int argc, char* argv[]){
   t_end = MPI_Wtime();
   time = t_end-t_start;
 #ifdef DEBUG
-  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
-    n_proc_tot, COMM, true);
+  if (dimension <=11) {  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
+    n_proc_tot, COMM, true); }
 #endif
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
@@ -199,8 +199,8 @@ int main(int argc, char* argv[]){
     printf("-------Evolution executed-------\n");
     printf_reset();
   }
-  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
-    n_proc_tot, COMM, true);
+  if (dimension <=11) {print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
+    n_proc_tot, COMM, true);}
 #endif
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");

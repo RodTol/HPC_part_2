@@ -1,6 +1,6 @@
 CORES = 6
-dim = 60
-time = 10000
+dim = 600
+time = 4000
 r = 3
 c = 3
 
@@ -47,6 +47,7 @@ clean:
 	
 flush:
 	rm -f *.dat
+	rm -rf images/*.png
 
 plot:
 	@gnuplot -p plot.plt

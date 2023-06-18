@@ -59,29 +59,16 @@ void array_of_random_doubles(double * A, int dim)
 {
   int irank;
   MPI_Comm_rank(MPI_COMM_WORLD, &irank);
-
-  double max = 5.0;
-  double min = 0.0;
-  double div = RAND_MAX/(max-min);
-
-/*
-  for (int i = 0; i < dim; ++i) {
-      srand(i + irank + time(NULL));
-      A[i] =  min + (rand() / div); 
-  }
-*/
+  double max = 1.0;
+  double min = -1.0;
   for(int i = 0; i < dim; i++) {
     srand(irank + i + time(NULL));
-    A[i] = randfrom(-1, 1);
+    A[i] = randfrom(min, max);
   }
 }
 
 double randfrom(double min, double max) {
-  /*
-   * Generate a random floating point number from min to max.
-   * */ 
   double range = (max - min); 
   double div = RAND_MAX / range;
-
   return min + (rand() / div);
 }
