@@ -165,7 +165,7 @@ int main(int argc, char* argv[]){
 
   /*Each process knows only its size*/
   size_t size = dim_1_local[irank]*dim_2_local;
-  matrix_local_dimension = sizeof(double) * size );
+  matrix_local_dimension = sizeof(double) * size;
   matrix = ( double* )malloc( matrix_local_dimension );
   matrix_new = ( double* )malloc( matrix_local_dimension );
   tmp_matrix = ( double* )malloc( matrix_local_dimension );
@@ -203,7 +203,7 @@ int main(int argc, char* argv[]){
   }
 
   //Copy the data from host to device
-  #pragma acc data copyin(matrix[:size], matrix_new[:size])
+  #pragma acc enter data copyin(matrix[:size], matrix_new[:size])
 
   // start algorithm
   t_start = MPI_Wtime();
@@ -211,9 +211,9 @@ int main(int argc, char* argv[]){
 
     //Swap pointers
     if (it % 2 == 0) {
-    #pragma acc update host(matrix_new[size:size], matrix_new[size:size])
+    	#pragma acc update host(matrix_new[dim_2_local:dim_2_local], matrix_new[dim_2_local:dim_2_local])
     } else {
-    #pragma acc update host(matrix[size:size], matrix[size:size])
+    	#pragma acc update host(matrix[dim_2_local:dim_2_local], matrix[dim_2_local:dim_2_local])
     }
     //Exchange ghost layers
     if (it % 2 == 0)     ghost_layer_transfer(matrix_new, irank, n_proc_tot, dim_1_local, dim_2_local);
@@ -221,14 +221,16 @@ int main(int argc, char* argv[]){
     
     //Update with new ghost layers
     if (it % 2 == 0) {
-    #pragma acc update device(matrix_new[0 : size], matrix_new[0 : size])
+    	#pragma acc update device(matrix_new[0 : dim_2_local], matrix_new[0 : dim_2_local])
     } else {
-    #pragma acc update device(matrix[0 : size], matrix[0 : size])
+    	#pragma acc update device(matrix[0 : dim_2_local], matrix[0 : dim_2_local])
     }
 
     //Actual evolution
-    //evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
   }
+  //Copy the data out from device to host
+  #pragma acc exit data copyout(matrix[:size], matrix_new[:size])
 
   t_end = MPI_Wtime();
   time = t_end-t_start;

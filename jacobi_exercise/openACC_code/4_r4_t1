@@ -1,0 +1,7 @@
+Present table dump for device[1]: NVIDIA Tesla GPU 0, compute capability 7.0, threadid=1
+...empty...
+deleted block   device:0x7fff332fa000 size:6144 threadid=1 
+deleted block   device:0x7fff332fb800 size:6144 threadid=1 
+FATAL ERROR: data in update host clause was not found on device 1: name=matrix_new
+ file:/m100/home/usertrain/a08tra76/HPC_part_2/jacobi_exercise/openACC_code/src/main.c main line:215
+
