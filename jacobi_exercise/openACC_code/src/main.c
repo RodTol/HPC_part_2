@@ -202,32 +202,43 @@ int main(int argc, char* argv[]){
     printf_reset();
   }
 
-  //Copy the data from host to device
+  //Copy the initial data from host to device
   #pragma acc enter data copyin(matrix[:size], matrix_new[:size])
+  size_t last_row_start = (dim_1_local[irank]-1) * dim_2_local;
 
   // start algorithm
   t_start = MPI_Wtime();
-  for( it = 0; it < iterations; ++it ){
+  for( it = 0; it < iterations; it++ ){
 
-    //Swap pointers
-    if (it % 2 == 0) {
-    	#pragma acc update host(matrix_new[dim_2_local:dim_2_local], matrix_new[dim_2_local:dim_2_local])
-    } else {
-    	#pragma acc update host(matrix[dim_2_local:dim_2_local], matrix[dim_2_local:dim_2_local])
-    }
-    //Exchange ghost layers
+    //Exchange ghost layers at host level
     if (it % 2 == 0)     ghost_layer_transfer(matrix_new, irank, n_proc_tot, dim_1_local, dim_2_local);
     else     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
     
-    //Update with new ghost layers
+    //Update with new ghost layers (only them, so first row and last row).
+    //Note that the API works with pointer[start_point:dimension of what to send]
     if (it % 2 == 0) {
-    	#pragma acc update device(matrix_new[0 : dim_2_local], matrix_new[0 : dim_2_local])
+    	#pragma acc update device(matrix_new[0 : dim_2_local], matrix_new[last_row_start : dim_2_local])
     } else {
-    	#pragma acc update device(matrix[0 : dim_2_local], matrix[0 : dim_2_local])
+    	#pragma acc update device(matrix[0 : dim_2_local], matrix[last_row_start : dim_2_local])
     }
 
-    //Actual evolution
-    evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    //Actual evolution (device level)
+    if (it % 2 == 0) {
+       evolve_openacc(matrix_new, matrix, dim_1_local, dim_2_local, irank);
+    } else {
+       evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    }
+
+
+    //I update the host with the data
+    if (it % 2 == 0) {
+    	#pragma acc update host(matrix_new[dim_2_local:dim_2_local], matrix_new[last_row_start - dim_2_local:dim_2_local])
+//	#pragma acc update host(matrix_new)
+    } else {
+    	#pragma acc update host(matrix[dim_2_local:dim_2_local], matrix[last_row_start - dim_2_local:dim_2_local])
+//	#pragma acc update host(matrix)
+    }
+
   }
   //Copy the data out from device to host
   #pragma acc exit data copyout(matrix[:size], matrix_new[:size])
@@ -313,7 +324,7 @@ int linear_index_local ( int i, int j, int dim1, int dim2)
   return dim2*i + j; 
 }
 
-void evolve_openacc( double * matrix_old, double *matrix_new, int * dim_1_local, int dim_2_local, int irank ) {
+void evolve_openacc( double * matrix_old, double * matrix_new, int * dim_1_local, int dim_2_local, int irank ) {
   size_t i , j;
   size_t size = dim_1_local[irank]*dim_2_local;
   //This will be a row dominant program.
