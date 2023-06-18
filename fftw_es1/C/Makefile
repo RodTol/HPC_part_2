@@ -1,10 +1,10 @@
 # local environment
-FFTW_INC = /home/rodolfo/spack/opt/spack/linux-ubuntu22.04-skylake/gcc-12.1.0/fftw-3.3.10-tqiaj7s2nkff62gmiwmrainm5mjcedur/include
-FFTW_LIB = /home/rodolfo/spack/opt/spack/linux-ubuntu22.04-skylake/gcc-12.1.0/fftw-3.3.10-tqiaj7s2nkff62gmiwmrainm5mjcedur/lib
+#FFTW_INC = /home/rodolfo/spack/opt/spack/linux-ubuntu22.04-skylake/gcc-12.1.0/fftw-3.3.10-tqiaj7s2nkff62gmiwmrainm5mjcedur/include
+#FFTW_LIB = /home/rodolfo/spack/opt/spack/linux-ubuntu22.04-skylake/gcc-12.1.0/fftw-3.3.10-tqiaj7s2nkff62gmiwmrainm5mjcedur/lib
 
 #M100 env
-#FFTW_INC = /m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include
-#FFTW_LIB = /m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/lib
+FFTW_INC = /m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include
+FFTW_LIB = /m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/lib
 
 
 CC=mpicc
