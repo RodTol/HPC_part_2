@@ -1,5 +1,5 @@
 CORES = 6
-N = 100
+N = 10
 n_socket=16
 n_node=32
 

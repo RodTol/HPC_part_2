@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
 
         start_comm = MPI_Wtime();
 
-        /*I update the columnd displacement*/
+        /*I update the columns displacement*/
         calculate_n_elements(n_elements_local, n_rows_local, count, n_proc_tot);
         calculate_displ_col(displacement_col, n_elements_local, n_proc_tot);
 
