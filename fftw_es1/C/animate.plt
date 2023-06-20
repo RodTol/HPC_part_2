@@ -20,11 +20,11 @@ set cbrange [minT:maxT]
 plot 'data/diffusivity3.dat' matrix with image
 
 set term png
-set output "images/concentration_init.png"
+set output "images/concentration_init_1.png"
 minT=0
 maxT=0.9
 set cbrange [minT:maxT]
-plot 'data/concentration_init.dat' matrix with image
+plot 'data/concentration_init_1.dat' matrix with image
 
 set term gif animate delay 25
 set output "images/animate.gif"

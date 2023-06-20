@@ -58,6 +58,7 @@ int main(int argc, char* argv[]){
   row_peek = atoi(argv[3]);
   col_peek = atoi(argv[4]);
 
+  // print some info
   if (irank == MASTER) {
     printf_yellow();
     printf("--------------------------------------------------------------------------\n"
@@ -155,6 +156,7 @@ int main(int argc, char* argv[]){
   MPI_Barrier(COMM);
   t_end = MPI_Wtime();
   time = t_end-t_start;
+  
 #ifdef DEBUG
   if (dimension <=11) {  print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true); }

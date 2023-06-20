@@ -119,8 +119,8 @@ int main(int argc, char **argv) {
     }
   }
   // Plot the diffusivity in all 3 directions
-  plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
-               1, diffusivity);
+  //plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+  //             1, diffusivity);
 
   plot_data_2d("data/diffusivity2", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                2, diffusivity);
@@ -155,7 +155,6 @@ int main(int argc, char **argv) {
 
   plot_data_2d("data/concentration_init",n1,n2,n3,n1_local,n1_local_offset,
                 2, conc);
-
   /*
    * Now everything is defined: system size, diffusivity inside the system, and
    * the starting concentration

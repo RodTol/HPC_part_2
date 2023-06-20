@@ -225,18 +225,17 @@ int main(int argc, char* argv[]){
     //Actual evolution (device level)
     if (it % 2 == 0) {
        evolve_openacc(matrix_new, matrix, dim_1_local, dim_2_local, irank);
-    } else {
+    } else { 
        evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
     }
 
 
-    //I update the host with the data
+    //I update the host with the data of the first actual row and the last actual row
+    //I need only this because these are the rows that will be exchanged with the ghost layer
     if (it % 2 == 0) {
     	#pragma acc update host(matrix_new[dim_2_local:dim_2_local], matrix_new[last_row_start - dim_2_local:dim_2_local])
-//	#pragma acc update host(matrix_new)
     } else {
     	#pragma acc update host(matrix[dim_2_local:dim_2_local], matrix[last_row_start - dim_2_local:dim_2_local])
-//	#pragma acc update host(matrix)
     }
 
   }
@@ -328,6 +327,8 @@ void evolve_openacc( double * matrix_old, double * matrix_new, int * dim_1_local
   size_t i , j;
   size_t size = dim_1_local[irank]*dim_2_local;
   //This will be a row dominant program.
+  //Present flags tells device that there's no need to copy from the CPU, but
+  //matrix and matrix_new are already on the device
   #pragma acc parallel loop collapse(2) present(matrix_old[:size], matrix_new[:size])
   for( i = 1 ; i <= dim_1_local[irank]-2; ++i ) {
     for( j = 1; j <= dim_2_local-2; ++j ) {

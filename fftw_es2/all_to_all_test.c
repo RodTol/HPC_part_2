@@ -110,16 +110,18 @@ send_displacement[0] = 0*sizeof(double);
 recv_displacement[0] = 0*sizeof(double);
 for (int i = 0; i < n_proc_tot-1; i++)
 {
-  send_displacement[i+1] = send_displacement[i] + n2_loc*n3*sizeof(double);
-  recv_displacement[i+1] = recv_displacement[i] + n1_loc*n2_loc*n3*sizeof(double); 
+  send_displacement[i+1] = send_displacement[i] + n2_loc*n3;//*sizeof(double);
+  recv_displacement[i+1] = recv_displacement[i] + n1_loc*n2_loc*n3;//*sizeof(double); 
 }
 
   //MPI_Alltoall(debug_data, 1, column_block, debug_columns, n1_loc*n2_loc*n3, MPI_DOUBLE, MPI_COMM_WORLD);
+  MPI_Alltoallv(debug_data, send_n_of_blocks, send_displacement, column_block,
+   debug_columns, recv_n_of_blocks, recv_displacement, MPI_DOUBLE, MPI_COMM_WORLD);
 
   /*Devo usare la variante w perchè indicando i displacements con i normali indici non
   funziona, credo per il datatype che crea confusione*/
-  MPI_Alltoallw(debug_data, send_n_of_blocks, send_displacement, send_type,
-   debug_columns, recv_n_of_blocks, recv_displacement, recv_type, MPI_COMM_WORLD);
+  //MPI_Alltoallw(debug_data, send_n_of_blocks, send_displacement, send_type,
+   //debug_columns, recv_n_of_blocks, recv_displacement, recv_type, MPI_COMM_WORLD);
   /*Little change to see the modifications*/
   for (int i = 0; i < local_size; i++)
   {
@@ -169,9 +171,13 @@ for (int i = 0; i < n_proc_tot-1; i++)
     }
   }
 */
+
+  MPI_Alltoallv(debug_columns, recv_n_of_blocks, recv_displacement, MPI_DOUBLE,
+   debug_data, send_n_of_blocks, send_displacement, column_block, MPI_COMM_WORLD);
+
   /*Now i have to come back to the first order*/
-  MPI_Alltoallw(debug_columns, recv_n_of_blocks, recv_displacement, recv_type,
-   debug_data, send_n_of_blocks, send_displacement, send_type, MPI_COMM_WORLD);
+  //MPI_Alltoallw(debug_columns, recv_n_of_blocks, recv_displacement, recv_type,
+  // debug_data, send_n_of_blocks, send_displacement, send_type, MPI_COMM_WORLD);
 
   sleep(1);
   if (irank==0) printf("--- AFTER ALL TO ALL #2 ---\n Original matrix:\n");
