@@ -47,7 +47,7 @@ clean:
 	
 flush:
 	rm -f *.dat
-	rm -rf images/*.png
+	rm -f images/*.png
 
 plot:
 	@gnuplot -p plot.plt
