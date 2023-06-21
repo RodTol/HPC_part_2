@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-
-
 bool file_exists(const char *filename);
 
 /**
@@ -122,8 +119,8 @@ int main(int argc, char **argv) {
     }
   }
   // Plot the diffusivity in all 3 directions
-  //plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
-  //             1, diffusivity);
+  plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+               1, diffusivity);
 
   plot_data_2d("data/diffusivity2", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                2, diffusivity);
