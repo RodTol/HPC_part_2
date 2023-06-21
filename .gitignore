@@ -18,6 +18,8 @@ matrix_mult/.vscode
 
 jacobi_exercise/.vscode
 jacobi_exercise/mpi_code/*.dat
+jacobi_exercise/openACC_code/*.dat
+jacobi_exercise/openACC_code/*t1
 
 #fftw_es1 .dat
 fftw_es1/C/data/*

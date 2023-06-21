@@ -1,6 +1,6 @@
 CORES = 4
-dim = 2000
-time = 50000
+dim = 10000
+time = 1000
 r = 3
 c = 3
 
@@ -49,7 +49,8 @@ clean:
 	rm -f $(OBJS) $(EXE)
 
 flush:
-	rm -f *.dat
+	rm -f initial.dat
+	rm -f solution.dat
 	rm -f images/*.png
 plot:
 	@gnuplot -p plot.plt

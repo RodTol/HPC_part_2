@@ -1,6 +1,6 @@
-CORES = 6
-dim = 600
-time = 4000
+CORES = 32
+dim = 20000
+time = 1000
 r = 3
 c = 3
 
@@ -41,7 +41,7 @@ $(BUILD_DIR)/%.c.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: clean all
-	mpirun -np $(CORES) -npersocket $(n_socket) -npernode $(n_node) --bind-to core $(EXE) $(dim) $(time) $(r) $(c)
+	mpirun -np $(CORES) $(EXE) $(dim) $(time) $(r) $(c)
 
 .PHONY: clean
 
@@ -49,7 +49,8 @@ clean:
 	rm -f $(OBJS) $(EXE)
 
 flush:
-	rm -f *.dat
+	rm -f solution.dat
+	rm -f initial.dat
 	rm -f images/*.png
 
 plot:
