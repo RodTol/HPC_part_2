@@ -31,3 +31,67 @@ The are some default values: n_socket = 16, n_node = 32. If the compilation vari
 
 ## Some Results:
 The code has a "warmup time" where it generates all the numbers inside the matrices, so the actual running time is way longer than the actual computation.
+
+<figure>
+  <img
+  src="../images/1node.png"
+  alt="1 Node"
+  width="500" 
+  height="400" >
+  <figcaption>1 Node</figcaption>
+</figure>
+
+<figure>
+  <img
+  src="../images/2node.png"
+  alt="2 Node"
+  width="500" 
+  height="400" >
+  <figcaption>2 Node</figcaption>
+</figure>
+
+<figure>
+  <img
+  src="../images/4node.png"
+  alt="4 Node"
+  width="500" 
+  height="400" >
+  <figcaption>4 Node</figcaption>
+</figure>
+
+<figure>
+  <img
+  src="../images/8node.png"
+  alt="8 Node"
+  width="500" 
+  height="400" >
+  <figcaption>8 Node</figcaption>
+</figure>
+
+
+<figure>
+  <img
+  src="../images/scala_full.png"
+  alt="Scalability"
+  width="500" 
+  height="400" >
+  <figcaption>Scalability for N=45000</figcaption>
+</figure>
+
+<figure>
+  <img
+  src="../images/scala_cublas.png"
+  alt="Scalability"
+  width="500" 
+  height="400" >
+  <figcaption>Scalability (OpenBLAS) for N=45000</figcaption>
+</figure>
+
+<figure>
+  <img
+  src="../images/scala_cublas.png"
+  alt="Scalability"
+  width="500" 
+  height="400" >
+  <figcaption>Scalability (cuBLAS) for N=45000</figcaption>
+</figure>
