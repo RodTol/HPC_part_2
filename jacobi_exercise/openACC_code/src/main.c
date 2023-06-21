@@ -29,7 +29,7 @@ double seconds( void );
 int main(int argc, char* argv[]){
 
   // timing variables
-  double t_start, t_end, time, max_time;
+  double t_start, t_end, time;
 
   // indexes for loops
   size_t it;
@@ -194,11 +194,9 @@ int main(int argc, char* argv[]){
     n_proc_tot, COMM, true); }
 #endif
 
-  MPI_Reduce(&time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-
   if (irank==MASTER) {
     printf_red();
-    printf( "\nElapsed initialisation time = %f seconds\n", max_time );
+    printf( "\nElapsed initialisation time = %f seconds\n", time );
     printf_reset();
   }
 
@@ -255,7 +253,6 @@ int main(int argc, char* argv[]){
 
   t_end = seconds();
   time = t_end-t_start;
-  MPI_Reduce(&time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   if (irank==MASTER) {
     printf_red();
@@ -291,12 +288,12 @@ int main(int argc, char* argv[]){
     if (irank == MASTER) {
         if (!file_exists(title)) {
             file = fopen(title, "w");
-            fprintf(file, "size, n_proc_tot, it, time\n");
+            fprintf(file, "size, n_proc_tot, it, compute time\n");
             fclose(file);
         }
 
         file = fopen(title, "a");
-        fprintf(file, "%ld  %d   %ld %15.12f\n", dimension, n_proc_tot, it, max_time);
+        fprintf(file, "%ld  %d   %ld %15.12f\n", dimension, n_proc_tot, it, time);
         fclose(file);
     }
     
