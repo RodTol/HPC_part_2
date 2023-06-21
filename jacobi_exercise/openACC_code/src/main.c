@@ -21,6 +21,9 @@ int linear_index_local( int i, int j, int dim1, int dim2);
 // evolve Jacobi
 void evolve_openacc( double * matrix_old,  double *matrix_new, int * dim_1_local, int dim_2_local, int irank );
 
+// return the elapsed time
+double seconds( void );
+
 /*** end function declaration ***/
 
 int main(int argc, char* argv[]){
@@ -358,3 +361,13 @@ void evolve_openacc( double * matrix_old, double * matrix_new, int * dim_1_local
 }
 
 
+
+// A Simple timer for measuring the walltime
+double seconds(){
+
+    struct timeval tmp;
+    double sec;
+    gettimeofday( &tmp, (struct timezone *)0 );
+    sec = tmp.tv_sec + ((double)tmp.tv_usec)/1000000.0;
+    return sec;
+}
