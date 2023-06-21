@@ -2,5 +2,7 @@
 For this solution I used:
 ```
 module load hpc/sdk
-module load spectrum-mpi
 ```
+
+# Some result
+Code execution is severly slowed by the writing on file of the initial and final matrix.

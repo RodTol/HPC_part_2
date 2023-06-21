@@ -172,6 +172,8 @@ int main(int argc, char* argv[]){
     printf_reset();
   }
 
+  MPI_Barrier(MPI_COMM_WORLD);
+
   // start algorithm
   t_start = MPI_Wtime();
   for( it = 0; it < iterations; ++it ){
@@ -204,6 +206,16 @@ int main(int argc, char* argv[]){
   if (dimension <=11) {print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);}
 #endif
+
+  MPI_Barrier(MPI_COMM_WORLD);
+
+  if (irank==MASTER) {
+    printf_yellow();
+    printf("\n");
+    printf("-------Printing the final matrix-------\n");
+    printf_reset();
+  }
+
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
 
