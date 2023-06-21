@@ -194,9 +194,6 @@ int main(int argc, char* argv[]){
     n_proc_tot, COMM, true); }
 #endif
 
-  print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
-    displacement, n_proc_tot, COMM, "initial.dat");
-
   MPI_Reduce(&time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   if (irank==MASTER) {
@@ -204,6 +201,17 @@ int main(int argc, char* argv[]){
     printf( "\nElapsed initialisation time = %f seconds\n", max_time );
     printf_reset();
   }
+
+
+  if (irank==MASTER) {
+    printf_yellow();
+    printf("\n");
+    printf("-------Printing the initial matrix-------\n");
+    printf_reset();
+  }
+
+  print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
+    displacement, n_proc_tot, COMM, "initial.dat");
 
   //Copy the initial data from host to device
   #pragma acc enter data copyin(matrix[:size], matrix_new[:size])
@@ -266,6 +274,14 @@ int main(int argc, char* argv[]){
   if (dimension <=11) {print_matrix_distributed(matrix, irank, dim_1_local, dim_2_local,
     n_proc_tot, COMM, true);}
 #endif
+
+  if (irank==MASTER) {
+    printf_yellow();
+    printf("\n");
+    printf("-------Printing the final matrix-------\n");
+    printf_reset();
+  }
+
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
 
