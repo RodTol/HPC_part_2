@@ -266,6 +266,22 @@ int main(int argc, char* argv[]){
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
 
+ /*I save the result in a times.dat file*/
+    FILE* file;
+    char* title = "times.dat";
+    if (irank == MASTER) {
+        if (!file_exists(title)) {
+            file = fopen(title, "w");
+            fprintf(file, "size, n_proc_tot, it, time\n");
+            fclose(file);
+        }
+
+        file = fopen(title, "a");
+        fprintf(file, "%ld  %d   %ld %15.12f\n", dimension, n_proc_tot, it, max_time);
+        fclose(file);
+    }
+    
+
   free(matrix);
   free(matrix_new);
 

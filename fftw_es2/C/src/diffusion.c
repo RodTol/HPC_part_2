@@ -5,6 +5,8 @@
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
+bool file_exists(const char *filename);
+
 /**
  * @brief Color Red for the output of C program
  */
@@ -279,6 +281,21 @@ int main( int argc, char* argv[] ){
       printf_reset();
   }
 
+  /*I save the result in a times.dat file*/
+  FILE* file;
+  char* title = "times.dat";
+  if (irank == 0) {
+      if (!file_exists(title)) {
+          file = fopen(title, "w");
+          fprintf(file, "grid_size, n_proc_tot, time\n");
+          fclose(file);
+      }
+
+      file = fopen(title, "a");
+      fprintf(file, "%d %d %15.12f\n", global_size_grid, n_proc_tot, end_tot-start_tot);
+      fclose(file);
+  }
+
   close_fftw(&fft_h);
   free(diffusivity);
   free(conc);
@@ -289,3 +306,14 @@ int main( int argc, char* argv[] ){
   MPI_Finalize();
   return 0;
 } 
+
+/**
+ * @brief  return true if the file specified by the
+ *  filename exists
+ * 
+ * @param filename name of the file
+*/
+
+bool file_exists(const char *filename) {
+    return access(filename, F_OK) == 0;
+}

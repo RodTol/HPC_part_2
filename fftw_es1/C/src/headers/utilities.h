@@ -6,6 +6,8 @@
 #include <mpi.h>
 #include <fftw3-mpi.h>
 #include <stdbool.h>
+#include <unistd.h>
+
 #define pi 3.14159265358979323846
 
 /**

@@ -6,6 +6,8 @@
 #include <fftw3.h>
 #include <mpi.h>
 #include <stdbool.h>
+#include <unistd.h>
+
 #define pi 3.14159265358979323846
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
