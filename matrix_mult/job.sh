@@ -2,7 +2,7 @@
 #SBATCH -A tra23_units_bis
 #SBATCH -p m100_usr_prod
 #SBATCH --time 03:00:00
-#SBATCH -N 2                  # nodes
+#SBATCH -N 1                  # nodes
 #SBATCH --ntasks-per-node=32
 #SBATCH --gres=gpu:4          # gpus per node out of 4
 #SBATCH --mem=246000          # memory per node out of 246000MB
@@ -20,9 +20,9 @@ export OMP_NUM_THREADS=1
 cd /m100/home/usertrain/a08trb39/HPC_part_2/matrix_mult
 
 n_proc=32
-((n_proc*=2))
+((n_proc*=1))
 n_proc_gpu=4
-((n_proc_gpu*=2))
+((n_proc_gpu*=1))
 
 
 for N in 1000 5000 10000 15000 20000 30000 35000 40000 45000 50000

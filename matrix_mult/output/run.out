@@ -9,16 +9,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 1000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 1000
 -------------------------------------------
-N: 1000, n_proc_tot: 128, n_loc: 7, rest: 104 
+N: 1000, n_proc_tot: 32, n_loc: 31, rest: 8 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.009503263000 
-Computational time:  0.001971233000 
-[1;31mTotal time:          0.011474496000 
+[1;33mCommunication time:  0.002358929000 
+Computational time:  0.005168937000 
+[1;31mTotal time:          0.007527866000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -32,17 +32,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 1000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 1000
 -------------------------------------------
-N: 1000, n_proc_tot: 16, n_loc: 62, rest: 8 
+N: 1000, n_proc_tot: 4, n_loc: 250, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.177878219604 
-Computational time:  0.131714035034 
-[1;31mTotal time:          0.309592254639 
+[1;33mCommunication time:  0.169706039429 
+Computational time:  0.185033920288 
+[1;31mTotal time:          0.354739959717 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -54,16 +54,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 5000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 5000
 -------------------------------------------
-N: 5000, n_proc_tot: 128, n_loc: 39, rest: 8 
+N: 5000, n_proc_tot: 32, n_loc: 156, rest: 8 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.079580038000 
-Computational time:  0.158288443000 
-[1;31mTotal time:          0.237868481000 
+[1;33mCommunication time:  0.089390345000 
+Computational time:  0.484340593000 
+[1;31mTotal time:          0.573730938000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -77,17 +77,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 5000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 5000
 -------------------------------------------
-N: 5000, n_proc_tot: 16, n_loc: 312, rest: 8 
+N: 5000, n_proc_tot: 4, n_loc: 1250, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.239185470581 
-Computational time:  0.004990175247 
-[1;31mTotal time:          0.244175645828 
+[1;33mCommunication time:  0.230418045044 
+Computational time:  0.010580672264 
+[1;31mTotal time:          0.240998717308 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -99,16 +99,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 10000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 10000
 -------------------------------------------
-N: 10000, n_proc_tot: 128, n_loc: 78, rest: 16 
+N: 10000, n_proc_tot: 32, n_loc: 312, rest: 16 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.439105957000 
-Computational time:  1.091658910000 
-[1;31mTotal time:          1.530764867000 
+[1;33mCommunication time:  0.336305200000 
+Computational time:  3.501416636000 
+[1;31mTotal time:          3.837721836000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -122,17 +122,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 10000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 10000
 -------------------------------------------
-N: 10000, n_proc_tot: 16, n_loc: 625, rest: 0 
+N: 10000, n_proc_tot: 4, n_loc: 2500, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.474143127441 
-Computational time:  0.023020513535 
-[1;31mTotal time:          0.497163640976 
+[1;33mCommunication time:  0.496436523437 
+Computational time:  0.079229629517 
+[1;31mTotal time:          0.575666152954 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -144,16 +144,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 15000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 15000
 -------------------------------------------
-N: 15000, n_proc_tot: 128, n_loc: 117, rest: 24 
+N: 15000, n_proc_tot: 32, n_loc: 468, rest: 24 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  1.296231715000 
-Computational time:  3.256681954000 
-[1;31mTotal time:          4.552913669000 
+[1;33mCommunication time:  0.720579046000 
+Computational time: 11.445481365000 
+[1;31mTotal time:         12.166060411000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -167,17 +167,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 15000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 15000
 -------------------------------------------
-N: 15000, n_proc_tot: 16, n_loc: 937, rest: 8 
+N: 15000, n_proc_tot: 4, n_loc: 3750, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.749913574219 
-Computational time:  0.072662040710 
-[1;31mTotal time:          0.822575614929 
+[1;33mCommunication time:  0.890288208008 
+Computational time:  0.248127655029 
+[1;31mTotal time:          1.138415863037 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -189,16 +189,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 20000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 20000
 -------------------------------------------
-N: 20000, n_proc_tot: 128, n_loc: 156, rest: 32 
+N: 20000, n_proc_tot: 32, n_loc: 625, rest: 0 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  1.937036288000 
-Computational time:  7.260679296000 
-[1;31mTotal time:          9.197715584000 
+[1;33mCommunication time:  1.395302217000 
+Computational time: 26.392270549000 
+[1;31mTotal time:         27.787572766000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -212,17 +212,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 20000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 20000
 -------------------------------------------
-N: 20000, n_proc_tot: 16, n_loc: 1250, rest: 0 
+N: 20000, n_proc_tot: 4, n_loc: 5000, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  1.208782470703 
-Computational time:  0.158603851318 
-[1;31mTotal time:          1.367386322021 
+[1;33mCommunication time:  1.452406982422 
+Computational time:  0.562367126465 
+[1;31mTotal time:          2.014774108887 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -234,16 +234,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 30000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 30000
 -------------------------------------------
-N: 30000, n_proc_tot: 128, n_loc: 234, rest: 48 
+N: 30000, n_proc_tot: 32, n_loc: 937, rest: 16 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  4.759952851000 
-Computational time: 23.498851915000 
-[1;31mTotal time:         28.258804766000 
+[1;33mCommunication time:  3.105097973000 
+Computational time: 88.073647260000 
+[1;31mTotal time:         91.178745233000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -257,17 +257,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 30000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 30000
 -------------------------------------------
-N: 30000, n_proc_tot: 16, n_loc: 1875, rest: 0 
+N: 30000, n_proc_tot: 4, n_loc: 7500, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  2.477200439453 
-Computational time:  0.545544006348 
-[1;31mTotal time:          3.022744445801 
+[1;33mCommunication time:  2.887105957031 
+Computational time:  1.879321899414 
+[1;31mTotal time:          4.766427856445 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -279,16 +279,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 35000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 35000
 -------------------------------------------
-N: 35000, n_proc_tot: 128, n_loc: 273, rest: 56 
+N: 35000, n_proc_tot: 32, n_loc: 1093, rest: 24 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  6.241664561000 
-Computational time: 36.065540688000 
-[1;31mTotal time:         42.307205249000 
+[1;33mCommunication time:  5.839011478000 
+Computational time: 139.055727305000 
+[1;31mTotal time:         144.894738783000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -302,17 +302,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 35000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 35000
 -------------------------------------------
-N: 35000, n_proc_tot: 16, n_loc: 2187, rest: 8 
+N: 35000, n_proc_tot: 4, n_loc: 8750, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  3.325655273438 
-Computational time:  0.778728027344 
-[1;31mTotal time:          4.104383300781 
+[1;33mCommunication time:  3.828113037109 
+Computational time:  2.809243408203 
+[1;31mTotal time:          6.637356445313 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -324,16 +324,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 40000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 40000
 -------------------------------------------
-N: 40000, n_proc_tot: 128, n_loc: 312, rest: 64 
+N: 40000, n_proc_tot: 32, n_loc: 1250, rest: 0 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  7.985784415000 
-Computational time: 53.566651366000 
-[1;31mTotal time:         61.552435781000 
+[1;33mCommunication time:  8.445505154000 
+Computational time: 205.271450197000 
+[1;31mTotal time:         213.716955351000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -347,17 +347,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 40000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 40000
 -------------------------------------------
-N: 40000, n_proc_tot: 16, n_loc: 2500, rest: 0 
+N: 40000, n_proc_tot: 4, n_loc: 10000, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  4.113142578125 
-Computational time:  1.090811767578 
-[1;31mTotal time:          5.203954345703 
+[1;33mCommunication time:  4.812050781250 
+Computational time:  4.545769531250 
+[1;31mTotal time:          9.357820312500 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -369,16 +369,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 45000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 45000
 -------------------------------------------
-N: 45000, n_proc_tot: 128, n_loc: 351, rest: 72 
+N: 45000, n_proc_tot: 32, n_loc: 1406, rest: 8 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time: 10.667763021000 
-Computational time: 76.275735209000 
-[1;31mTotal time:         86.943498230000 
+[1;33mCommunication time: 10.579431816000 
+Computational time: 294.389690073000 
+[1;31mTotal time:         304.969121889000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -392,17 +392,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 45000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 45000
 -------------------------------------------
-N: 45000, n_proc_tot: 16, n_loc: 2812, rest: 8 
+N: 45000, n_proc_tot: 4, n_loc: 11250, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  5.233743164063 
-Computational time:  1.540723022461 
-[1;31mTotal time:          6.774466186523 
+[1;33mCommunication time:  5.841073242188 
+Computational time:  6.817545898438 
+[1;31mTotal time:         12.658619140625 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -414,16 +414,16 @@ mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DDGEMM  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -I /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/include/ -L /cineca/prod/opt/libraries/openblas/0.3.9/gnu--8.4.0/lib -lopenblas -lgfortran -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 50000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 50000
 -------------------------------------------
-N: 50000, n_proc_tot: 128, n_loc: 390, rest: 80 
+N: 50000, n_proc_tot: 32, n_loc: 1562, rest: 16 
 -------------------------------------------
 [1;31mUsing OpenBLAS DGEMM for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time: 12.983011986000 
-Computational time: 105.833448554000 
-[1;31mTotal time:         118.816460540000 
+[1;33mCommunication time: 13.215864454000 
+Computational time: 402.682175774000 
+[1;31mTotal time:         415.898040228000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -437,17 +437,17 @@ mpicc -Wall -O3 -I./src -I./src/headers -DGPU  -c src/general_utility.c -o build
 mkdir -p build/
 nvcc -c src/gpu_computation.cu -o build/gpu_computation.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o ./build/gpu_computation.c.o -L/cineca/prod/opt/compilers/cuda/11.0/none/lib64/ -lcudart -lcublas
-mpirun -np 16 -npersocket 2 -npernode 4 --bind-to core  a.out 50000
+mpirun -np 4 -npersocket 2 -npernode 4 --bind-to core  a.out 50000
 -------------------------------------------
-N: 50000, n_proc_tot: 16, n_loc: 3125, rest: 0 
+N: 50000, n_proc_tot: 4, n_loc: 12500, rest: 0 
 -------------------------------------------
 [1;31mUsing cuBLAS DGEMM for computation
 [0mSuccesful allocation CUDA
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  6.368611328125 
-Computational time:  2.180103759766 
-[1;31mTotal time:          8.548715087891 
+[1;33mCommunication time:  7.230415039062 
+Computational time:  9.994479492187 
+[1;31mTotal time:         17.224894531250 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -459,16 +459,16 @@ mpicc -Wall -O3 -I./src -I./src/headers  -c src/main.c -o build/./src/main.c.o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers  -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 1000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 1000
 -------------------------------------------
-N: 1000, n_proc_tot: 128, n_loc: 7, rest: 104 
+N: 1000, n_proc_tot: 32, n_loc: 31, rest: 8 
 -------------------------------------------
 [1;31mUsing basic MPI for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.007001954000 
-Computational time:  0.014325533000 
-[1;31mTotal time:          0.021327487000 
+[1;33mCommunication time:  0.003935448000 
+Computational time:  0.058100837000 
+[1;31mTotal time:          0.062036285000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -480,16 +480,16 @@ mpicc -Wall -O3 -I./src -I./src/headers  -c src/main.c -o build/./src/main.c.o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers  -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 5000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 5000
 -------------------------------------------
-N: 5000, n_proc_tot: 128, n_loc: 39, rest: 8 
+N: 5000, n_proc_tot: 32, n_loc: 156, rest: 8 
 -------------------------------------------
 [1;31mUsing basic MPI for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  0.361393558000 
-Computational time:  3.928218261000 
-[1;31mTotal time:          4.289611819000 
+[1;33mCommunication time:  0.302319207000 
+Computational time: 13.599787273000 
+[1;31mTotal time:         13.902106480000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -501,16 +501,16 @@ mpicc -Wall -O3 -I./src -I./src/headers  -c src/main.c -o build/./src/main.c.o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers  -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 10000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 10000
 -------------------------------------------
-N: 10000, n_proc_tot: 128, n_loc: 78, rest: 16 
+N: 10000, n_proc_tot: 32, n_loc: 312, rest: 16 
 -------------------------------------------
 [1;31mUsing basic MPI for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time:  1.469902117000 
-Computational time: 30.144039735000 
-[1;31mTotal time:         31.613941852000 
+[1;33mCommunication time:  2.024193182000 
+Computational time: 112.754275536000 
+[1;31mTotal time:         114.778468718000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -522,16 +522,16 @@ mpicc -Wall -O3 -I./src -I./src/headers  -c src/main.c -o build/./src/main.c.o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers  -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 15000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 15000
 -------------------------------------------
-N: 15000, n_proc_tot: 128, n_loc: 117, rest: 24 
+N: 15000, n_proc_tot: 32, n_loc: 468, rest: 24 
 -------------------------------------------
 [1;31mUsing basic MPI for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time: 19.573512431000 
-Computational time: 127.277647186000 
-[1;31mTotal time:         146.851159617000 
+[1;33mCommunication time:  6.759770323000 
+Computational time: 498.879925306000 
+[1;31mTotal time:         505.639695629000 
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 rm -f ./build/gpu_computation.c.o
 mkdir -p build/./src/
@@ -543,14 +543,14 @@ mpicc -Wall -O3 -I./src -I./src/headers  -c src/main.c -o build/./src/main.c.o
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers  -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o 
-mpirun -np 128 -npersocket 16 -npernode 32 --bind-to core  a.out 20000
+mpirun -np 32 -npersocket 16 -npernode 32 --bind-to core  a.out 20000
 -------------------------------------------
-N: 20000, n_proc_tot: 128, n_loc: 156, rest: 32 
+N: 20000, n_proc_tot: 32, n_loc: 625, rest: 0 
 -------------------------------------------
 [1;31mUsing basic MPI for computation
 [0m
 ----@[1;32mExecution ended with a succes![0m@----
-[1;33mCommunication time: 11.777824299000 
-Computational time: 286.566440566000 
-[1;31mTotal time:         298.344264865001 
+[1;33mCommunication time: 10.232678852000 
+Computational time: 1133.885674024000 
+[1;31mTotal time:         1144.118352876000 
 [0mJOB FINISHED
