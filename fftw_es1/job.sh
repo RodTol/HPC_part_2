@@ -12,7 +12,6 @@
 #SBATCH -o ./output/run.out
 #SBATCH -e ./output/err.out
 
-module load autoload spectrum_mpi
 module load autoload fftw
 
 export OMP_NUM_THREADS=1

@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
   // time step for time integration
   double dt = 2.e-3;
   // number of time steps
-  int nstep = 601;
+  int nstep = 100;
   // Radius of diffusion channel
   double rad_diff = 0.7;
   // Radius of starting concentration
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
   int irank, n_proc_tot;
 
   fftw_mpi_handler fft_h;
-  int local_size_grid, global_size_grid;
+  size_t local_size_grid, global_size_grid;
   int n1_local, n1_local_offset;
 
   // Initializzation of the MPI environment
@@ -183,7 +183,7 @@ int main(int argc, char **argv) {
   // I initialize dconc
   for (i1=0; i1< local_size_grid; ++i1) dconc[i1] = 0.0;
 
-  start_tot = MPI_Wtime();
+  start_tot = seconds();
 
   for (istep = 1; istep <= nstep; ++istep) {
     //I need to make the transform in all 3 direction and sum the contribution     
@@ -274,7 +274,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  end_tot = MPI_Wtime();
+  end_tot = seconds();
 
   if (irank == 0) {
       printf("\n----@");
@@ -299,7 +299,7 @@ int main(int argc, char **argv) {
         }
 
         file = fopen(title, "a");
-        fprintf(file, "%d %d %15.12f\n", global_size_grid, n_proc_tot, end_tot-start_tot);
+        fprintf(file, "%d x %d x %d %d %15.12f\n", n1, n2, n3, n_proc_tot, end_tot-start_tot);
         fclose(file);
     }
 
