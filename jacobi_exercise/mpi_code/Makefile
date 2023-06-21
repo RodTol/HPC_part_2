@@ -4,6 +4,9 @@ time = 4000
 r = 3
 c = 3
 
+n_socket=16
+n_node=32
+
 #target
 BUILD_DIR = ./build
 EXE = a.out
@@ -21,8 +24,8 @@ INC_FLAGS = $(addprefix -I,$(INC_DIRS))
 #compiler and standard flags
 CC = mpicc
 CFLAGS = -Wall -O3 $(INC_FLAGS)
-	
-ifdef flags	
+
+ifdef flags
 	ifeq ($(flags), debug)
 		CFLAGS+= -DDEBUG
 	endif
@@ -38,13 +41,13 @@ $(BUILD_DIR)/%.c.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: clean all
-	mpirun -np $(CORES) $(EXE) $(dim) $(time) $(r) $(c)
+	mpirun -np $(CORES) -npersocket $(n_socket) -npernode $(n_node) --bind-to core $(EXE) $(dim) $(time) $(r) $(c)
 
 .PHONY: clean
 
 clean:
 	rm -f $(OBJS) $(EXE)
-	
+
 flush:
 	rm -f *.dat
 	rm -f images/*.png
