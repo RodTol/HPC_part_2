@@ -1,1 +1,1 @@
-/var/spool/slurmd/job10366164/slurm_script: line 20: cd: /m100/home/usertrain/a08trb39/HPC_part_2/matrix_mult: Permission denied
+/var/spool/slurmd/job10372263/slurm_script: line 20: cd: /m100/home/usertrain/a08trb39/HPC_part_2/matrix_mult: Permission denied
