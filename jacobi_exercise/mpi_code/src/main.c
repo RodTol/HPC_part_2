@@ -26,7 +26,7 @@ double seconds( void );
 int main(int argc, char* argv[]){
 
   // timing variables
-  float t_start, t_end, time, max_time;
+  double t_start, t_end, time, max_time;
 
   // indexes for loops
   size_t it;
@@ -148,13 +148,13 @@ int main(int argc, char* argv[]){
   memset( tmp_matrix, 0, matrix_local_dimension );
 
 
-  t_start = MPI_Wtime();
+  t_start = seconds();
   create_jacobi_start_distributed(matrix, irank, dim_1_local, dim_2_local,
    displacement, n_proc_tot);
   create_jacobi_start_distributed(matrix_new, irank, dim_1_local, dim_2_local,
    displacement, n_proc_tot);
   MPI_Barrier(COMM);
-  t_end = MPI_Wtime();
+  t_end = seconds();
   time = t_end-t_start;
   
 #ifdef DEBUG
@@ -164,7 +164,7 @@ int main(int argc, char* argv[]){
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
 
-  MPI_Reduce(&time, &max_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   if (irank==MASTER) {
     printf_red();
@@ -175,7 +175,7 @@ int main(int argc, char* argv[]){
   MPI_Barrier(MPI_COMM_WORLD);
 
   // start algorithm
-  t_start = MPI_Wtime();
+  t_start = seconds();
   for( it = 0; it < iterations; ++it ){
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
     evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
@@ -185,9 +185,9 @@ int main(int argc, char* argv[]){
     matrix = matrix_new;
     matrix_new = tmp_matrix;
   }
-  t_end = MPI_Wtime();
+  t_end = seconds();
   time = t_end-t_start;
-  MPI_Reduce(&time, &max_time, 1, MPI_FLOAT, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time, &max_time, 1, MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   if (irank==MASTER) {
     printf_red();
