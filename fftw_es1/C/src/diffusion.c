@@ -168,7 +168,7 @@ int main(int argc, char **argv) {
 #ifdef PRINT_INFO
   if (irank == 0) {
     printf_red();
-    printf("Dynamic is starting\n Local_size_grid is %d\n fac is: %17.15f \n",
+    printf("Dynamic is starting\n Local_size_grid is %ld\n fac is: %17.15f \n",
    local_size_grid, fac);
     printf_reset();
   }
