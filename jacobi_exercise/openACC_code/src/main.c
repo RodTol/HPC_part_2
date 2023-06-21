@@ -259,7 +259,7 @@ int main(int argc, char* argv[]){
 
   if (irank==MASTER) {
     printf_red();
-    printf( "\nElapsed computation time = %f seconds\n", max_time );
+    printf( "\nElapsed computation time = %f seconds\n", time );
     printf_reset();
   }
 
