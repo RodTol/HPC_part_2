@@ -265,6 +265,8 @@ int main(int argc, char* argv[]){
   if (irank==MASTER) {
     printf_red();
     printf( "\nElapsed computation time = %f seconds\n", time );
+    printf( "\nElapsed compute time = %f seconds\n", t_comp );
+    printf( "\nElapsed communication time = %f seconds\n", t_comm );
     printf_reset();
   }
 
@@ -296,12 +298,12 @@ int main(int argc, char* argv[]){
     if (irank == MASTER) {
         if (!file_exists(title)) {
             file = fopen(title, "w");
-            fprintf(file, "size, n_proc_tot, it, compute time\n");
+            fprintf(file, "size, n_proc_tot, it, total time, compute time, comm time\n");
             fclose(file);
         }
 
         file = fopen(title, "a");
-        fprintf(file, "%ld  %d   %ld %15.12f\n", dimension, n_proc_tot, it, time);
+        fprintf(file, "%ld  %d   %ld %15.12f %15.12f %15.12f\n", dimension, n_proc_tot, it, time, t_comp, t_comm);
         fclose(file);
     }
     
