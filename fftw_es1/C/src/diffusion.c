@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   // Dimensions of the system
   double L1 = 10., L2 = 10., L3 = 20.;
   // Grid size
-  int n1 = 128, n2 = 128, n3 = 256;
+  int n1 = 512, n2 = 512, n3 = 1024;
   // time step for time integration
   double dt = 2.e-3;
   // number of time steps

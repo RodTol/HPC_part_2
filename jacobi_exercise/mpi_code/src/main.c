@@ -171,7 +171,7 @@ int main(int argc, char* argv[]){
     printf_reset();
   }
 
-
+#ifndef NOPRINT
   if (irank==MASTER) {
     printf_yellow();
     printf("\n");
@@ -181,6 +181,7 @@ int main(int argc, char* argv[]){
 
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
+#endif
 
   MPI_Barrier(MPI_COMM_WORLD);
 
@@ -227,6 +228,8 @@ int main(int argc, char* argv[]){
 
   MPI_Barrier(MPI_COMM_WORLD);
 
+#ifndef NOPRINT
+
   if (irank==MASTER) {
     printf_yellow();
     printf("\n");
@@ -236,7 +239,7 @@ int main(int argc, char* argv[]){
 
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
-
+#endif
 
  /*I save the result in a times.dat file*/
     FILE* file;

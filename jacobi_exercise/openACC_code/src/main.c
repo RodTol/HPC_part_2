@@ -202,7 +202,7 @@ int main(int argc, char* argv[]){
     printf_reset();
   }
 
-
+#ifndef NOPRINT
   if (irank==MASTER) {
     printf_yellow();
     printf("\n");
@@ -212,6 +212,7 @@ int main(int argc, char* argv[]){
 
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "initial.dat");
+#endif
 
   //Copy the initial data from host to device
   #pragma acc enter data copyin(matrix[:size], matrix_new[:size])
@@ -283,6 +284,7 @@ int main(int argc, char* argv[]){
     n_proc_tot, COMM, true);}
 #endif
 
+#ifndef NOPRINT
   if (irank==MASTER) {
     printf_yellow();
     printf("\n");
@@ -292,7 +294,7 @@ int main(int argc, char* argv[]){
 
   print_matrix_distributed_file(matrix, irank, dim_1_local, dim_2_local,
     displacement, n_proc_tot, COMM, "solution.dat");
-
+#endif
  /*I save the result in a times.dat file*/
     FILE* file;
     char* title = "times.dat";

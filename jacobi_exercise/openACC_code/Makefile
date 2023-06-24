@@ -29,6 +29,10 @@ ifdef flags
 	ifeq ($(flags), debug)
 		CFLAGS+= -DDEBUG
 	endif
+
+	ifeq ($(flags), noprint)
+		CFLAGS+= -DNOPRINT
+	endif
 endif
 
 all: $(EXE)
