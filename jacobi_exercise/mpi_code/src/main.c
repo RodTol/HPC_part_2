@@ -185,7 +185,7 @@ int main(int argc, char* argv[]){
   MPI_Barrier(MPI_COMM_WORLD);
 
   // start algorithm
-  t_start = MPI_Wtime();
+  t_start = seconds();
   for( it = 0; it < iterations; ++it ){
     t_comm_start = MPI_Wtime();
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
@@ -195,14 +195,14 @@ int main(int argc, char* argv[]){
     t_comp_start = MPI_Wtime();
     evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
     t_comp_end = MPI_Wtime();
-    t_comp = t_comp_end-t_comp_start;
+    t_comp += t_comp_end-t_comp_start;
 
     // swap the pointers
     tmp_matrix = matrix;
     matrix = matrix_new;
     matrix_new = tmp_matrix;
   }
-  t_end = MPI_Wtime();
+  t_end = seconds();
   time = t_end-t_start;
 
   if (irank==MASTER) {

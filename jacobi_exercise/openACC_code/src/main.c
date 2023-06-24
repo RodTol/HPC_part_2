@@ -220,6 +220,7 @@ int main(int argc, char* argv[]){
   // start algorithm
   t_start = seconds();
   for( it = 0; it < iterations; it++ ){
+    
     t_comm_start = MPI_Wtime();
     //Exchange ghost layers at host level
     if (it % 2 == 0)     ghost_layer_transfer(matrix_new, irank, n_proc_tot, dim_1_local, dim_2_local);
@@ -243,7 +244,7 @@ int main(int argc, char* argv[]){
        evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
     }
     t_comp_end = MPI_Wtime();
-    t_comp = t_comp_end-t_comp_start;
+    t_comp += t_comp_end-t_comp_start;
 
     t_comm_start = MPI_Wtime();
     //I update the host with the data of the first actual row and the last actual row
