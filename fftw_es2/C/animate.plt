@@ -28,7 +28,7 @@ plot 'data/concentration_init.dat' matrix with image
 
 set term gif animate delay 25
 set output "images/animate.gif"
-frames = 61
+frames = 11
 minT=0
 maxT=0.1
 set cbrange [minT:maxT]

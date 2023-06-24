@@ -4,9 +4,6 @@ time = 1000
 r = 3
 c = 3
 
-n_socket=16
-n_node=32
-
 #target
 BUILD_DIR = ./build
 EXE = a.out

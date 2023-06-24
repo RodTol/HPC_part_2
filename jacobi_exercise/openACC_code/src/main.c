@@ -30,6 +30,8 @@ int main(int argc, char* argv[]){
 
   // timing variables
   double t_start, t_end, time;
+  double t_comm_start, t_comm_end, t_comm;
+  double t_comp_start, t_comp_end, t_comp;
 
   // indexes for loops
   size_t it;
@@ -218,11 +220,11 @@ int main(int argc, char* argv[]){
   // start algorithm
   t_start = seconds();
   for( it = 0; it < iterations; it++ ){
-
+    t_comm_start = MPI_Wtime();
     //Exchange ghost layers at host level
     if (it % 2 == 0)     ghost_layer_transfer(matrix_new, irank, n_proc_tot, dim_1_local, dim_2_local);
     else     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
-    
+
     //Update with new ghost layers (only them, so first row and last row).
     //Note that the API works with pointer[start_point:dimension of what to send]
     if (it % 2 == 0) {
@@ -230,15 +232,20 @@ int main(int argc, char* argv[]){
     } else {
     	#pragma acc update device(matrix[0 : dim_2_local], matrix[last_row_start : dim_2_local])
     }
+    t_comm_end = MPI_Wtime();
+    t_comm += t_comm_end-t_comm_start;
 
+    t_comp_start = MPI_Wtime();
     //Actual evolution (device level)
     if (it % 2 == 0) {
        evolve_openacc(matrix_new, matrix, dim_1_local, dim_2_local, irank);
     } else { 
        evolve_openacc(matrix, matrix_new, dim_1_local, dim_2_local, irank);
     }
+    t_comp_end = MPI_Wtime();
+    t_comp = t_comp_end-t_comp_start;
 
-
+    t_comm_start = MPI_Wtime();
     //I update the host with the data of the first actual row and the last actual row
     //I need only this because these are the rows that will be exchanged with the ghost layer
     if (it % 2 == 0) {
@@ -246,7 +253,8 @@ int main(int argc, char* argv[]){
     } else {
     	#pragma acc update host(matrix[dim_2_local:dim_2_local], matrix[last_row_start - dim_2_local:dim_2_local])
     }
-
+    t_comm_end = MPI_Wtime();
+    t_comm += t_comm_end-t_comm_start;
   }
   //Copy the data out from device to host
   #pragma acc exit data copyout(matrix[:size], matrix_new[:size])

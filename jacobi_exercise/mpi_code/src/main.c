@@ -27,6 +27,8 @@ int main(int argc, char* argv[]){
 
   // timing variables
   double t_start, t_end, time;
+  double t_comm_start, t_comm_end, t_comm;
+  double t_comp_start, t_comp_end, t_comp;
 
   // indexes for loops
   size_t it;
@@ -183,22 +185,31 @@ int main(int argc, char* argv[]){
   MPI_Barrier(MPI_COMM_WORLD);
 
   // start algorithm
-  t_start = seconds();
+  t_start = MPI_Wtime();
   for( it = 0; it < iterations; ++it ){
+    t_comm_start = MPI_Wtime();
     ghost_layer_transfer(matrix, irank, n_proc_tot, dim_1_local, dim_2_local);
+    t_comm_end = MPI_Wtime();
+    t_comm += t_comm_end-t_comm_start;
+
+    t_comp_start = MPI_Wtime();
     evolve_mpi(matrix, matrix_new, dim_1_local, dim_2_local, irank);
+    t_comp_end = MPI_Wtime();
+    t_comp = t_comp_end-t_comp_start;
 
     // swap the pointers
     tmp_matrix = matrix;
     matrix = matrix_new;
     matrix_new = tmp_matrix;
   }
-  t_end = seconds();
+  t_end = MPI_Wtime();
   time = t_end-t_start;
 
   if (irank==MASTER) {
     printf_red();
-    printf( "\nElapsed computation time = %f seconds\n", time );
+    printf( "\nElapsed total time = %f seconds\n", time );
+    printf( "\nElapsed compute time = %f seconds\n", t_comp );
+    printf( "\nElapsed communication time = %f seconds\n", t_comm );
     printf_reset();
   }
 
@@ -233,12 +244,12 @@ int main(int argc, char* argv[]){
     if (irank == MASTER) {
         if (!file_exists(title)) {
             file = fopen(title, "w");
-            fprintf(file, "size, n_proc_tot, it, compute time\n");
+            fprintf(file, "size, n_proc_tot, it, total time, compute time, comm time\n");
             fclose(file);
         }
 
         file = fopen(title, "a");
-        fprintf(file, "%ld  %d   %ld %15.12f\n", dimension, n_proc_tot, it, time);
+        fprintf(file, "%ld  %d   %ld %15.12f %15.12f %15.12f\n", dimension, n_proc_tot, it, time, t_comp, t_comm);
         fclose(file);
     }
 
