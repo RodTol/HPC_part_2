@@ -29,9 +29,9 @@ double seconds( void );
 int main(int argc, char* argv[]){
 
   // timing variables
-  double t_start, t_end, time;
-  double t_comm_start, t_comm_end, t_comm;
-  double t_comp_start, t_comp_end, t_comp;
+  double t_start, t_end, time=0;
+  double t_comm_start, t_comm_end, t_comm=0;
+  double t_comp_start, t_comp_end, t_comp=0;
 
   // indexes for loops
   size_t it;
@@ -220,7 +220,7 @@ int main(int argc, char* argv[]){
   // start algorithm
   t_start = seconds();
   for( it = 0; it < iterations; it++ ){
-    
+
     t_comm_start = MPI_Wtime();
     //Exchange ghost layers at host level
     if (it % 2 == 0)     ghost_layer_transfer(matrix_new, irank, n_proc_tot, dim_1_local, dim_2_local);
