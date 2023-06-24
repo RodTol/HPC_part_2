@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
   // Dimensions of the system
   double L1 = 10., L2 = 10., L3 = 20.;
   // Grid size
-  int n1 = 48, n2 = 48, n3 = 96;
+  int n1 = 128, n2 = 128, n3 = 256;
   // time step for time integration
   double dt = 2.e-3;
   // number of time steps
@@ -122,8 +122,8 @@ int main(int argc, char **argv) {
     }
   }
   // Plot the diffusivity in all 3 directions
-  //plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
-  //             1, diffusivity);
+  plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
+               1, diffusivity);
 
   plot_data_2d("data/diffusivity2", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                2, diffusivity);
