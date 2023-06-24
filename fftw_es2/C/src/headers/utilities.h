@@ -1,6 +1,7 @@
 
 #ifndef _FFTW_UTLITIES_
 #define _FFTW_UTLITIES_
+#include <math.h>
 #include <complex.h>
 #include <sys/time.h>
 #include <fftw3.h>

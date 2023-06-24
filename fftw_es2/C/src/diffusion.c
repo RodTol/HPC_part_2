@@ -1,4 +1,3 @@
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "headers/utilities.h"
@@ -34,22 +33,21 @@ int main( int argc, char* argv[] ){
   // Dimensions of the system
   double L1 = 10., L2 = 10., L3 = 20.;
   // Grid size  
-  int n1 = 48, n2 = 48, n3 = 96;
+  int n1 = 32, n2 = 32, n3 = 96;
   // Time step for time integration
   double dt = 2.e-3; 
   // Number of time steps
-  int nstep = 601; 
+  int nstep = 100; 
   // Radius of diffusion channel
   double rad_diff = 0.7;
   // Radius of starting concentration
   double rad_conc = 0.6;
-  double start_tot, end_tot;
-  int i1, i2, i3, ipol, istep, index;
-#ifdef PRINT_INFO
-  double start, end;
-#endif
+  double start, end, start_tot, end_tot;
+
   double *diffusivity, *conc, *dconc, *aux1, *aux2;
-  
+
+  int i1, i2, i3, ipol, istep, index;
+
   double f1conc, f2conc, f3conc, f1diff, f2diff, f3diff, fac;
   double x1, x2 , x3, rr;
   double ss, r2mean, global_ss, global_r2mean;
@@ -71,8 +69,8 @@ int main( int argc, char* argv[] ){
     */
   init_fftw( &fft_h, n1, n2, n3, MPI_COMM_WORLD );
 
-  local_size_grid = fft_h.local_size_grid;
-  global_size_grid = fft_h.global_size_grid;
+  local_size_grid = (fft_h.local_n1) * n2 * n3;
+  global_size_grid = n1 * n2 * n3;
   n1_local = fft_h.local_n1;
   n1_local_offset = fft_h.local_n1_offset;
   
@@ -81,7 +79,6 @@ int main( int argc, char* argv[] ){
   dconc = ( double* ) malloc( local_size_grid * sizeof(double) );
   aux1 = ( double* ) malloc( local_size_grid * sizeof(double) );
   aux2 = ( double* ) malloc( local_size_grid * sizeof(double) );
-
   /*
    * Define the diffusivity inside the system and
    * the starting concentration
@@ -121,6 +118,12 @@ int main( int argc, char* argv[] ){
     }
   }
 
+#ifdef DEBUG
+  if (irank == 0) {
+    printf("Printing the diffusivity");
+  }
+#endif
+
   // Plot the diffusivity in all 3 directions
   plot_data_2d("data/diffusivity1", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
                1, diffusivity);
@@ -129,7 +132,7 @@ int main( int argc, char* argv[] ){
                2, diffusivity);
 
   plot_data_2d("data/diffusivity3", n1, n2, n3, fft_h.local_n1, fft_h.local_n1_offset,
-               3, diffusivity);
+               3, diffusivity); 
 
 #ifdef DEBUG
   //Debugging check for r2mean and ss
@@ -178,7 +181,7 @@ int main( int argc, char* argv[] ){
 #ifdef PRINT_INFO
   start = seconds();
 #endif
-  start_tot =  MPI_Wtime();
+  start_tot =  seconds();
   // I initialize dconc
   for (i1=0; i1< local_size_grid; ++i1) dconc[i1] = 0.0;
 
