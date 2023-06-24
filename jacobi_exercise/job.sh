@@ -1,4 +1,3 @@
-
 #!/bin/bash
 #SBATCH -A tra23_units_bis
 #SBATCH -p m100_usr_prod
@@ -12,31 +11,33 @@
 #SBATCH -o ./output/run.out
 #SBATCH -e ./output/err.out
 
-module load autoload hpc-sdk
 module load spectrum_mpi
 
 export OMP_NUM_THREADS=1
 
 cd /m100/home/usertrain/a08tra76/HPC_part_2/jacobi_exercise/mpi_code
 
-n_proc=32
+
 for n_nodes in 1 2 4 8
 do
+	n_proc=32
 	((n_proc*=$n_nodes))
-	make run dim=30000 time=800 n_socket=16 n_node=32 CORES=$n_proc
+	make run dim=20000 time=1000 CORES=$n_proc
 done
 
 
 module purge
 module load hpc-sdk
 #We have open-mpi 3.1.5
+
 cd /m100/home/usertrain/a08tra76/HPC_part_2/jacobi_exercise/openACC_code
 
-n_proc=4
+
 for n_nodes in 1 2 4 8
 do
+	n_proc=4
 	((n_proc*=$n_nodes))
-	make run dim=30000 time=800 n_socket=2 n_node=4 CORES=$n_proc
+	make run dim=20000 time=1000  CORES=$n_proc
 done
 
 echo "JOB FINISHED"

@@ -45,6 +45,7 @@ void plot_data_2d( char* name, int n1, int n2, int n3, int n1_local, int  n1_loc
         owner = mype;
     }
 
+    fp = fopen (buf, "w");
     /*
     * HINT: Assuming you sliced your system along i3, iif idir==1 or idir==2 you 
     *       need to take the correct slice of the plane from each process. If idir==3, you need  

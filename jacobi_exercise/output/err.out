@@ -1,0 +1,12 @@
+slurmstepd: error: *** JOB 10393428 ON r208n03 CANCELLED AT 2023-06-24T12:11:40 ***
+--------------------------------------------------------------------------
+ORTE has lost communication with a remote daemon.
+
+  HNP daemon   : [[57280,0],0] on node r208n03
+  Remote daemon: [[57280,0],7] on node r243n15
+
+This is usually due to either a failure of the TCP network
+connection to the node, or possibly an internal failure of
+the daemon itself. We cannot recover from this failure, and
+therefore will terminate the job.
+--------------------------------------------------------------------------

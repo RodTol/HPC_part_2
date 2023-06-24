@@ -10,8 +10,6 @@
 
 #define pi 3.14159265358979323846
 
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-
 /**
  * @brief This struct is created to store and save all the parameters
  * and information that will be used during the execution
