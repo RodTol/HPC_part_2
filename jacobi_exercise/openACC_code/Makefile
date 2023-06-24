@@ -41,7 +41,8 @@ $(BUILD_DIR)/%.c.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: clean all
-	mpirun -np $(CORES) $(EXE) $(dim) $(time) $(r) $(c)
+	mpirun -np $(CORES) --map-by ppr:2:socket $(EXE) $(dim) $(time) $(r) $(c)
+	#mpirun -np $(CORES) $(EXE) $(dim) $(time) $(r) $(c)
 
 .PHONY: clean
 
@@ -52,6 +53,7 @@ flush:
 	rm -f initial.dat
 	rm -f solution.dat
 	rm -f images/*.png
+	rm -f *t1
 plot:
 	@gnuplot -p plot.plt
 

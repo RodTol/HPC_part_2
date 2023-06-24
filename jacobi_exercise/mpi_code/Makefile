@@ -38,6 +38,7 @@ $(BUILD_DIR)/%.c.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run: clean all
+	#mpirun -np $(CORES) -npernode 32 -npersocket 16 --bind-to core $(EXE) $(dim) $(time) $(r) $(c) 
 	mpirun -np $(CORES) $(EXE) $(dim) $(time) $(r) $(c)
 
 .PHONY: clean
