@@ -1,5 +1,5 @@
 CORES = 4
-dim = 10000
+dim = 20000
 time = 1000
 r = 3
 c = 3
