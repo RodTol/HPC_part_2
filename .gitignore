@@ -17,8 +17,10 @@ matrix_mult/output/*
 matrix_mult/.vscode
 
 jacobi_exercise/.vscode
-jacobi_exercise/mpi_code/*.dat
-jacobi_exercise/openACC_code/*.dat
+jacobi_exercise/mpi_code/solution.dat
+jacobi_exercise/mpi_code/initial.dat
+jacobi_exercise/openACC_code/solution.dat
+jacobi_exercise/openACC_code/initial.dat
 jacobi_exercise/openACC_code/*t1
 
 #fftw_es1 .dat
