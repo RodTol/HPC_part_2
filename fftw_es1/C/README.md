@@ -17,3 +17,4 @@ The user just need to launch:
 ```
 make run CORES=<number of process> flags=<info or debug for extra information>
 ```
+NOTE: after a certain size, is necessary to decrease the time step, otherwise the algorithm won't converge
