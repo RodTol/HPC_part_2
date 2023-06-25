@@ -1,12 +1,180 @@
-slurmstepd: error: *** JOB 10393428 ON r208n03 CANCELLED AT 2023-06-24T12:11:40 ***
---------------------------------------------------------------------------
-ORTE has lost communication with a remote daemon.
+"src/data_distr_utility.c", line 96: warning: last line of file ends without a newline
+  }
+   ^
 
-  HNP daemon   : [[57280,0],0] on node r208n03
-  Remote daemon: [[57280,0],7] on node r243n15
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
 
-This is usually due to either a failure of the TCP network
-connection to the node, or possibly an internal failure of
-the daemon itself. We cannot recover from this failure, and
-therefore will terminate the job.
+"src/linearized_matrix_utility.c", line 252: warning: last line of file ends without a newline
+  }
+   ^
+
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+main:
+    219, Generating enter data copyin(matrix[:size],matrix_new[:size])
+    234, Generating update device(matrix_new[:dim_2_local],matrix_new[last_row_start:dim_2_local])
+    236, Generating update device(matrix[last_row_start:dim_2_local],matrix[:dim_2_local])
+    255, Generating update self(matrix_new[dim_2_local:dim_2_local],matrix_new[last_row_start-(dim_2_local):dim_2_local])
+    257, Generating update self(matrix[last_row_start-(dim_2_local):dim_2_local],matrix[dim_2_local:dim_2_local])
+    264, Generating exit data copyout(matrix_new[:size],matrix[:size])
+linear_index_local:
+    367, Generating implicit acc routine seq
+         Generating acc routine seq
+         Generating Tesla code
+evolve_openacc:
+    378, Generating present(matrix_new[:size],matrix_old[:size])
+         Generating Tesla code
+        378, #pragma acc loop gang, vector(128) collapse(2) /* blockIdx.x threadIdx.x */
+        379,   /* blockIdx.x threadIdx.x collapsed */
+    378, Generating implicit copyin(dim_1_local[irank]) [if not already present]
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+Out of memory allocating 3200800032 bytes of device memory
+Failing in Thread:1
+Out of memory allocating 3201120048 bytes of device memory
+Failing in Thread:1
+Out of memory allocating 3200800032 bytes of device memory
+Failing in Thread:1
+total/free CUDA memory: 16945512448/2845704192
+call to cuMemAlloc returned error 2: Out of memory
+
+Out of memory allocating 3200480016 bytes of device memory
+Failing in Thread:1
+total/free CUDA memory: 16945512448/2845704192
+call to cuMemAlloc returned error 2: Out of memory
+
+total/free CUDA memory: 16945512448/2845704192
+call to cuMemAlloc returned error 2: Out of memory
+
+total/free CUDA memory: 16945512448/2845704192
+call to cuMemAlloc returned error 2: Out of memory
+
 --------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[50703,1],2]
+  Exit code:    1
+--------------------------------------------------------------------------
+make: *** [Makefile:48: run] Error 1
+"src/data_distr_utility.c", line 96: warning: last line of file ends without a newline
+  }
+   ^
+
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+"src/linearized_matrix_utility.c", line 252: warning: last line of file ends without a newline
+  }
+   ^
+
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+main:
+    219, Generating enter data copyin(matrix[:size],matrix_new[:size])
+    234, Generating update device(matrix_new[:dim_2_local],matrix_new[last_row_start:dim_2_local])
+    236, Generating update device(matrix[last_row_start:dim_2_local],matrix[:dim_2_local])
+    255, Generating update self(matrix_new[dim_2_local:dim_2_local],matrix_new[last_row_start-(dim_2_local):dim_2_local])
+    257, Generating update self(matrix[last_row_start-(dim_2_local):dim_2_local],matrix[dim_2_local:dim_2_local])
+    264, Generating exit data copyout(matrix_new[:size],matrix[:size])
+linear_index_local:
+    367, Generating implicit acc routine seq
+         Generating acc routine seq
+         Generating Tesla code
+evolve_openacc:
+    378, Generating present(matrix_new[:size],matrix_old[:size])
+         Generating Tesla code
+        378, #pragma acc loop gang, vector(128) collapse(2) /* blockIdx.x threadIdx.x */
+        379,   /* blockIdx.x threadIdx.x collapsed */
+    378, Generating implicit copyin(dim_1_local[irank]) [if not already present]
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+"src/data_distr_utility.c", line 96: warning: last line of file ends without a newline
+  }
+   ^
+
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+"src/linearized_matrix_utility.c", line 252: warning: last line of file ends without a newline
+  }
+   ^
+
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+main:
+    219, Generating enter data copyin(matrix[:size],matrix_new[:size])
+    234, Generating update device(matrix_new[:dim_2_local],matrix_new[last_row_start:dim_2_local])
+    236, Generating update device(matrix[last_row_start:dim_2_local],matrix[:dim_2_local])
+    255, Generating update self(matrix_new[dim_2_local:dim_2_local],matrix_new[last_row_start-(dim_2_local):dim_2_local])
+    257, Generating update self(matrix[last_row_start-(dim_2_local):dim_2_local],matrix[dim_2_local:dim_2_local])
+    264, Generating exit data copyout(matrix_new[:size],matrix[:size])
+linear_index_local:
+    367, Generating implicit acc routine seq
+         Generating acc routine seq
+         Generating Tesla code
+evolve_openacc:
+    378, Generating present(matrix_new[:size],matrix_old[:size])
+         Generating Tesla code
+        378, #pragma acc loop gang, vector(128) collapse(2) /* blockIdx.x threadIdx.x */
+        379,   /* blockIdx.x threadIdx.x collapsed */
+    378, Generating implicit copyin(dim_1_local[irank]) [if not already present]
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+"src/data_distr_utility.c", line 96: warning: last line of file ends without a newline
+  }
+   ^
+
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+"src/linearized_matrix_utility.c", line 252: warning: last line of file ends without a newline
+  }
+   ^
+
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+
+main:
+    219, Generating enter data copyin(matrix[:size],matrix_new[:size])
+    234, Generating update device(matrix_new[:dim_2_local],matrix_new[last_row_start:dim_2_local])
+    236, Generating update device(matrix[last_row_start:dim_2_local],matrix[:dim_2_local])
+    255, Generating update self(matrix_new[dim_2_local:dim_2_local],matrix_new[last_row_start-(dim_2_local):dim_2_local])
+    257, Generating update self(matrix[last_row_start-(dim_2_local):dim_2_local],matrix[dim_2_local:dim_2_local])
+    264, Generating exit data copyout(matrix_new[:size],matrix[:size])
+linear_index_local:
+    367, Generating implicit acc routine seq
+         Generating acc routine seq
+         Generating Tesla code
+evolve_openacc:
+    378, Generating present(matrix_new[:size],matrix_old[:size])
+         Generating Tesla code
+        378, #pragma acc loop gang, vector(128) collapse(2) /* blockIdx.x threadIdx.x */
+        379,   /* blockIdx.x threadIdx.x collapsed */
+    378, Generating implicit copyin(dim_1_local[irank]) [if not already present]
+"src/headers/general_utility.h", line 20: warning: last line of file ends without a newline
+  double randfrom(double min, double max);
+                                          ^
+

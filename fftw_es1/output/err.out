@@ -1,0 +1,44 @@
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:46:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:46:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
+src/plot_data.c: In function ‘plot_data_2d’:
+src/plot_data.c:30:9: warning: unused variable ‘num’ [-Wunused-variable]
+     int num = 1;
+         ^~~
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:46:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:46:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
+src/plot_data.c: In function ‘plot_data_2d’:
+src/plot_data.c:30:9: warning: unused variable ‘num’ [-Wunused-variable]
+     int num = 1;
+         ^~~
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:46:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:46:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
+src/plot_data.c: In function ‘plot_data_2d’:
+src/plot_data.c:30:9: warning: unused variable ‘num’ [-Wunused-variable]
+     int num = 1;
+         ^~~
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:46:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:46:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
+src/plot_data.c: In function ‘plot_data_2d’:
+src/plot_data.c:30:9: warning: unused variable ‘num’ [-Wunused-variable]
+     int num = 1;
+         ^~~

@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:4          # gpus per node out of 4
 #SBATCH --mem=246000          # memory per node out of 246000MB
 #SBATCH --ntasks-per-core=1
-#SBATCH --job-name=tolloi_mat_mul
+#SBATCH --job-name=tolloi_JACOBI
 #SBATCH -o ./output/run.out
 #SBATCH -e ./output/err.out
 
@@ -22,7 +22,7 @@ for n_nodes in 1 2 4 8
 do
 	n_proc=32
 	((n_proc*=$n_nodes))
-	make run dim=20000 time=1000 CORES=$n_proc
+	make run dim=40000 time=1000 CORES=$n_proc flags=noprint
 done
 
 
@@ -37,7 +37,7 @@ for n_nodes in 1 2 4 8
 do
 	n_proc=4
 	((n_proc*=$n_nodes))
-	make run dim=20000 time=1000  CORES=$n_proc
+	make run dim=40000 time=1000  CORES=$n_proc flags=noprint
 done
 
 echo "JOB FINISHED"

@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   // Grid size
   int n1 = 512, n2 = 512, n3 = 1024;
   // time step for time integration
-  double dt = 2.e-3;
+  double dt = 2.e-6;
   // number of time steps
   int nstep = 100;
   // Radius of diffusion channel
