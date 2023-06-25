@@ -8,6 +8,13 @@ and for the MPI one:
 module load spectrum_mpi/
 ```
 
+## How to run the code
+The user just need to launch:
+```
+make run CORES=<number of process> flags=<noprint or debug for extra information>
+```
+The noprint option, skips the writing on the file, since this is useless while studying the scalability of the code
+
 ## Some result
 Code execution is severly slowed by the writing on file of the initial and final matrix. The function is not parallelized and for large size of the problem, the printing can take several minutes.
 
