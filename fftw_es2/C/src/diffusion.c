@@ -271,7 +271,7 @@ int main( int argc, char* argv[] ){
     }
   }
 
-  end_tot =  MPI_Wtime();
+  end_tot =  seconds();
 
   if (irank == 0) {
       printf("\n----@");
