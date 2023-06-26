@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:4          # gpus per node out of 4
 #SBATCH --mem=246000          # memory per node out of 246000MB
 #SBATCH --ntasks-per-core=1
-#SBATCH --job-name=tolloi_fftw2
+#SBATCH --job-name=tolloi_fftw1
 #SBATCH -o ./output/run.out
 #SBATCH -e ./output/err.out
 

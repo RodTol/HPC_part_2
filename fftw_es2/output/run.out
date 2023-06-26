@@ -1,0 +1,69 @@
+rm -f data/*.dat
+rm -f images/*.gif
+rm -f images/*.png
+rm -f build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o a.out
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/diffusion.c -o build/src/diffusion.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/fft_wrapper.c -o build/src/fft_wrapper.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/derivative.c -o build/src/derivative.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/plot_data.c -o build/src/plot_data.o
+mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o -L/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/lib -lfftw3_mpi -lfftw3 -lm -o a.out
+mpirun -np 32 a.out
+
+----@[1;32mExecution ended with a succes![0m@----
+[1;31mTotal time: -1687709007.014986991882 for 100 time steps
+[0mrm -f data/*.dat
+rm -f images/*.gif
+rm -f images/*.png
+rm -f build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o a.out
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/diffusion.c -o build/src/diffusion.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/fft_wrapper.c -o build/src/fft_wrapper.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/derivative.c -o build/src/derivative.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/plot_data.c -o build/src/plot_data.o
+mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o -L/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/lib -lfftw3_mpi -lfftw3 -lm -o a.out
+mpirun -np 64 a.out
+
+----@[1;32mExecution ended with a succes![0m@----
+[1;31mTotal time: -1687709928.918195962906 for 100 time steps
+[0mrm -f data/*.dat
+rm -f images/*.gif
+rm -f images/*.png
+rm -f build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o a.out
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/diffusion.c -o build/src/diffusion.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/fft_wrapper.c -o build/src/fft_wrapper.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/derivative.c -o build/src/derivative.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/plot_data.c -o build/src/plot_data.o
+mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o -L/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/lib -lfftw3_mpi -lfftw3 -lm -o a.out
+mpirun -np 128 a.out
+
+----@[1;32mExecution ended with a succes![0m@----
+[1;31mTotal time: -1687710513.774195909500 for 100 time steps
+[0mrm -f data/*.dat
+rm -f images/*.gif
+rm -f images/*.png
+rm -f build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o a.out
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/diffusion.c -o build/src/diffusion.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/fft_wrapper.c -o build/src/fft_wrapper.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/derivative.c -o build/src/derivative.o
+mkdir -p build/src/
+mpicc -O3 -Wall -I/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/include -I src -I src/headers -c src/plot_data.c -o build/src/plot_data.o
+mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build/src/plot_data.o -L/m100_work/PROJECTS/spack/spack-0.14/install/linux-rhel7-power9le/gcc-8.4.0/fftw-3.3.8-hwlrarpm6cvjlukhfdowwveb7g7oqwgc/lib -lfftw3_mpi -lfftw3 -lm -o a.out
+mpirun -np 256 a.out
+
+----@[1;32mExecution ended with a succes![0m@----
+[1;31mTotal time: -1687710914.227957010269 for 100 time steps
+[0mJOB FINISHED
