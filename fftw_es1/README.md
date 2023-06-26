@@ -30,7 +30,7 @@ Here are some result from the code
 
 <figure>
   <img
-  src="../../images/fft1.png"
+  src="../images/fft1.png"
   alt="1 Node"
   width="500" 
   height="400" >
