@@ -22,7 +22,7 @@ for n_nodes in 1 2 4 8
 do
 	n_proc=32
 	((n_proc*=$n_nodes))
-	make run dim=40000 time=1000 CORES=$n_proc flags=noprint
+	make run dim=28000 time=1000 CORES=$n_proc flags=noprint
 done
 
 
@@ -37,7 +37,7 @@ for n_nodes in 1 2 4 8
 do
 	n_proc=4
 	((n_proc*=$n_nodes))
-	make run dim=40000 time=1000  CORES=$n_proc flags=noprint
+	make run dim=28000 time=1000  CORES=$n_proc flags=noprint
 done
 
 echo "JOB FINISHED"

@@ -1,3 +1,5 @@
+Loading spectrum_mpi/10.4.0--binary
+  ERROR: Conflicting 'spectrum_mpi' is loaded
 rm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -8,22 +10,22 @@ mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/main.c -o build/./src/m
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o
-#mpirun -np 32 -npernode 32 -npersocket 16 --bind-to core a.out 40000 1000 3 3 
-mpirun -np 32 a.out 40000 1000 3 3
+#mpirun -np 32 -npernode 32 -npersocket 16 --bind-to core a.out 28000 1000 3 3 
+mpirun -np 32 a.out 28000 1000 3 3
 [1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 32, n_loc: 1250, rest: 2 
+Total matrix size: 28002, n_proc_tot: 32, n_loc: 875, rest: 2 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.257279 seconds
+Elapsed initialisation time = 0.148462 seconds
 [0m[1;31m
-Elapsed total time = 555.990919 seconds
+Elapsed total time = 273.390739 seconds
 
-Elapsed compute time = 549.766902 seconds
+Elapsed compute time = 268.609976 seconds
 
-Elapsed communication time = 6.223449 seconds
+Elapsed communication time = 4.779992 seconds
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -34,22 +36,22 @@ mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/main.c -o build/./src/m
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o
-#mpirun -np 64 -npernode 32 -npersocket 16 --bind-to core a.out 40000 1000 3 3 
-mpirun -np 64 a.out 40000 1000 3 3
+#mpirun -np 64 -npernode 32 -npersocket 16 --bind-to core a.out 28000 1000 3 3 
+mpirun -np 64 a.out 28000 1000 3 3
 [1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 64, n_loc: 625, rest: 2 
+Total matrix size: 28002, n_proc_tot: 64, n_loc: 437, rest: 34 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.167810 seconds
+Elapsed initialisation time = 0.078616 seconds
 [0m[1;31m
-Elapsed total time = 279.884441 seconds
+Elapsed total time = 137.531427 seconds
 
-Elapsed compute time = 274.526205 seconds
+Elapsed compute time = 134.086073 seconds
 
-Elapsed communication time = 5.357646 seconds
+Elapsed communication time = 3.444611 seconds
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -60,22 +62,22 @@ mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/main.c -o build/./src/m
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o
-#mpirun -np 128 -npernode 32 -npersocket 16 --bind-to core a.out 40000 1000 3 3 
-mpirun -np 128 a.out 40000 1000 3 3
+#mpirun -np 128 -npernode 32 -npersocket 16 --bind-to core a.out 28000 1000 3 3 
+mpirun -np 128 a.out 28000 1000 3 3
 [1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 128, n_loc: 312, rest: 66 
+Total matrix size: 28002, n_proc_tot: 128, n_loc: 218, rest: 98 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.088346 seconds
+Elapsed initialisation time = 0.049022 seconds
 [0m[1;31m
-Elapsed total time = 141.258567 seconds
+Elapsed total time = 69.655452 seconds
 
-Elapsed compute time = 137.228350 seconds
+Elapsed compute time = 66.946973 seconds
 
-Elapsed communication time = 4.029665 seconds
+Elapsed communication time = 2.707726 seconds
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -86,22 +88,22 @@ mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/main.c -o build/./src/m
 mkdir -p build/./src/
 mpicc -Wall -O3 -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc  -o a.out ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o
-#mpirun -np 256 -npernode 32 -npersocket 16 --bind-to core a.out 40000 1000 3 3 
-mpirun -np 256 a.out 40000 1000 3 3
+#mpirun -np 256 -npernode 32 -npersocket 16 --bind-to core a.out 28000 1000 3 3 
+mpirun -np 256 a.out 28000 1000 3 3
 [1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 256, n_loc: 156, rest: 66 
+Total matrix size: 28002, n_proc_tot: 256, n_loc: 109, rest: 98 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.049969 seconds
+Elapsed initialisation time = 0.027129 seconds
 [0m[1;31m
-Elapsed total time = 71.670119 seconds
+Elapsed total time = 35.568727 seconds
 
-Elapsed compute time = 68.636387 seconds
+Elapsed compute time = 33.432951 seconds
 
-Elapsed communication time = 3.033182 seconds
+Elapsed communication time = 2.135064 seconds
 [0mrm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -112,7 +114,7 @@ mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/main.c -o
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc -acc -Minfo=accel ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o -o a.out
-mpirun -np 4 --map-by ppr:2:socket a.out 40000 1000 3 3
+mpirun -np 4 --map-by ppr:2:socket a.out 28000 1000 3 3
 [1;33m-------------------------------
 There are in total 4 devices  
 I am 0 and I use the device 0
@@ -123,76 +125,20 @@ I am 2 and I use the device 2
 -------------------------------
 I am 3 and I use the device 3
 [0m[1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 4, n_loc: 10000, rest: 2 
+Total matrix size: 28002, n_proc_tot: 4, n_loc: 7000, rest: 2 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.355768 seconds
-[0m------------------------------------------------------------
-A process or daemon was unable to complete a TCP connection
-to another process:
-  Local host:    r216n13
-  Remote host:   r217n20
-This is usually caused by a firewall on the remote host. Please
-check that any firewall (e.g., iptables) has been disabled and
-try again.
-------------------------------------------------------------
-------------------------------------------------------------
-A process or daemon was unable to complete a TCP connection
-to another process:
-  Local host:    r216n13
-  Remote host:   r226n05
-This is usually caused by a firewall on the remote host. Please
-check that any firewall (e.g., iptables) has been disabled and
-try again.
-------------------------------------------------------------
-------------------------------------------------------------
-A process or daemon was unable to complete a TCP connection
-to another process:
-  Local host:    r216n13
-  Remote host:   r236n18
-This is usually caused by a firewall on the remote host. Please
-check that any firewall (e.g., iptables) has been disabled and
-try again.
-------------------------------------------------------------
-------------------------------------------------------------
-A process or daemon was unable to complete a TCP connection
-to another process:
-  Local host:    r216n13
-  Remote host:   r244n19
-This is usually caused by a firewall on the remote host. Please
-check that any firewall (e.g., iptables) has been disabled and
-try again.
-------------------------------------------------------------
-------------------------------------------------------------
-A process or daemon was unable to complete a TCP connection
-to another process:
-  Local host:    r216n13
-  Remote host:   r247n01
-This is usually caused by a firewall on the remote host. Please
-check that any firewall (e.g., iptables) has been disabled and
-try again.
-------------------------------------------------------------
-------------------------------------------------------------
-A process or daemon was unable to complete a TCP connection
-to another process:
-  Local host:    r216n13
-  Remote host:   r247n06
-This is usually caused by a firewall on the remote host. Please
-check that any firewall (e.g., iptables) has been disabled and
-try again.
-------------------------------------------------------------
-------------------------------------------------------------
-A process or daemon was unable to complete a TCP connection
-to another process:
-  Local host:    r216n13
-  Remote host:   r256n13
-This is usually caused by a firewall on the remote host. Please
-check that any firewall (e.g., iptables) has been disabled and
-try again.
-------------------------------------------------------------
+Elapsed initialisation time = 0.257230 seconds
+[0m[1;31m
+Elapsed computation time = 37.188714 seconds
+
+Elapsed compute time = 24.552709 seconds
+
+Elapsed communication time = 12.202892 seconds
+[0m#mpirun -np 4 a.out 28000 1000 3 3
 rm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -203,7 +149,7 @@ mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/main.c -o
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc -acc -Minfo=accel ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o -o a.out
-mpirun -np 8 --map-by ppr:2:socket a.out 40000 1000 3 3
+mpirun -np 8 --map-by ppr:2:socket a.out 28000 1000 3 3
 [1;33m-------------------------------
 There are in total 4 devices  
 I am 0 and I use the device 0
@@ -222,20 +168,20 @@ I am 6 and I use the device 2
 -------------------------------
 I am 7 and I use the device 3
 [0m[1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 8, n_loc: 5000, rest: 2 
+Total matrix size: 28002, n_proc_tot: 8, n_loc: 3500, rest: 2 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.274255 seconds
+Elapsed initialisation time = 0.170152 seconds
 [0m[1;31m
-Elapsed computation time = 38.894875 seconds
+Elapsed computation time = 16.718945 seconds
 
-Elapsed compute time = 34.090663 seconds
+Elapsed compute time = 10.947235 seconds
 
-Elapsed communication time = 4.366049 seconds
-[0m#mpirun -np 8 a.out 40000 1000 3 3
+Elapsed communication time = 5.556053 seconds
+[0m#mpirun -np 8 a.out 28000 1000 3 3
 rm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -246,7 +192,7 @@ mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/main.c -o
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc -acc -Minfo=accel ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o -o a.out
-mpirun -np 16 --map-by ppr:2:socket a.out 40000 1000 3 3
+mpirun -np 16 --map-by ppr:2:socket a.out 28000 1000 3 3
 [1;33m-------------------------------
 There are in total 4 devices  
 I am 0 and I use the device 0
@@ -281,20 +227,20 @@ I am 14 and I use the device 2
 -------------------------------
 I am 15 and I use the device 3
 [0m[1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 16, n_loc: 2500, rest: 2 
+Total matrix size: 28002, n_proc_tot: 16, n_loc: 1750, rest: 2 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.089675 seconds
+Elapsed initialisation time = 0.116055 seconds
 [0m[1;31m
-Elapsed computation time = 17.819228 seconds
+Elapsed computation time = 6.760033 seconds
 
-Elapsed compute time = 11.605358 seconds
+Elapsed compute time = 4.848008 seconds
 
-Elapsed communication time = 5.993134 seconds
-[0m#mpirun -np 16 a.out 40000 1000 3 3
+Elapsed communication time = 1.802960 seconds
+[0m#mpirun -np 16 a.out 28000 1000 3 3
 rm -f ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o a.out
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/data_distr_utility.c -o build/./src/data_distr_utility.c.o
@@ -305,7 +251,7 @@ mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/main.c -o
 mkdir -p build/./src/
 mpicc -fast -acc -Minfo=accel -I./src -I./src/headers -DNOPRINT -c src/general_utility.c -o build/./src/general_utility.c.o
 mpicc -acc -Minfo=accel ./build/./src/data_distr_utility.c.o ./build/./src/linearized_matrix_utility.c.o ./build/./src/main.c.o ./build/./src/general_utility.c.o -o a.out
-mpirun -np 32 --map-by ppr:2:socket a.out 40000 1000 3 3
+mpirun -np 32 --map-by ppr:2:socket a.out 28000 1000 3 3
 [1;33m-------------------------------
 There are in total 4 devices  
 I am 0 and I use the device 0
@@ -372,18 +318,18 @@ I am 30 and I use the device 2
 -------------------------------
 I am 31 and I use the device 3
 [0m[1;33m--------------------------------------------------------------------------
-Matrix size: 40000, # of iteration: 1000, Elements for checking =  Mat[3,3]
+Matrix size: 28000, # of iteration: 1000, Elements for checking =  Mat[3,3]
 --------------------------------------------------------------------------
 [0m[1;33m------------------------------------------------------------
-Total matrix size: 40002, n_proc_tot: 32, n_loc: 1250, rest: 2 
+Total matrix size: 28002, n_proc_tot: 32, n_loc: 875, rest: 2 
 ------------------------------------------------------------
 [0m[1;31m
-Elapsed initialisation time = 0.128845 seconds
+Elapsed initialisation time = 0.084868 seconds
 [0m[1;31m
-Elapsed computation time = 7.810470 seconds
+Elapsed computation time = 3.031680 seconds
 
-Elapsed compute time = 5.197462 seconds
+Elapsed compute time = 1.142280 seconds
 
-Elapsed communication time = 2.494697 seconds
-[0m#mpirun -np 32 a.out 40000 1000 3 3
+Elapsed communication time = 1.833140 seconds
+[0m#mpirun -np 32 a.out 28000 1000 3 3
 JOB FINISHED

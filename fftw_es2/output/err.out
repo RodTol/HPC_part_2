@@ -1,0 +1,28 @@
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:45:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:45:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:45:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:45:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:45:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:45:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
+src/diffusion.c: In function ‘main’:
+src/diffusion.c:45:17: warning: unused variable ‘end’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+                 ^~~
+src/diffusion.c:45:10: warning: unused variable ‘start’ [-Wunused-variable]
+   double start, end, start_tot, end_tot;
+          ^~~~~
