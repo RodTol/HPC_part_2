@@ -14,7 +14,7 @@ mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build
 mpirun -np 32 a.out
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;31mTotal time: -1687709007.014986991882 for 100 time steps
+[1;31mTotal time: 919.125449895859 for 100 time steps
 [0mrm -f data/*.dat
 rm -f images/*.gif
 rm -f images/*.png
@@ -31,7 +31,7 @@ mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build
 mpirun -np 64 a.out
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;31mTotal time: -1687709928.918195962906 for 100 time steps
+[1;31mTotal time: 600.446949005127 for 100 time steps
 [0mrm -f data/*.dat
 rm -f images/*.gif
 rm -f images/*.png
@@ -48,7 +48,7 @@ mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build
 mpirun -np 128 a.out
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;31mTotal time: -1687710513.774195909500 for 100 time steps
+[1;31mTotal time: 374.573275089264 for 100 time steps
 [0mrm -f data/*.dat
 rm -f images/*.gif
 rm -f images/*.png
@@ -65,5 +65,5 @@ mpicc build/src/diffusion.o build/src/fft_wrapper.o build/src/derivative.o build
 mpirun -np 256 a.out
 
 ----@[1;32mExecution ended with a succes![0m@----
-[1;31mTotal time: -1687710914.227957010269 for 100 time steps
+[1;31mTotal time: 255.415284872055 for 100 time steps
 [0mJOB FINISHED
