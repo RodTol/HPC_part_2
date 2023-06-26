@@ -1,9 +1,13 @@
+# Laplace Equation by Jacobi method
+[Here](./readme_assignment.md) you can find all the theorical information about the assignment and what are the objectives of this program
+
+
 ## Software Stack
-For the openACC solution I used:
+For the openACC solution I used the following M100 modules:
 ```
 module load hpc-sdk
 ```
-and for the MPI one:
+while for the MPI one:
 ```
 module load spectrum_mpi/
 ```
@@ -58,6 +62,14 @@ Code execution is severly slowed by the writing on file of the initial and final
 <figure>
   <img
   src="../images/jacobi_28.png"
+  alt="1 Node"
+  width="500" 
+  height="400" >
+</figure>
+
+<figure>
+  <img
+  src="../images/jacobi_28_openacc.png"
   alt="1 Node"
   width="500" 
   height="400" >
