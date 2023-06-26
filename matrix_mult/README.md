@@ -6,9 +6,9 @@ The objective of this assignment is to implement the matrix multiplication in 3 
 
 In all these cases, the matrices are distributed among one direction. The code is capable of calculate the optimal distribution among the n process, so every size of the matrices is acceptable.  
 The M100 computing nodes are equipped with 4 GPUs, each with 16 GB of VRAM. So, the maximum size of the problem should be:
-$$
+```math
 \sqrt\frac{\text{Total memory}}{\text{\#of matrices allocated * byte size of double}} = \sqrt\frac{4*16*10^9}{3*8} = 51639
-$$
+```
 NOTE: In order to simplify the debugging, the code will multiply a matrix of random doubles with the identity matrix of the same size.
 
 ## Software Stack
