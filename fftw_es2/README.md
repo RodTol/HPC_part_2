@@ -24,3 +24,26 @@ The user just need to launch:
 ```
 make run CORES=<number of process> flags=<info or debug for extra information>
 ```
+# Results
+|    | grid_size    |   n_proc_tot |    time |
+|---:|:-------------|-------------:|--------:|
+|  0 | 512x512x1024 |           32 | 919.125 |
+|  1 | 512x512x1024 |           64 | 600.447 |
+|  2 | 512x512x1024 |          128 | 374.573 |
+|  3 | 512x512x1024 |          256 | 255.415 |
+
+<figure>
+  <img
+  src="../images/fft2.png"
+  alt="1 Node"
+  width="500" 
+  height="400" >
+</figure>
+
+<figure>
+  <img
+  src="../images/fftvs.png"
+  alt="1 Node"
+  width="500" 
+  height="400" >
+</figure>
